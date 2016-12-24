@@ -165,21 +165,6 @@ String lastestMovieONeLine(List<Movie> movies) {
 }
 ```
 
-Recoverable exceptions
-
-#### Recoverable exceptions
-
-我个人不喜欢抛出异常来指示错误，但是如果你这样做，确保这个异常被检查，确保这个**异常被捕获到**。
-
-```java
-List<Movie> latestMovies() throws MoviesNotFoundException {
-    if (db.query().isEmpty()) {
-throw new MoviesNotFoundException();
-    }
-    [...]
-}
-```
-
 #### 避免创建不必要的对象
 
 一般来说，最好能重用对象而不是
