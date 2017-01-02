@@ -1,12 +1,14 @@
 # Android-QA
 1. [Effective Java for Android (cheatsheet)](/Effective.md)
 2. ​[管理在ViewGroup中的Touch Event](TouchEvent.md)
-
+3. [Android Context](Context.md)
+4. [RemoteViews](RemoteViews.md)
 * app 被杀掉进程后，是否还能收到广播的问题？
 
   自android 3.1开始，系统自动给所有intent添加了FLAG_EXCLUDE_STOPPED_PACKAGES，导致app处于停止状态就不能收到广播。要想处于停止状态的app收到广播，需要添加FLAG_INCLUDE_STOPPED_PACKAGES这个标记。这样的话，停止的app应该是收不到系统广播了
 
 * 列举java的集合和继承关系
+
 ```
 ├── Collection
 │   ├── List
@@ -91,3 +93,17 @@
      如果你往抽象类中添加新的方法，你可以给它提供默认的实现。因此你不需要改变你现在的代码。
 
      如果你往接口中添加方法，那么你必须改变实现该接口的类。
+  
+  * 描述handler机制的原理
+  android提供了Handler和Looper来满足线程间的通信。
+  Handler先进先出原则。Looper类用来管理线程内对象之间的消息交换(Message Exchange)
+    1. Looper：一个线程可以产生一个Looper对象，由它来管理此线程里的Message Queue(消息队列)
+    2. Handler：你可以构造Handler对象来与Looper沟通，以便push新消息到Message Queue里；或者接收Looper从Message Queue所送出来的消息。
+    3. Message Queue：用来存放线程放入的消息。
+    4. UI thread通常就是main thread，
+
+* Android中如何访问自定义ContentProvider
+
+  通过ContentProvider的Uri访问开放的数据。
+   1. ContentResolver对象通过Context提供的方法getContenResolver()来获得。
+   2. ContentResover提供了以下方法来操作：insert delete update query这些方法分别会调用ContenProvider中与之对应的方法并得到返回的结果。。
