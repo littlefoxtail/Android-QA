@@ -380,6 +380,93 @@ Java没有提供函数指针，但是可以用对象引用实现同样的功能�
 并同时扩展和实现接口。匿名类的客户端无法调用任何成员，除了从它的超类型中继承得到之外。它们必须
 保持简短————大约10行或者更少些————否则会影响程序的可读性。
 
+匿名类的一种常见用法
+1. 动态地创建函数对象。
+2. 创建过程对象
+3. 静态工厂方法的内部.
+
+局部类是四种嵌套类中用的最少的类。局部类与其他三种嵌套类的每一种都一些共同的属性。
+与成员类一样，局部类有名字，可以被重复地使用。与匿名类一样，只有当局部类是在非静态环境中
+定义的时候，才有外围实例，它们也不能包含静态成员。与匿名类一样，它们必须非常简短，以便不会影响到可读性。
+
+简而言之，有四种不同的嵌套类.
+如果一个嵌套类需要在单个方法之外仍然是可见的，或者它太长了，不适合于放在方法内部，就应该使用成员类。
+如果成员类的每个实例都需要一个指向其外围实例的引用，就要把成员类做成非静态的；否则，就做成静态的。
+假设这个嵌套类属于一个方法的内部，如果你只需要在一个地方创建实例，并且已经有了一个预置的类型可以说明这个类
+的特征，就要把它做成匿名类；否则，就做成局部类。
+
+# 25.列表优先于数组
+数组和泛型相比，有两个重要的不同点。
+1. 数组是协变的(convariant)，其实只是表示如果Sub为Super的子类型，那么数组类型Sub[]就是Super的子类型。
+相反，泛型则是不可变的(invariant)：对于任意两个不同的类型Type1和Type2，List<Type1>既不是List<Type2>的
+子类型，也不是List<Type2>的超类型。
+2. 数组与泛型之间的第二区别在于，数组是**具体化**。因此数组会在运行时才知道并检查它们的元素类型约束。
+泛型则是通过擦除(erasure)来实现的。因此泛型只在编译时强化它们的类型信息，并在运行时丢弃它们的元素信息。
+
+总而言之，数据和泛型有着非常不同的类型规则。数组是协变且可以具体化；泛型是不可变的且可以被擦除。因此，数组提供
+了运行时的类型安全，但是没有编译时的类型安全，反之，对于泛型也一样。一般来说，数组和泛型不能很好的混合使用。
+
+# 26.优先考虑类型安全的异构容器
+泛型最常用于集合，如Set和Map，以及单元素的容器，如ThreadLocal和AtomicReference。
+在这些用法中，它都充当被参数化了的容器。这样就限制你每个容器只能有固定数据的参数类型。
+这样就限制你每个容器只能有固定数目的类型参数。
+
+但是，有时候你会需要更多的灵活性。例如,数据库行可以有任意多的列，如果能以类型安全的方式访问所有列就好了。
+这种想法就是将键(key)进行参数化而不是容器(container)参数化。然后将参数化的键提交给容器，来插入或者获取值。
+用泛型系统来确保值的类型与它的键相符。
+
+例如:
+
+```java
+public class Favorites {
+    public <T> void putFavorite(Class<T> type, T instance);
+    public <T> T getFavorite(Class<T> type);
+}
+```
+
+Favorites实例是`类型安全的(typesafe)`的：当你向它请求String的时候，它从来不会返回Integer给你，同时它也是异构的
+(*heterogeneous*)：不像普通的map，它的所有键都是不同类型的，因此，我们将Favorites称为
+`类型安全的异构容器(typesafe heterogeneous container)`。
+
+Favorites的完整实现如下：
+
+```java
+public class Favorites {
+    private Map<Class<?>, Object> favorites = 
+    new HashMap<Class<?>, Object>();
+
+    public <T> void putFavorite(Class<T> type, T instance) {
+        if (type == null)
+            throw new NullPointerException("Type is null")
+        favorites.put(type, instance);
+    }    
+
+    public <T> T getFavorite(Class<T> type){
+        return type.cast(favorites.get(type));
+    }
+}
+```
+
+1. 每个Favorites实例都得到一个称作favorites的私有Map<Class<?>, Object>的支持。你可能认为无限通配符类型的关系，将不能把任何东西放进这个
+Map中，但事实正好相反。要注意的是通配符了下的嵌套的：它不是属于通配符类型的Map的类型，而是它的键的类型。
+由此可见，每个键都可以有一个不同的参数化类型：一个可以是Class<String>，接下来是Class<Integer>
+等等。异构就是从这里来的。
+
+2. favorites Map的值类型知识Object，换句话说，Map并不能保证键与值之间的类型关系，即不能保证每个值的类型都与键的类型相同。
+
+
+Favorites类有两种局限性值得注意。首先，恶意的客户端可以很轻松地破坏Favorites实例的类型安全。
+第二种局限在于它不能用在不可具体化的(non-reifiable)类型中。换句话说，你可以保存最喜爱的String和
+String[]，但不能保存最喜爱的List<String>。如果试图保存最喜爱的List<String>，程序就不能进行编译
+
+注解API广泛利用了有限制的类型令牌
+
+```java
+public <T extend Annotation>
+    T getAnnotation(Class<T> annotationType)
+```
+参数annotationType是一个表示注解类型的有限制的类型令牌。如果元素有这种类型的注解，该方法就
+将它返回，如果没有，则返回null。被注解的元素本质上是个类型安全的异构容器，容器的键属于注解类型。
 
 
 
