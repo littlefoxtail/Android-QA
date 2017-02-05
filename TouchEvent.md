@@ -122,6 +122,21 @@ public class MainActivity extends Activity {
 ```
 
 触摸事件有下面一系列动作：
+
+|!-----!|!-----!|
+| 动作 | 表示 |
+|ACTION_DOWN|表示用户开始触摸|
+
+|   **动作**   | **描述** |
+| :------------: | :----: |
+|     ACTION_DOWN   |  表示用户开始触摸  |
+|     ACTION_MOVE   |  表示用户在移动  |
+|     ACTION_UP   |  表示用户抬起了手指  |
+|     ACTION_CANCEL   |  表示手势被取消了  |
+|     ACTION_OUTSIDE   |  表示用户触碰超出了正常的UI边界  |
+|     ACTION\_POINTER\_DOWN   |  有一个非主要的手指按下了  |
+|     ACTION\_POINTER\_UP   |  有一个非主要的手指抬起来了  |
+
 ACTION\_DOWN->ACTION\_MOVE->ACTION\_MOVE...->ACTION_UP.
 
 事件的大概流程：事件接收层(底层：硬件和软件，一般不需要了解)--->窗口管理系统WindowManagerServicer-->因为
@@ -129,12 +144,25 @@ ACTION\_DOWN->ACTION\_MOVE->ACTION\_MOVE...->ACTION_UP.
 ViewRoot类的dispatchTouchEvent，给当前活动窗口的根view-->根view开始dispatchTouchEvent事件到具体view。
 
 1. 如果是具体view，（非ViewGroup），如TextView等，这种情况下根本不存在，因为每个窗口，肯定有个
-rootview，及viewGroup
+    rootview，及viewGroup
 
 2. 如果是ViewGroup，比如LinearLayout等。
-  * 如果是down事件，开始下面逻辑
+    * 如果是down事件，开始下面逻辑。
+    * (-递归开始点-)首先调用viewGroup的dispatchTouchEvent方法，如果是down事件，则清空上次
+    处理该事件的对象（为了处理MOVE之类的事件，做的缓存）mMotionTarget= null;
+    * 调用onInterceptTouchEvent方法，这个方法只有ViewGroup类有，具体view没有，该方法的作用
+    是判断是否需要拦截该消息，如果返回的是true，那么消息传递结束，调用该view对象的onTouchEvent方法。
+    如果返回的是false，说明该view没有消费事件，继续往下走。
+    * 因为触摸事件是窗口坐标值，所以需要将坐标值转换为view自己的坐标体系。
+    * 转换结束后，使用for循环遍历，该view的所有子view，读取子view的坐标体系，即子view所占的大小，是个
+    Rect对象，上下左右，拿到这个值后，根据上面转换好的坐标，判断点击的坐标是否包含在当前子view中，如果不包含
+    ，直接开始下一个子view
+    * 如果坐标包含在子view中，则调用子view的dispatchTouchEvent，如果子view还是ViewGroup类型的，
+    那么开始从上面标有（递归开始点）处递归调用，如果是具体view，则调用具体view的dispatchTouchEvent，
+    这个方法比较简单，首先判断是否通过setTouchEventListener设置值，如果设置了，那么调用onTouch方法，
+    如果该方法返回的是true，则直接返回，不在调用该view的onToucheEvent方法，如果返回false，则调用该
+    view的onTouchEvent方法。并把该方法当做dispatchTouchEvent的返回者返回。
 
-  * (-递归开始点-)首先调用viewGroup的dispatchTouchEvent方法，如果是down事件，则清空上次
-  处理该事件的对象（为了处理MOVE之类的事件，做的缓存）mMotionTarget= null;
 
-  * 调用onInterceptTouchEvent方法，这个方法只有ViewGroup类有，具体view没有
+
+
