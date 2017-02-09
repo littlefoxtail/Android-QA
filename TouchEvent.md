@@ -121,47 +121,61 @@ public class MainActivity extends Activity {
 }
 ```
 
-触摸事件有下面一系列动作：
+# 一、概述
+Android的事件分发是遵循类似责任链模式的，就是从根节点开始逐层往里分发事件，直到找到责任人（即响应事件的View）或找不到责任人事件“丢弃”为止。
 
-|!-----!|!-----!|
-| 动作 | 表示 |
-|ACTION_DOWN|表示用户开始触摸|
+# 二、触摸事件有下面一系列动作：
 
 |   **动作**   | **描述** |
 | :------------: | :----: |
 |     ACTION_DOWN   |  表示用户开始触摸  |
 |     ACTION_MOVE   |  表示用户在移动  |
 |     ACTION_UP   |  表示用户抬起了手指  |
-|     ACTION_CANCEL   |  表示手势被取消了  |
+|     ACTION_CANCEL   |  表示手势被取消了（比如当你按下了按钮，然后移动到别处（按钮区域外）抬起，就会识别为事件取消）  |
 |     ACTION_OUTSIDE   |  表示用户触碰超出了正常的UI边界  |
 |     ACTION\_POINTER\_DOWN   |  有一个非主要的手指按下了  |
 |     ACTION\_POINTER\_UP   |  有一个非主要的手指抬起来了  |
 
 ACTION\_DOWN->ACTION\_MOVE->ACTION\_MOVE...->ACTION_UP.
 
+# 三、对Touch事件的基本认知
+* 一个事件只能被消费(consume)一次，事件消费了就不再传递。
+* 一个事件只能有一个责任人
+* 事件以按下为起点，谁消费了按下事件，后续的事件就交给谁处理。
+* View可以自己处理事件，也可以分发给子View处理。
+
+# 四、谁来处理Touch事件
+![View](View)
+
+# 五、怎么处理Touch事件
 事件的大概流程：事件接收层(底层：硬件和软件，一般不需要了解)--->窗口管理系统WindowManagerServicer-->因为
 所有的窗口都是由他创建的，所以WMS知道当前活动的窗口是谁，WMS将事件交给当前活动窗口--->当前活动窗口拿到事件，调用
 ViewRoot类的dispatchTouchEvent，给当前活动窗口的根view-->根view开始dispatchTouchEvent事件到具体view。
 
-1. 如果是具体view，（非ViewGroup），如TextView等，这种情况下根本不存在，因为每个窗口，肯定有个
-    rootview，及viewGroup
+从根布局到子布局，即事件先传递给根布局，然后在传递给子布局
 
-2. 如果是ViewGroup，比如LinearLayout等。
-    * 如果是down事件，开始下面逻辑。
-    * (-递归开始点-)首先调用viewGroup的dispatchTouchEvent方法，如果是down事件，则清空上次
-    处理该事件的对象（为了处理MOVE之类的事件，做的缓存）mMotionTarget= null;
-    * 调用onInterceptTouchEvent方法，这个方法只有ViewGroup类有，具体view没有，该方法的作用
-    是判断是否需要拦截该消息，如果返回的是true，那么消息传递结束，调用该view对象的onTouchEvent方法。
-    如果返回的是false，说明该view没有消费事件，继续往下走。
-    * 因为触摸事件是窗口坐标值，所以需要将坐标值转换为view自己的坐标体系。
-    * 转换结束后，使用for循环遍历，该view的所有子view，读取子view的坐标体系，即子view所占的大小，是个
-    Rect对象，上下左右，拿到这个值后，根据上面转换好的坐标，判断点击的坐标是否包含在当前子view中，如果不包含
-    ，直接开始下一个子view
-    * 如果坐标包含在子view中，则调用子view的dispatchTouchEvent，如果子view还是ViewGroup类型的，
-    那么开始从上面标有（递归开始点）处递归调用，如果是具体view，则调用具体view的dispatchTouchEvent，
-    这个方法比较简单，首先判断是否通过setTouchEventListener设置值，如果设置了，那么调用onTouch方法，
-    如果该方法返回的是true，则直接返回，不在调用该view的onToucheEvent方法，如果返回false，则调用该
-    view的onTouchEvent方法。并把该方法当做dispatchTouchEvent的返回者返回。
+# 六、View中对事件的处理
+在View中定义了跟事件处理相关的两个重要函数
+![dispatchTouchEvent](view_dispatchTouchEvent)
+
+![onTouchEvent](view_onTouchEvent)
+
+# 七、ViewGroup中对事件的处理
+ViewGroup是View的子类，所以自然继承了View的上述两个方法。ViewGroup还重写了`dispatchTouchEvent`方法。
+ViewGroup包含了多个View，事件分发时总要先判断事件落在哪个View中，不像非ViewGroup那样简单。
+
+# 八、Activity对Touch事件的处理
+Activity持有一个Window，而Window持有一个DecorView。而事件是至上而下分发的，所以Activity对事件拥有最高的
+优先处理权，它可以决定是否要将事件分发给Window。
+
+默认情况下`dispatchTouchEvent`返回值是true，分发的；当没有任何的View来处理触摸事件时，会系统调用`onTouchEvent`方法。
+
+# 九、总结
+1. 事件的处理是至上而下的，从Activity到ViewGroup再到ViewGroup。
+2. 理清事件处理关键在onDispatchTouchEvent方法。在这个方法中会做一个抉择：是要直接分发给子View处理，或是先交给自己onTouchEvent方法处理后再抉择。
+3. ViewGroup作为容器类View，对事件的处理多了onInterceptTouchEvent这个阻断方法，其实我们只要看onDispatchTouchEvent就行了，因为它会在这个方法中调用onInterceptTouchEvent做是否阻断的判定。
+4. 返回true，通常表示处理或消费了事件，不再传递。
+
 
 
 
