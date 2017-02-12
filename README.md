@@ -5,6 +5,8 @@
 4. [RemoteViews](RemoteViews.md)
 5. [Get与Post的区别](GetAndPost.md)
 6. [handler机制](handler.md)
+7. [webView的内存和性能优化](webView.md)
+8. [View的绘制过程](measure_layout_draw.md)
 * app 被杀掉进程后，是否还能收到广播的问题？
 
   自android 3.1开始，系统自动给所有intent添加了FLAG_EXCLUDE_STOPPED_PACKAGES，导致app处于停止状态就不能收到广播。要想处于停止状态的app收到广播，需要添加FLAG_INCLUDE_STOPPED_PACKAGES这个标记。这样的话，停止的app应该是收不到系统广播了
@@ -96,13 +98,13 @@
 
      如果你往接口中添加方法，那么你必须改变实现该接口的类。
   
-  * 描述handler机制的原理
-  android提供了Handler和Looper来满足线程间的通信。
-  Handler先进先出原则。Looper类用来管理线程内对象之间的消息交换(Message Exchange)
-    1. Looper：一个线程可以产生一个Looper对象，由它来管理此线程里的Message Queue(消息队列)
-    2. Handler：你可以构造Handler对象来与Looper沟通，以便push新消息到Message Queue里；或者接收Looper从Message Queue所送出来的消息。
-    3. Message Queue：用来存放线程放入的消息。
-    4. UI thread通常就是main thread，
+* 描述handler机制的原理
+android提供了Handler和Looper来满足线程间的通信。
+Handler先进先出原则。Looper类用来管理线程内对象之间的消息交换(Message Exchange)
+  1. Looper：一个线程可以产生一个Looper对象，由它来管理此线程里的Message Queue(消息队列)
+  2. Handler：你可以构造Handler对象来与Looper沟通，以便push新消息到Message Queue里；或者接收Looper从Message Queue所送出来的消息。
+  3. Message Queue：用来存放线程放入的消息。
+  4. UI thread通常就是main thread，
 
 * Android中如何访问自定义ContentProvider
 
