@@ -26,4 +26,103 @@ int childHeightMeasureSpec = getRootMeasureSpec(mHeight, lp.height);
 performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
 ```
 
-## View绘制流程第一步：递归measure
+## measure测量流程
+### ViewGroup的测量过程
+由于DecodeView继承自FrameLayout，是PhoneWindow的一个内部类，而FrameLayout没有measure方法，因此调用的是父类View
+的measure方法，
+```java
+public final void measure(int widthMeasureSpec, int heightMeasureSpec) {
+        boolean optical = isLayoutModeOptical(this);
+        if (optical != isLayoutModeOptical(mParent)) {
+        ...
+        if ((mPrivateFlags & PFLAG_FORCE_LAYOUT) == PFLAG_FORCE_LAYOUT ||
+                widthMeasureSpec != mOldWidthMeasureSpec ||
+                heightMeasureSpec != mOldHeightMeasureSpec) {
+            ...
+            if (cacheIndex < 0 || sIgnoreMeasureCache) {
+                // measure ourselves, this should set the measured dimension flag back
+                onMeasure(widthMeasureSpec, heightMeasureSpec);
+                mPrivateFlags3 &= ~PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT;
+            } 
+        ...
+}
+```
+
+最后会调用super.onMeasure， onMeasure不同的ViewGroup有着不同的实现，但大体是对每个子View进行遍历，根据ViewGroup的
+MeasureSpec及子View的layoutParams来确定自身的测量宽高，然后根据所有子View的测量宽高信息再确定父容器的测量宽高。
+
+### View的测量过程
+ViewGroup提到measureChildWithMargin方法，它接收的主要参数是子View以及父容器的MeasureSpec，所以它的作用就是对子View进行测量，
+ViewGroup#measureChildWithMargins:
+|子View的LayoutParams\父容器SpecMode|EXACTLY|AT_MOST|UNSPECIFIED|
+| ---- | ---- | ---- | ---- |
+|精确值(dp)|EXACTLY childSize|EXACTLY childSize|EXACTLY childSize|
+|match_parent|EXACTLY parentSize|AT\_MOST parentSize|UNSPECIFIED 0|
+|wrap_content|AT_MOST parentSize|AT\_MOST parentSize|UNSPECIFIED 0|
+
+通过获取子View的MeasureSpec获得后，执行child.measure，绘制流程已经从ViewGroup转移到子View中了，
+在measure方法中会调用onMeasure方法，
+```java
+protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),
+        getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));
+}
+```
+
+### 总结
+测量始于DecorView，通过不断的遍历子View的measure方法，根据ViewGroup的MeasureSpec及子View的LayoutParams来决定
+子View的MeasureSpec，进一步获取子View的测量宽高，然后逐层返回，不断保存ViewGroup的测量高度。
+
+## layout流程
+### ViewGroup的布局流程
+performLayout方法进行layout流程
+通过对mLeft、mTop、mRight、mBottom这四个值进行了初始化，对于每一个View，包括ViewGroup来说，以上四个值保存了
+View的位置信息，所以这四个值是最终宽高。也即是说，如果要得到View的位置信息，那么就应该在layout方法完成后调用
+getLeft(),getTop()等方法来取得最终宽高，如果是在此之前调用相应的方法，只能得到0的结果，所以一般我们是在onLayout
+方法中获取View的宽高信息。
+
+首先先获取父容器的padding值，然后遍历其每一个子View，  
+根据子View的layout_gravity属性、子View的测量宽高、父容器的padding值、来确定子View的布局参数，  
+然后调用child.layout方法，把布局流程从父容器传递到子元素
+
+### 子View的布局流程
+子View的布局流程也很简单。如果子View是一个ViewGroup,那么会重复以上步骤，如果是一个View，那么会直接调用  
+View#layout方法，根据以上分析，在该方法内部会设置view的四个布局参数，接着调用onLayout方法，
+View#onLayout方法是一个空实现，主要作用是在我们自定义View中重写该方法，实现自定义的布局逻辑。
+
+### 总结
+View的布局流程就已经全部分析完了。可以看出，布局流程的逻辑相比测量流程来说，简单许多，  
+获取一个View的测量宽高是比较复杂的，而布局流程则是根据已经获得的测量宽高进而确定一个View的四个位置参数
+
+## draw流程
+![Draw](draw.png)
+绘制流程将决定View的样子，一个View该显示什么由绘制流程完成。
+### ViewRootImpl#performDraw
+
+里面又调用了ViewRootImpl#draw方法，并传递了fullRedrawNeeded参数。
+该参数由mFullRedrawNeeded成员变量获取，它的作用是判断是否重新绘制全部视图，如果是第一次绘制视图，
+那么显示应该绘绘制所有的视图，如果由于某些原因，导致了视图重绘，那么就没有必要绘制所有视图。
+
+### ViewRootImpl#draw
+首先获取了mDirty值，该值保存了需要重绘区域的信息，关于视图绘制。根据fullRedrawNeeded来判断是否需要
+重置dirty区域，最后调用了ViewRootImpl#drawSoftware方法，并把相关参数传递进去，包括dirty区域
+
+首先实例化了Canvas对象，然后锁定该canvas的区域，由dirty区域决定，接着对canvas进行一系列的属性赋值，
+最后调用了mView.draw方法，前面分析过mView就是DecorView，也就是说从DecorView开始绘制。
+
+### View的绘制流程
+由于ViewGroup没有重写draw方法，因此所有的View都是调用View#draw
+绘制流程的六个步骤：
+1. 对View的背景进行绘制
+2. 保存当前的图层信息
+3. 绘制View的内容
+4. 对View的子View进行绘制
+5. 绘制View的褪色的边缘，类似于阴影效果。
+6. 绘制View的装饰
+
+
+
+
+
+
+

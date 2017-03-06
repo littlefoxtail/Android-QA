@@ -66,7 +66,7 @@ class Movie {
 
 如果类的构造器或者静态工厂中具有多个参数，设计这种累时，**Builder**模式就是种不错的选择，特别是当大多数参数都是可选的手。与重叠构造器模式比易于阅读和编写，构造器也比JavaBeans更加安全。
 
-```
+```java
 class Movie {
 
     static Builder newBuilder() {
