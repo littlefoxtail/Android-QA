@@ -9,6 +9,28 @@
 7. [webView的内存和性能优化](webView.md)
 8. [View的绘制过程](measure_layout_draw.md)
 9. [Android下的网络通信](network.md)
+10. [Android多线程](threading.md)
+11. [排序算法](sort.md)
+
+* 接口的意义
+  规范、扩展、回调
+
+* 抽象类的意义
+  为其子类提供一个公共类型 封装子类中得重复内容 定义抽象方法，子类虽然有不同的实现 但是定义是一致的
+
+* 内部类的作用
+  1. 内部类可以用多个实例，每个实例都有自己的状态信息，并且与其他外围对象的信息相互独立。
+  2. 在单个外围类中，可以让多个内部类以不同的方式实现同一个接口，或者继承同一个类
+  3. 创建内部类对象的时刻并不依赖于外围类对象的创建
+  4. 内部类并没有令人迷惑的“is-a”关系，他就是一个独立的实体。
+  5. 内部类提供了更好的封装，除了该外围类，其他类不能访问
+
+* 父类的静态方法能否被子类重写
+  不能
+  子类继承父类后，用相同的静态方法和非静态方法，这时非静态方法覆盖父类中的方法（即方法重写），
+  父类的该静态方法被隐藏（如果对象是父类则调用该隐藏的方法），另外子类可继承父类的静态与非静态方法。
+  
+
 * app 被杀掉进程后，是否还能收到广播的问题？
 
   自android 3.1开始，系统自动给所有intent添加了FLAG_EXCLUDE_STOPPED_PACKAGES，导致app处于停止状态就不能收到广播。要想处于停止状态的app收到广播，需要添加FLAG_INCLUDE_STOPPED_PACKAGES这个标记。这样的话，停止的app应该是收不到系统广播了
@@ -164,5 +186,49 @@ Handler先进先出原则。Looper类用来管理线程内对象之间的消息�
   4. 服务器进程处理用户请求，并通过Binder驱动返回处理结果给客户端的服务器代理对象。
   5. 客户端收到的服务端的返回结果。
   ![image](./bundlework.png)
+
+* AIDL
+  * AIDL的工作流程
+    AIDL文件的本质是系统为我们提供的一种快速实现Binder工具而已，所以AIDL的工作流程可以绕到Binder进行说明。
+
+  * AIDL的使用方法
+    * 服务端
+      服务端首先要创建一个远程Service用来监听客户端的连接请求，然后创建一个AIDL文件，将暴露给护短的
+      接口在这个AIDL文件中声明，最后在Service中实现这个AIDL接口即可
+    * 客户端
+      首先绑定服务端Service，绑定成功后，将服务端返回的Binder对象转化成AIDL接口所属的类型，接着就可以
+      调用AIDL中的方法了。
+    * AIDL文件支持的数据类型
+      * 基本数据类型
+      * String和CharSequence
+      * List:只支持ArrayList，里面的每个元素必须被AIDL支持
+      * Map：只支持HashMap，里面的每个元素都必须被AIDL支持，包括key和value
+      * Parcelable:所有实现了Parcelable接口的对象
+      * AIDL：所有AIDL接口本身都可以在AIDL文件中使用
+    * Parcelable和AIDL对象无论是否和当前AIDL文件位于同一个包内，都要显示import进来
+    * 服务端实现需要注意并发处理，可以借助Copy-On-Write容器
+    * 服务端实现监听时，监听存储容器使用RemoteCallbackList，系统专门提供用来删除跨进程listener的接口
+    * AIDL的包结构在服务端和客户端要保持一致，否则出错，因为客户端要反序列号服务端中和AIDL接口相关
+      所有类，如果累的完整路径不一样的话，就无法成功反序列化。
+    * AIDL调用服务端方法后，会挂起等待，如果服务端进行执行大量耗时操作，会导致客户端ANR。解决方法：
+      客户端调用放在非UI线程即可。
+  * 实现一个Messenger
+    基于消息的进程间通信方式
+    * 服务端进程
+      需要在服务端创建一个Service来处理客户端的连接请求，同时创建一个Handler并通过它来创建一个Messenger对象，
+      然后在Service在onBind中返回这个Messenger对象，然后在Service的onBind中返回这个Messenger对象底层
+      的Binder即可。
+    * 客户端进程
+      客户端进程中，首先绑定服务端的Service，绑定成功后用服务端返回的IBinder对象创建一个Messenger，
+      通过这Messenger就可以向服务端发送消息，发送消息的类型为Messger对象。如果需要服务端能够回应客户端，
+      就和服务端一样，我们还需要创建一个Handler并创建一个新的Messenger,并把这个Messenger对象通过Message
+      的replyTo参数传递给服务端，服务端通过这个replyTo参数就可以回应客户端。
+
+      ![image](./messenger.png)
+
+
+    
+      
+
 
 

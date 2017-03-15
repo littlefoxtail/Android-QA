@@ -20,3 +20,17 @@ socket的主要特点有数据丢失率低，使用简单易于移植。
 
 ### 2.2 UDP通信模型
 ![udp](./udp_model.png)
+
+# Socket基本实现原理
+## 基于TCP协议的Socket
+服务器端首先声明一个ServerSocket对象并且指定端口号，然后调用Serversocket的accept()方法接收客户端的数据。accept方法在没有数据进行接收
+处于堵塞状态。一旦接收到数据，通过inputStream读取接收的数据。
+客户端创建一个Socket对象，指定服务器端ip地址和端口号(Socketsocket=newSocket("172.168.10.108":8080);)，通过inputstream读取，获取
+服务器发出的数据，最后将要发送的数据写入到outputstream即可进行TCP协议的socket数据传输。
+
+## 基本UDP协议的数据传输
+服务器端首先创建一个DatagramSocket对象，并且指点监听的端口。接下来创建一个空的DatagramSocket对象用于接收数据
+（bytedata[] = newbyte[1024];DatagramSocketpacket=newDatagramSocket(data,data.length))，使用DatagramSocket
+的receive方法接收客户端发送的数据，receive()与serversocket的accepet类似，在没有数据进行接收的处于堵塞状态。
+
+
