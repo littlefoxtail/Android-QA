@@ -10,7 +10,7 @@
 8. [View的绘制过程](measure_layout_draw.md)
 9. [Android下的网络通信](network/network.md)
 10. [Android多线程](thread/threading.md)
-11. [排序算法](sort.md)
+11. [排序算法](sort/sort.md)
 
 * 接口的意义
   规范、扩展、回调
