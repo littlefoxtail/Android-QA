@@ -75,6 +75,7 @@ MeasureSpec及子View的layoutParams来确定自身的测量宽高，然后根�
 ### View的测量过程
 ViewGroup提到measureChildWithMargin方法，它接收的主要参数是子View以及父容器的MeasureSpec，所以它的作用就是对子View进行测量，
 ViewGroup#measureChildWithMargins:
+
 |子View的LayoutParams\父容器SpecMode|EXACTLY|AT_MOST|UNSPECIFIED|
 | ---- | ---- | ---- | ---- |
 |精确值(dp)|EXACTLY childSize|EXACTLY childSize|EXACTLY childSize|
