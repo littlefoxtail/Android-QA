@@ -1,6 +1,27 @@
 任何一控件其实都是直接或间接继承自View实现的，所以说View应该具有相同的绘制流程与机制才能显示到屏幕上
 每一个View的绘制过程都必须经历三个最主要的过程，也就是measure、layout和draw。
 
+```
+├── View
+│   ├── measure(int, int)
+|   ├── onMeasure(int, int)
+|   ├── layout(int, int, int, int)
+|   ├── onLayout(boolean, int, int, int, int)
+|   ├── onDraw(Canvas)
+|   ├── draw(Canvas)
+|   ├── draw(Canvas, ViewGroup, long)
+
+├── ViewGroup
+│   ├── layout(int, int, int, int) //ViewGroup实现了
+│   ├── onLayout(boolean, int, int, int, int) //viewGroup是一个抽象类 需要实现
+```
+
+## 初始化工作
+Activity方法onCreate里执行了setContentView只有View如何显示到屏幕上的。
+1. Activity.setContentView->PhoneWindow.setContentView最终会生成一个DecorView对象
+2. DecoreView是PhoneWindow类的内部类，继承自FrameLayout，所以调用Activity方法
+
+
 ## 开始
 整个View树的绘图流程是在ViewRootImpl类的performTraversals()方法，该函数做的执行过程主要是根据之前设置的状态，判断是否重新计算视图大小
 (measure)、是否重新放置视图的位置(layout)、以及是否重绘(draw)，其核心也就是判断来选择顺序执行这三个方法中的哪个。

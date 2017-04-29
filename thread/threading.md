@@ -98,3 +98,6 @@ Android系统会根据当前运行的可见的程序和不可见的后台程序�
 `THREAD_PRIORITY_LESS_FAVORABLE` 或者 `THREAD_PRIORITY_MORE_FAVORABLE` 来控制线程的优先级。
 
 Android系统里面的AsyncTask与IntentService已经默认帮助我们设置线程的优先级。
+
+
+## Android多线程知识总结——源码分析
