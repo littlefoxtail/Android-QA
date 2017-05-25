@@ -3,13 +3,14 @@
 
 ```
 ├── View
-│   ├── measure(int, int)
-|   ├── onMeasure(int, int)
-|   ├── layout(int, int, int, int)
-|   ├── onLayout(boolean, int, int, int, int)
-|   ├── onDraw(Canvas)
-|   ├── draw(Canvas)
-|   ├── draw(Canvas, ViewGroup, long)
+│   ├── measure(int, int) 测量view多大，父提供参数，该方法会调用onMeasure(int,int)
+|   ├── onMeasure(int, int) 此方法可以被覆盖，子类有责任测量宽高
+|   ├── layout(int, int, int, int) 布局定位，除了ViewGroup实现了,其他并不需要
+|   ├── onLayout(boolean, int, int, int, int) 包含子的派生类需要实现，并且每个子要调用layout方法
+|   ├── onDraw(Canvas) 绘制需要重写的方法
+|   ├── draw(Canvas) 绘制流程的主方法，一般不重写
+|   ├── draw(Canvas, ViewGroup, long) 该方法是ViewGroup.drawChild调用的，用于每个子类进行绘制自身
+|   ├── dispatchDraw(Canvas) 绘制流程用于绘制子views，会被派生类重载，在children绘制之前。
 
 ├── ViewGroup
 │   ├── layout(int, int, int, int) //ViewGroup实现了
@@ -21,24 +22,44 @@ Activity方法onCreate里执行了setContentView只有View如何显示到屏幕�
 1. Activity.setContentView->PhoneWindow.setContentView最终会生成一个DecorView对象
 2. DecoreView是PhoneWindow类的内部类，继承自FrameLayout，所以调用Activity方法
 
+```
+ViewRootImpl->performTraversals->performMeasure->performLayout->
+performDraw
+
+performMeasure->view.measure->view.onMeasure
+performLayout->view.layout->view.onLayout
+performDraw->view.draw->view.onDraw
+```
 
 ## 开始
 整个View树的绘图流程是在ViewRootImpl类的performTraversals()方法，该函数做的执行过程主要是根据之前设置的状态，判断是否重新计算视图大小
 (measure)、是否重新放置视图的位置(layout)、以及是否重绘(draw)，其核心也就是判断来选择顺序执行这三个方法中的哪个。
 
-LayoutParams:
-LayoutParams are used by views to tell their parents how they want to be
-
-MeasureSpec:
-A MeasureSpec encapsulates the layout requirements passed from parent to child.
-
 MeasureSpec并不是指View的测量宽高，MeasureSpec作用在于：在Measure流程中，系统会将
 View的LayoutParams根据父容器所施加的规则转换成对应的MeasureSpec，
 然后在onMeasure方法中根据这个MeasureSpec来确定View的测量宽高。
+* MeasureSpec数值（数值1080(二进制为: 1111011000)为例）
 
-> UPSPECIFIED : 父容器对于子容器没有任何限制,子容器想要多大就多大  
-EXACTLY: 父容器已经为子容器设置了尺寸,子容器应当服从这些边界,不论子容器想要多大的空间。  
-AT_MOST：子容器可以是声明大小内的任意大小
+|模式名称|模式数值(高2位)|实际数值(低30位)|
+|---|---|----|
+|UPSPECIFIED|00|000000000000000000001111011000|
+|EXACTLY|01|000000000000000000001111011000|
+|AT_MOST|10|000000000000000000001111011000|
+* View.MeasureSpec:
+
+|模式|二进制数值|描述|
+|---|---|----|
+|UPSPECIFIED|00|默认值，父控件没有给子view任何限制，子View可以设置为任意大小|
+|EXACTLY|01|表示父控件已经确切的指定了子View的大小|
+|AT_MOST|10|表示子View具体大小没有尺寸限制，但是存在上限，上限一般为父View大小|
+
+* 上面的测量模式跟`wrap_content`、`match_parent`以及写成固定的尺寸关系
+
+|对应关系|描述|
+|---|---|
+|`match_parent->EXACTLY`|怎么理解呢？match_parent就是要利用父View给我们提供的所有剩余空间，而父View剩余空间是确定的，也就是这个测量模式的整数里面存放的尺寸。  |
+|`wrap_content->AT_MOST`|怎么理解：就是我们想要将大小设置为包裹我们的view内容，那么尺寸大小就是父View给我们作为参考的尺寸，只要不超过这个尺寸就可以啦，具体尺寸就根据我们的需求去设定| 
+|`固定尺寸（如100dp）--->EXACTLY`|用户自己指定了尺寸大小，我们就不用再去干涉了，当然是以指定的大小为主啦|
 
 ```java
 int childWidthMeasureSpec = getRootMeasureSpec(mWidth, lp.width);
@@ -143,6 +164,35 @@ View的布局流程就已经全部分析完了。可以看出，布局流程的�
 6. 绘制View的装饰
 
 
+### 补充章节
+#### 确定View大小（onSizeChanged）
+**Q: 在测量完View并使用setMeasuredDimension函数之后View的大小基本上已经确定了，那么为什么还要再次确定View的大小呢？**
+
+**A: 这是因为View的大小不仅由View本身控制，而且受父控件的影响，所以我们在确定View大小的时候最好使用系统提供的onSizeChanged回调函数。**
+
+
+### 重点知识梳理
+
+
+### 自定义View分类
+
+> PS ：实际上ViewGroup是View的一个子类。
+
+| 类别        | 继承自                 | 特点      |
+| --------- | ------------------- | ------- |
+| View      | View SurfaceView 等  | 不含子View |
+| ViewGroup | ViewGroup xxLayout等 | 包含子View |
+
+### 自定义View流程：
+
+| 步骤   | 关键字           | 作用                           |
+| ---- | ------------- | ---------------------------- |
+| 1    | 构造函数          | View初始化                      |
+| 2    | onMeasure     | 测量View大小                     |
+| 3    | onSizeChanged | 确定View大小                     |
+| 4    | onLayout      | 确定子View布局(自定义View包含子View时有用) |
+| 5    | onDraw        | 实际绘制内容                       |
+| 6    | 提供接口          | 控制View或监听View某些状态。           |
 
 
 

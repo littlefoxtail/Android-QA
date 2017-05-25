@@ -131,5 +131,7 @@ workerThread.start();
 mHandler = new Handler(workerThread.getLooper());
 ```
 
+![handler](thread_looper_messagequeu_message_handler.png)
+
 
 

@@ -101,3 +101,45 @@ Android系统里面的AsyncTask与IntentService已经默认帮助我们设置线
 
 
 ## Android多线程知识总结——源码分析
+
+### ThreadPoolExecutor
+ThreadPoolExecutor是Executorservice的实现，它使用线程池中的任意一个线程来执行提交的任务，这些线程通常是用来Executors的工厂方法配置的。
+
+线程池解决了两个不同的问题：
+* 他们可以在执行大量异步任务的时候提高性能表现，因为减少了每个任务的调度开销
+* 它们提供了限制和管理在执行任务集合时消耗的资源的手段
+* 除此之外，每个ThreadPoolExecutor还维护一些基本统计信息
+
+Executors工厂方法：
+* newCachedThreadPool--线程池中线程数量不受限制，有自动线程回收
+* newFixedThreadPool(int)--固定大小线程池
+* newSingleThreadExecutor()--单后台线程
+* newScheduledThreadPool--核心线程数固定的，非核心线程数是非固定的。当非核心线程空闲时会被立刻回收
+
+* corePoolSize：核心池的大小，在创建线程池后，线程池中并没有任何线程，而是等待有任务到来才创建线程去执行任务。
+默认情况下，在创建了线程池后，线程池中的线程数为0，当有任务来之后，就会创建一个线程去执行任务，当线程池中的线程
+数目达到corePoolSize后，就会到达的任务放到缓存队列当中
+* mamximumPoolSize:线程池最大线程数，这个参数也是一个非常重要的参数，它表示在线程池中最多能创建多少个线程
+* keepAliveTime:表示线程没有任务执行时最多保持多少时间会终止。
+默认情况下，只有当线程池中的线程数大于corePoolSize时，keepAliveTime才会起作用，直到线程池中的线程数不大于corePoolSize，即当线程池中的线程数大于corePoolSize时，如果一个线程空闲的时间达到keepAliveTime，则会终止，直到线程池中的线程数不超过corePoolSize。
+但是如果调用了allowCoreThreadTimeOut(boolean)方法，在线程池中的线程数不大于corePoolSize时，keepAliveTime参数也会起作用(即核心线程)，直到线程池中的线程数为0
+* workQueue:一个阻塞队列，用来存储等待执行的任务，这个参数的选择也很重要，会对线程池的运行过程产生重要影响，
+一般来说，有以下几种选择：
+> ArrayBlockingQueue  
+  LinkedBlockingQueue  
+  SynchrnousQueue
+
+* AtomicInteger ctl: 整个线程池的控制状态，包含了两个属性：有效线程的数量(workerCount)、线程池的状态(runState)
+  - ctl 包含32位数据，低29位存线程数，高3位存runState，这样runState有5个值
+    * RUNNING:  接受新任务，处理任务队列中的任务
+    * SHUTDOWN: 不接受新任务，处理任务队列中的任务
+    * STOP:    不接受新任务，不处理任务队列中的任务
+    * TIDYING:  所有任务完成，线程数为0，然后执行terminated()
+    * TERMINATED: terminated() 已经完成
+
+1. 核心和最大线程池数量
+ThreadPoolExecutor将根据由corePoolSize、maximumPoolSize设置的边界自动调整池大小
+* 当在方法execute中提交新任务，并且小于corePoolSize线程正在运行时，即使其他工作线程空闲，也会创建一个
+新的线程来处理新请求。
+* 如果有多于corePoolSize但小于maximumPoolSize线程运行，则只有队列已满时才会创建一个新线程
+* 通过设置corePoolSize和maximumPoolSize相同，你可以

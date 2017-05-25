@@ -15,6 +15,39 @@
 │   ├── super.onTouchEvent() //处理事件
 ```
 
+下表省略了 PhoneWidow 和 DecorView。
+
+> `√` 表示有该方法。
+>
+> `X` 表示没有该方法。
+
+| 类型   | 相关方法                  | Activity | ViewGroup | View |
+| ---- | --------------------- | -------- | --------- | ---- |
+| 事件分发 | dispatchTouchEvent    | √        | √         | √    |
+| 事件拦截 | onInterceptTouchEvent | X        | √         | X    |
+| 事件消费 | onTouchEvent          | √        | √         | √    |
+
+这个三个方法均有一个 boolean(布尔) 类型的返回值，通过返回 true 和 false 来控制事件传递的流程。
+
+PS: 从上表可以看到 Activity 和 View 都是没有事件拦截的，这是因为：
+
+> Activity 作为原始的事件分发者，如果 Activity 拦截了事件会导致整个屏幕都无法响应事件，这肯定不是我们想要的效果。
+>
+> View最为事件传递的最末端，要么消费掉事件，要么不处理进行回传，根本没必要进行事件拦截。
+
+## 事件分发流程
+
+```
+WMS -> ViewRootImp -> PhoneWindow$decorView ->Activity －> PhoneWindow －> DecorView －> ViewGroup －> ... －> View
+
+```
+如果没有任何View消费掉事件，那么这个事件会按照反方向回传，最终传回给Activity，如果最后 Activity 也没有处理，本次事件才会被抛弃:
+
+```
+Activity <－ PhoneWindow <－ DecorView <－ ViewGroup <－ ... <－ View
+```
+
+
 关于`ViewGroup`的触摸事件，要能正确处理Touch事件。必须重写`onInterceptTouchEvent`方法。
 
 ## Intercept Touch Events in a ViewGroup

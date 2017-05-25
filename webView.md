@@ -62,3 +62,34 @@ WebView 的兼容性一直也是困扰我们 Android 开发者的一个大问题
 
 ### WebView导致的内存泄露
 > Android 中的 WebView 存在很大的兼容性问题，不仅仅是 Android 系统版本的不同对 WebView 产生很大的差异，另外不同的厂商出货的 ROM 里面 WebView 也存在着很大的差异。更严重的是标准的 WebView 存在内存泄露的问题，看这里WebView causes memory leak - leaks the parent Activity。所以通常根治这个问题的办法是为 WebView 开启另外一个进程，通过 AIDL 与主进程进行通信，WebView 所在的进程可以根据业务的需要选择合适的时机进行销毁，从而达到内存的完整释放。
+
+### WebView遇到的一些坑
+1. Webview打开一个链接，播放一段音乐，退出Activity时音乐还在后台播放，可以通过在Activity的onPause中调用webview.onPause()解决，并在Activity的onResume中调用webview.onResume()恢复。
+
+2. 5.0以后api调整，设置跨域cookie读取
+```
+    public final void setAcceptThirdPartyCookies() {
+        //target 23 default false, so manual set true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
+        }
+    }
+```
+3. 5.0之后不支持Https和Http的混合模式，需要设置
+```
+webSetting.setMixedContentMode(webSetting.getMixedContentMode())
+```
+
+4. WebView与JavaScript相互调用时，如果是debug没有配置混淆时，调用时没问题的，但是当设置混淆后发现无法正常调用了
+
+5. 沉浸式导致webview全屏遮挡虚拟按键，需要在WebChromeClient#onShowCustomView设置
+
+```
+mActivity.getWindow().getDecorView().setSystemUiVisibility(
+						View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+								View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+								View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+								View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+								View.SYSTEM_UI_FLAG_FULLSCREEN |
+								View.SYSTEM_UI_FLAG_IMMERSIVE);
+```
