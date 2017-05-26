@@ -4,7 +4,7 @@
 
 #### 一个应用程序中应该有多少个Context对象
 
-![Image](extend.gif)
+![Image](../png/extend.gif)
 Context类本身是一个纯abstract类。为了使用方便又定义Context包装类-ContextWrapper,
 ContextWrapper构造函数中必须包含一个真正Context引用，同时ContextWrapper中有attachBaseContext()
 用于给ContextWrapper对象中指定真正的Context对象.
