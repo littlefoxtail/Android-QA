@@ -9,11 +9,13 @@ Android默认提供的RecyclerView支持线性布局、网格布局、瀑布流�
 RecyclerView比ListView多两级缓存，支持多个ItemView缓存，支持开发者自定义缓存处理逻辑，支持所有RecyclerView共用同一个RecyclerViewPool
 
 具体来说：
+
 ListView(两级缓存)
 |   ListView   | 是否需要回调createView | 是否需要回调bindView |                   生命周期                   |        备注         |
 | :----------: | :--------------: | :------------: | :--------------------------------------: | :---------------: |
 | mActiveViews |        否         |       否        |              onLayout函数周期内               | 用于屏幕内ItemView快速重用 |
 | mScrapViews  |        否         |       是        | 与mAdapter一致，当mAdapter被更换时，mScrapViews即被清空 |                   |
+
 
 RecyclerView(四级缓存)
 |    RecyclerView     | 是否需要回调createView | 是否需要回调bindView |                   生命周期                   |                  备注                   |

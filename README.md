@@ -1,6 +1,6 @@
 # Android-QA
 0. [设计模式](pattern/pattern.md)
-1. [Effective Java for Android (cheatsheet)](/Effective.md)
+1. [Effective Java for Android (cheatsheet)](effective/Effective.md)
 2. ​[管理在ViewGroup中的Touch Event](touchevent/TouchEvent.md)
 3. [Android Context](context/Context.md)
 4. [RemoteViews](RemoteViews.md)

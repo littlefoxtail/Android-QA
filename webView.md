@@ -6,6 +6,7 @@ Android WebView性能优化的常用方法
 ### 选择合适的WebView缓存
 
 H5常用的缓存机制的优势及使用场景
+
 |缓存机制  |   优势   |  使用场景    |
 | :----: | :----: | :----: |
 | Dom Storage|HTTP协议层支持|静态文件的缓存|
@@ -14,10 +15,10 @@ H5常用的缓存机制的优势及使用场景
 | IndexedDB|存储任何类型数据、使用简单，支持索引|结构、关系复杂的数据存储Web SQL Database的替代|
 |File System API|支持文件系统的操作|数据适合以文件进行管理的场景,Android系统还不支持|
 
-#### 浏览器缓存机制：
+#### 1.浏览器缓存机制：
 主要前端负责，Android端不需要进行特别的配置。
 
-#### Dom Storage (Web Storage)存储机制：
+#### 2.Dom Storage (Web Storage)存储机制：
 配合前端使用，使用时需要打开DomStorage开关。
 
 ```java
@@ -26,7 +27,7 @@ WebSettings webSettings = myWebView.getSettings();
 webSettings.setDomStorageEnabled(true);
 ```
 
-#### Application Cache存储机制
+#### 3.Application Cache存储机制
 Application Cache似乎为了支持Web App离线使用而开发的缓存机制。它的缓存机制类似于浏览器的缓存
 (Cache-Control和Last-Modified)机制，都是以文件为单位进行缓存，且文件有一定更新机制。但AppCache
 是对浏览器缓存机制的补充，不是替代。
@@ -57,13 +58,13 @@ webSettings.setJavaScriptEnabled(true);
 关于JS延迟加载
 > Android 的 OnPageFinished 事件会在 Javascript 脚本执行完成之后才会触发。如果在页面中使 用JQuery，会在处理完 DOM 对象，执行完 $(document).ready(function() {}); 事件自会后才会渲染并显示页面。而同样的页面在 iPhone 上却是载入相当的快，因为 iPhone 是显示完页面才会触发脚本的执行。所以我们这边的解决方案延迟 JS 脚本的载入，这个方面的问题是需要Web前端工程师帮忙优化的。
 
-### 使用第三方WebView内核
+### 4.使用第三方WebView内核
 WebView 的兼容性一直也是困扰我们 Android 开发者的一个大问题，不说 Android 4.4 版本 Google 使用了Chromium 替代 Webkit 作为 WebView 内核，就看看国内众多的第三方 ROM 都有可能会对原生的 WebView 做出修改，这时候如果出现兼容问题，是非常难定位到问题和解决的
 
-### WebView导致的内存泄露
+### 5.WebView导致的内存泄露
 > Android 中的 WebView 存在很大的兼容性问题，不仅仅是 Android 系统版本的不同对 WebView 产生很大的差异，另外不同的厂商出货的 ROM 里面 WebView 也存在着很大的差异。更严重的是标准的 WebView 存在内存泄露的问题，看这里WebView causes memory leak - leaks the parent Activity。所以通常根治这个问题的办法是为 WebView 开启另外一个进程，通过 AIDL 与主进程进行通信，WebView 所在的进程可以根据业务的需要选择合适的时机进行销毁，从而达到内存的完整释放。
 
-### WebView遇到的一些坑
+### 6.WebView遇到的一些坑
 1. Webview打开一个链接，播放一段音乐，退出Activity时音乐还在后台播放，可以通过在Activity的onPause中调用webview.onPause()解决，并在Activity的onResume中调用webview.onResume()恢复。
 
 2. 5.0以后api调整，设置跨域cookie读取

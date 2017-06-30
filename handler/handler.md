@@ -1,4 +1,3 @@
-handler机制
 
 # handler sendMessage()将消息加入message队列
 

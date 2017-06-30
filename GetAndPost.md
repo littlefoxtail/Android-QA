@@ -1,4 +1,4 @@
-## GET和POST是HTTP请求的两种基本方法,最直观的区别就是GET把参数包含在URL中，POST通过request body传递参数。
+## 1.GET和POST是HTTP请求的两种基本方法,最直观的区别就是GET把参数包含在URL中，POST通过request body传递参数。
 
 传说中的标准答案：
 * GET在浏览器回退时时无害的，而POST会再次提交请求。
@@ -19,7 +19,7 @@ HTTP的底层是TCP/IP。所以GET和POST的底层也是TCP/IP，也就是说GET
 
 但是由于HTTP的规定和浏览器/服务器的限制，导致他们在应用过程中体现出一些不同。
 
-## GET产生一个TCP数据；POST产生两个TCP数据包
+## 2.GET产生一个TCP数据；POST产生两个TCP数据包
 
 对于GET方式来说，浏览器会把http header和data一并发送出去，服务器响应200（返回数据）；
 而对于POST，浏览器先发送header，服务器响应100 continue，浏览器在发送data，服务器响应200 ok
