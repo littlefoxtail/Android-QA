@@ -30,6 +30,12 @@ performMeasure->view.measure->view.onMeasure
 performLayout->view.layout->view.onLayout
 performDraw->view.draw->view.onDraw
 ```
+ViewRootImpl，他是链接WindowManager和DecoreView的纽带。更广阔可以说是Window和View之间的纽带
+完成View的绘制
+向DecoreView分发收到的用户发起的event事件，如按键，触屏等事件
+
+Window是一个抽象概念，每一个Window都对应一个View和一个ViewRootImple,Window又通过ViewRootImpl与View建立联系
+
 
 ## 开始
 整个View树的绘图流程是在ViewRootImpl类的performTraversals()方法，该函数做的执行过程主要是根据之前设置的状态，判断是否重新计算视图大小

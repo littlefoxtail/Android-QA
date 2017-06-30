@@ -209,6 +209,9 @@ Activity持有一个Window，而Window持有一个DecorView。而事件是至上
 3. ViewGroup作为容器类View，对事件的处理多了onInterceptTouchEvent这个阻断方法，其实我们只要看onDispatchTouchEvent就行了，因为它会在这个方法中调用onInterceptTouchEvent做是否阻断的判定。
 4. 返回true，通常表示处理或消费了事件，不再传递。
 
+# 给个图
+![图裂](function_touch.png)
+![图裂](motionEvent_activity.png)
 
 
 

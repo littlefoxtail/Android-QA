@@ -142,4 +142,4 @@ ThreadPoolExecutor将根据由corePoolSize、maximumPoolSize设置的边界自�
 * 当在方法execute中提交新任务，并且小于corePoolSize线程正在运行时，即使其他工作线程空闲，也会创建一个
 新的线程来处理新请求。
 * 如果有多于corePoolSize但小于maximumPoolSize线程运行，则只有队列已满时才会创建一个新线程
-* 通过设置corePoolSize和maximumPoolSize相同，你可以
+* 通过设置corePoolSize和maximumPoolSize相同，你可以得到一个固定大小的线程池
