@@ -11,13 +11,15 @@ RecyclerView比ListView多两级缓存，支持多个ItemView缓存，支持开�
 具体来说：
 
 ListView(两级缓存)
-|   ListView   | 是否需要回调createView | 是否需要回调bindView |                   生命周期                   |        备注         |
+
+|   ListView   | 是否需要回调createView | 是否需要回调bindView |生命周期|备注|
 | :----------: | :--------------: | :------------: | :--------------------------------------: | :---------------: |
 | mActiveViews |        否         |       否        |              onLayout函数周期内               | 用于屏幕内ItemView快速重用 |
 | mScrapViews  |        否         |       是        | 与mAdapter一致，当mAdapter被更换时，mScrapViews即被清空 |                   |
 
 
 RecyclerView(四级缓存)
+
 |    RecyclerView     | 是否需要回调createView | 是否需要回调bindView |                   生命周期                   |                  备注                   |
 | :-----------------: | :--------------: | :------------: | :--------------------------------------: | :-----------------------------------: |
 |   mAttachedScrap    |        否         |       否        |              onLayout函数周期内               |           用于屏幕内ItemView快速重用           |
