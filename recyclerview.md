@@ -58,3 +58,12 @@ RecyclerViewPool的内部维护了一个Map，里面以不同的viewType为key�
 这是一个需要开发者重写的类。在`Recycler.getScrapOrHiddenOrCachedHolderForPosition`方法获取View
 Recycler先检查自己内部的`attached scrap`和一级缓存，再检查
 `ViewCacheExtensien`最后检查`RecyclerViewPool`，从上面三个任何一个只要拿到View就不会调用下一个方法。
+
+# LayoutManager
+LayoutManager是RecyclerView用来管理子View布局的一个组件
+1. 布局子视图
+2. 在滚动过程中根据子视图在布局中所处位置，决定何时添加子视图和回收视图
+3. 滚动子视图
+
+其中，只有滚动子视图，才会需要对子视图回收或者添加，而添加
+
