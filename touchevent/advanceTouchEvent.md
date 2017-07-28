@@ -1,0 +1,3 @@
+
+
+> 1. 不管是ViewRootImpl的dispatchInputEvent方法，还是WindowInputEventReceiver的dispatchInputEvent方法，它们本质上都是调用deliverInputEvent方法来处理点击事件的消息。
