@@ -70,7 +70,7 @@ IntentService里面通过设置闹钟间歇性的触发异步任务，例如刷�
 类似屏幕发生旋转等被动原因而销毁而重建。在Activity不停的创建于销毁的过程当中，很有可能因为工作线程持有
 Activity的View而导致内存泄露。
 
-![image](./threadlifecycle.png)
+![image](../img/threadlifecycle.png)
 
 Loader的出现就是为了确保工程线程能够和Activity的生命周期保持一致，同时避免出现前面提到的问题。
 
