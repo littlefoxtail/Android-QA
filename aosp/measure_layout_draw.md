@@ -144,7 +144,7 @@ View的布局流程就已经全部分析完了。可以看出，布局流程的�
 获取一个View的测量宽高是比较复杂的，而布局流程则是根据已经获得的测量宽高进而确定一个View的四个位置参数
 
 ## draw流程
-![Draw](draw.png)
+![Draw](../img/draw.png)
 绘制流程将决定View的样子，一个View该显示什么由绘制流程完成。
 ### ViewRootImpl#performDraw
 
