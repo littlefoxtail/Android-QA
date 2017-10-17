@@ -16,6 +16,7 @@
 14. [数据结构](data_structures.md)
 15. [recyclerview](recyclerview.md)
 16. [okhttp](okhttp.md)
+17. [数据结构](data_structure.md)
 
 * 接口的意义
   规范、扩展、回调
@@ -253,6 +254,10 @@ Handler先进先出原则。Looper类用来管理线程内对象之间的消息�
 
 如果你有一个复杂的UI，你应该考虑写一个自定义的ViewGroup来执行他的layout操作。与内置view不同，自定义
 的view可以使得程序仅仅测量这一部分，这避免了遍历整个view的层级结构来计算大小。
+
+* 横竖屏幕切换时候Actvitiy的生命周期
+
+
 
 
     

@@ -200,6 +200,24 @@ View的布局流程就已经全部分析完了。可以看出，布局流程的�
 | 5    | onDraw        | 实际绘制内容                       |
 | 6    | 提供接口          | 控制View或监听View某些状态。           |
 
+### rquestLayout
+当我们动态移动一个View的位置或者View的大小、形状发生了变换的时候，我们可以在View中调用这个方法。
+
+子View调用requestLayout方法，会标记当前View及父容器，同时逐层向上提交，直到ViewRootImpl处理该事件，ViewRootImpl会调用三大流程，从measure开始，对于每一个含有标记位的view及其子View都会进行测量、布局、绘制。
+
+
+### invalidate
+该方法调用会引起View树的重绘，常用于内部调用或者需要刷新界面的时候，需要在主线程中调用该方法。当子View调用了invalidate方法后，会为该View添加一个标记位，同时不断向父容器请求刷新，父容器通过计算得出自身需要重绘的区域，知道传递到ViewRootImpl中，最终触发performTraversals方法，进行开始View树重绘流程。
+
+### postInvalidate
+postInvalidate是在非UI线程中调用，invalidate是在UI线程中调用
+
+一般来说，如果View确定自身不再适合当前区域，比如说它的LayoutParams发生了改变，需要父布局对其进行重新测量、布局、绘制这三个流程，往往使用requestLayout。而invalidate则是刷新当前View，使当前View进行重绘，不会进行测量、布局流程，因此如果View只需要重绘而不需要测量，布局的时候，使用invalidate方法往往比requestLayout方法更高效
+
+
+# 下面是真正的流程图，灰常流弊
+
+![img](../img/view_measure_layout_draw.jpg)
 
 
 
