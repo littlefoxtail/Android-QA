@@ -80,18 +80,53 @@ performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
 的measure方法，
 ```java
 public final void measure(int widthMeasureSpec, int heightMeasureSpec) {
+        //首先判断当前view的layoutMode是不是特例LAYOUT_MODE_OPTICAL_BOUNDS
         boolean optical = isLayoutModeOptical(this);
         if (optical != isLayoutModeOptical(mParent)) {
+                Insets insets = getOpticalInsets();
+            int oWidth  = insets.left + insets.right;
+            int oHeight = insets.top  + insets.bottom;
+            widthMeasureSpec  = MeasureSpec.adjust(widthMeasureSpec,  optical ? -oWidth  : oWidth);
+            heightMeasureSpec = MeasureSpec.adjust(heightMeasureSpec, optical ? -oHeight : oHeight);
+        }
+        //根据widthMeasureSpec和heightMeasureSpec计算key值
+        long key = (long) widthMeasureSpec << 32 | (long) heightMeasureSpec & 0xffffffffL;
+        //mMeasureCache是LongSparseLongArray类型的成员变量
+        //其缓存着view在不同widthMeasureSpec、heightMeasureSpec下量算的结果
+        
+        if (mMeasureCache == null) mMeasureCache = new LongSparseLongArray(2);
+        //mOldWidthMeasureSpec和mOldHeightMeasureSpec分别表示上次对view测量的值
+        //mPrivateFlags是一个Int类型的值，其记录了View的各种状态位
+        //forceLayout需要强制执行layout，所以这种情况下要尝试进行量算
+        //如果新传入的widthMeasureSpec/heightMeasureSpec与上次量算时的mOldWidthMeasureSpec/mOldHeightMeasureSpec不等，
+        //那么也就是说该View的父ViewGroup对该View的尺寸的限制情况有变化，这种情况下要尝试进行量算
+
+
+        final boolean forceLayout = (mPrivateFlags & PFLAG_FORCE_LAYOUT) == PFLAG_FORCE_LAYOUT;
+        final boolean specChanged = widthMeasureSpec != mOldWidthMeasureSpec || heightMeasureSpec != mOldHeightMeasureSpec;
         ...
-        if ((mPrivateFlags & PFLAG_FORCE_LAYOUT) == PFLAG_FORCE_LAYOUT ||
-                widthMeasureSpec != mOldWidthMeasureSpec ||
-                heightMeasureSpec != mOldHeightMeasureSpec) {
-            ...
+        if ((forceLayout || neddsLayout) {
+                // 通过按位操作，重置View的状态mPrivateFlags，将其标记为未量算状态
+            mPrivateFlags &= ~PFLAG_MEASURED_DIMENSION_SET;
+            //在真正进行量算之前，View还想进一步确认能不能从已有缓存mMeasureCache中读取缓存过的量算结果
+            //如果是强制layout导致的量算，那么将cacheIndex设置为-1，即不从缓存中读取量算结果
+            //如果不是强制layout导致的量算，那么就用key作为缓存索引cacheIndex
+            int cahceIndex = fourceLayout ? -1 : mMeasureCache.indexOfKey(key);
+        //sIgnoreMeasureCache是一个boolean类型的成员变量，其值是在View的构造函数中计算的，而且只计算一次
+        //一些老的App希望在一次layou过程中，onMeasure方法总是被调用，
+        //具体来说其值是通过如下计算的: sIgnoreMeasureCache = targetSdkVersion < KITKAT;
+        //也就是说如果targetSdkVersion的API版本低于KITKAT，即API level小于19，那么sIgnoreMeasureCache为true
             if (cacheIndex < 0 || sIgnoreMeasureCache) {
                 // measure ourselves, this should set the measured dimension flag back
+                // 如果运行到此处，表示没有从缓存中取到
+                // onMeasure方法将会进行实际的量算工作，并把量算的结果保存到成员变量
                 onMeasure(widthMeasureSpec, heightMeasureSpec);
                 mPrivateFlags3 &= ~PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT;
-            } 
+            } else {
+                //如果运行到此，表示当前的条件允许View从缓存成员变量mMeasureCache中读取量算过的结果
+                long value = mMeasureCache.valueAt(cacheIndex);
+
+            }
         ...
 }
 ```
@@ -133,6 +168,161 @@ getLeft(),getTop()等方法来取得最终宽高，如果是在此之前调用�
 首先先获取父容器的padding值，然后遍历其每一个子View，  
 根据子View的layout_gravity属性、子View的测量宽高、父容器的padding值、来确定子View的布局参数，  
 然后调用child.layout方法，把布局流程从父容器传递到子元素
+
+View#layout()
+```java
+public void layout(int l, int t, int r, int b) {
+        //成员变量mPrivateFlags3中的一些比特位存储和laout相关的信息
+        if ((mPrivateFlags3 & PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT) != 0) {
+                //如果在mPrivateFlag3的低位字节的第4位（从最右4向左第4位）的值为1，
+                //那么久表示在layout布局的需要对View进行测量
+
+                onMeasure(mOldWidthMeasureSpec, mOldHeightMeasureSpec);
+                //量完了需要移除标签
+                mPrivateFlags3 &= ~PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT;
+                }
+
+                int oldL = mLeft;
+                int oldT = mTop;
+                int oldB = mBottom;
+                int oldR = mRight;
+                //这里setOpticalFrame还是会调用setFrame
+                //setFrame方法会将新的left,top,right,bottom存储到view的成员变量
+                //返回true代表发生了view的位置和尺寸变化
+                boolean changed = isLayoutModeOptical(mParent) ?
+                        setOpticalFrame(l, t, r, b) : setFrame(l, t, r, b);
+
+                if (changed || (mPrivateFlags & PFLAG_LAYOUT_REQUIRED) == PFLAG_LAYOUT_REQUIRED) {
+                //如果view的布局发生了变化，或者mPrivateFlags有需要LAYOUT的标签PFLAG_LAYOUT_REQUIRED,那么就会执行
+                //首先触发onLayout方法执行，View中默认的onLayout是个空方法
+                //不过继承自ViewGroup的类都要实现onLayout，从而在onLayout中依次循环子View
+                //并调用view#layout
+                onLayout(changed, l, t, r, b);
+
+                if (shouldDrawRoundScrollbar()) {
+                        if(mRoundScrollbarRenderer == null) {
+                        mRoundScrollbarRenderer = new RoundScrollbarRenderer(this);
+                        }
+                } else {
+                        mRoundScrollbarRenderer = null;
+                }
+                //移除flag
+                mPrivateFlags &= ~PFLAG_LAYOUT_REQUIRED;
+                //可以通过View的addOnLayoutChangeListener(View.onLayoutChangeListener)方法
+                //这些事件都存储在ListenerInfo.mOnLayoutChangeListeners
+                ListenerInfo li = mListenerInfo;
+                if (li != null && li.mOnLayoutChangeListeners != null) {
+                        // 对mOnlayoutChangeListeners中的事件监听器进行拷贝
+                        ArrayList<OnLayoutChangeListener> listenersCopy =
+                                (ArrayList<OnLayoutChangeListener>)li.mOnLayoutChangeListeners.clone();
+                        int numListeners = listenersCopy.size();
+                        for (int i = 0; i < numListeners; ++i) {
+                                // 遍历注册器，依次调用onLayoutChange方法，这样Layout事件监听器就得到了响应
+                        listenersCopy.get(i).onLayoutChange(this, l, t, r, b, oldL, oldT, oldR, oldB);
+                        }
+                }
+                }
+                // 移除强制layout标签
+                mPrivateFlags &= ~PFLAG_FORCE_LAYOUT;
+                // 加入layout完成标签
+                mPrivateFlags3 |= PFLAG3_IS_LAID_OUT;
+
+                if ((mPrivateFlags3 & PFLAG3_NOTIFY_AUTOFILL_ENTER_ON_LAYOUT) != 0) {
+                mPrivateFlags3 &= ~PFLAG3_NOTIFY_AUTOFILL_ENTER_ON_LAYOUT;
+                notifyEnterOrExitForAutoFillIfNeeded(true);
+                }
+}
+
+```
+
+```java
+protected boolean setFrame(int left, int top, int right, int bottom) {
+        boolean changed = false;
+
+        if (DBG) {
+            Log.d("View", this + " View.setFrame(" + left + "," + top + ","
+                    + right + "," + bottom + ")");
+        }
+
+        if (mLeft != left || mRight != right || mTop != top || mBottom != bottom) {
+            //将新旧left、right、top、bottom进行对比，只要不完全相对就说明View的局部发生了变化，则将changed变量设置为true 
+            changed = true;
+
+            // Remember our drawn bit
+            // 先保存一下mPrivateFlags中的PFLAG_DRAW标签信息
+            int drawn = mPrivateFlags & PFLAG_DRAWN;
+            // 计算View的新旧尺寸
+            int oldWidth = mRight - mLeft;
+            int oldHeight = mBottom - mTop;
+            int newWidth = right - left;
+            int newHeight = bottom - top;
+            // 比较View的新旧尺寸是否相同，如果尺寸发生了变化，那么sizeChanged的值为true
+            boolean sizeChanged = (newWidth != oldWidth) || (newHeight != oldHeight);
+
+            // Invalidate our old position
+            invalidate(sizeChanged);
+            //将新的left、top、right、bottom存储到View的成员变量中 
+            mLeft = left;
+            mTop = top;
+            mRight = right;
+            mBottom = bottom;
+            //mRenderNode.setLeftTopRightBottom()方法会调用RenderNode中原生方法的nSetLeftTopRightBottom()方法，
+            //该方法会根据left、top、right、bottom更新用于渲染的显示列表
+            mRenderNode.setLeftTopRightBottom(mLeft, mTop, mRight, mBottom);
+            //向mPrivateFlags中增加标签PFLAG_HAS_BOUNDS,表示当前View具有了明确的边界范围
+            mPrivateFlags |= PFLAG_HAS_BOUNDS;
+
+
+            if (sizeChanged) {
+                //如果View的尺寸和之前发生了变化，那么就执行sizeChange()方法
+                //该方法中又会调用onSizeChanged方法，并将View的新旧尺寸传递进去
+                sizeChange(newWidth, newHeight, oldWidth, oldHeight);
+            }
+
+            if ((mViewFlags & VISIBILITY_MASK) == VISIBLE || mGhostView != null) {
+                // If we are visible, force the DRAWN bit to on so that
+                // this invalidate will go through (at least to our parent).
+                // This is because someone may have invalidated this view
+                // before this call to setFrame came in, thereby clearing
+                // the DRAWN bit.
+                // 有可能在调用setFrame方法之前，invalidate方法就被调用了
+                // 这会导致mPrivateFlag移除了PFLAG_DRAWN标签
+                // 如果当前View处于可见状态就将mPrivateFlags强制添加PFLAG_DRAW状态位，
+                // 这样会确保下面的invalidate()方法会执行到其父控件级别
+                mPrivateFlags |= PFLAG_DRAWN;
+                invalidate(sizeChanged);
+                // parent display list may need to be recreated based on a change in the bounds
+                // of any child
+                // 父控件会重建用渲染的显示列表
+                invalidateParentCaches();
+            }
+
+            // Reset drawn bit to original value (invalidate turns it off)
+            // 重新恢复mPrivateFlags中原有的PFLAG_DRAWN标签信息
+            mPrivateFlags |= drawn;
+
+            mBackgroundSizeChanged = true;
+            mDefaultFocusHighlightSizeChanged = true;
+            if (mForegroundInfo != null) {
+                mForegroundInfo.mBoundsChanged = true;
+            }
+
+            notifySubtreeAccessibilityStateChangedIfNeeded();
+        }
+        return changed;
+    }
+```
+```java
+private void sizeChange(int newWidth, int newHeight, int oldWidth, int oldHeight) {
+        //将View的新旧尺寸传递给onSizeChange()方法
+        if (mOverlay != null) {
+                mOverlay.getOverlayView().setRight(newWidth);
+                mOverlay.getOverlayView().setBottom(newHeight);
+        }
+        rebuidOutline();
+
+}
+```
 
 ### 子View的布局流程
 子View的布局流程也很简单。如果子View是一个ViewGroup,那么会重复以上步骤，如果是一个View，那么会直接调用  
