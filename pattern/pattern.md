@@ -1,5 +1,4 @@
-http://www.baike.com/wiki/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F  
-https://github.com/iluwatar/java-design-patterns  
+[设计模式百科](http://www.baike.com/wiki/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F)
 
 设计模式六大原则：
 1. 开闭原则(Open Close Principle)：对扩展开放对修改关闭
