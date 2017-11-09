@@ -9,3 +9,24 @@ Android系统可能会随时由于用户的行为或者系统状态(比如剩余
 持久化被建议的原因有两个：
 1. 用户不会因为系统销毁我们的应用而导致丢失数据
 2. 我们的应用可以在网络状况不好甚至断网的情况下继续工作
+
+# Lifecycles
+生命周期管理(Lifecycles)帮助开发者创建“可感知生命周期的”组件，让其自己管理自己的生命周期，从而减少内存泄露和崩溃的可能性。
+生命周期库是其他架构组件的基础
+
+# LiveData
+LiveData是一款基于观察者模式的可感知生命周期的核心组件。LiveData为界面代码(Observer)的监视对象(Observable)。当LiveData
+所持有的数据改变时，它会通知相应的界面代码进行更新。同时，LiveData持有界面代码Lifecycle的引用，这意味着它会在界面代码
+(LifecycleOwner)的生命周期处于stated或resumed时作出相应更新，而在LifecycleOwner被销毁时停止更新。
+通过LiveData，开发者可以方便地构建安全性更高、性能更好的高响应度用户界面
+
+# ViewModel
+ViewModel将视图的数据和逻辑从具有生命周期特性的实体(如Activity和Fragment)中剥离开来。
+直到关联Activity或Fragment完全销毁时，ViewModel才会随之消失，也就是说，即使在旋转屏幕导致Fragment被重新创建等事件中，
+视图数据依旧会被保留。ViewModel不仅消除了常见的生命周期问题，而且可以帮助构建更为模块、更方便测试的用户界面
+
+# Room
+和 SQLite 有一样强大的功能，但是节省了很多重复编码的麻烦事儿。它的一些功能，如编译时的数据查询验证、内置迁移支持等，让开发者能够更简单地构建健壮的持久层。而且 Room 可以和 LiveData 集成在一起，提供可观测数据库并感知生命周期的对象。Room 集简洁、强大和可靠性为一身，在管理本地储存上表现卓越
+
+# PagedList
+解决RecyclerView处理大数据集的困难 
