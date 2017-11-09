@@ -13,13 +13,13 @@ socket的主要特点有数据丢失率低，使用简单易于移植。
 
 # Socket基本通信模型
 
-![image](./socket_model.png)
+![image](../img/socket_model.png)
 
 ### 2.1 TCP通信模型
-![tcp](./tcp_model.png)
+![tcp](../img/tcp_model.png)
 
 ### 2.2 UDP通信模型
-![udp](./udp_model.png)
+![udp](../img/udp_model.png)
 
 # Socket基本实现原理
 ## 基于TCP协议的Socket

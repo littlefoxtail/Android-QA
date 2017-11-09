@@ -1,22 +1,9 @@
 # Android-QA
-0. [设计模式](pattern/pattern.md)
-1. [Effective Java for Android (cheatsheet)](effective/Effective.md)
-2. ​[管理在ViewGroup中的Touch Event](touchevent/TouchEvent.md)
-3. [Android Context](context/Context.md)
-4. [RemoteViews](RemoteViews.md)
-5. [Get与Post的区别](GetAndPost.md)
-6. [handler机制](handler/handler.md)
-7. [webView的内存和性能优化](webView.md)
-8. [View的绘制过程](view/measure_layout_draw.md)
-9. [Android下的网络通信](network/network.md)
-10. [Android多线程](thread/threading.md)
-11. [排序算法](sort/sort.md)
-12. [二叉树](binary/binaryTree.md)
-13. [图片缓存处理](image.md)
-14. [数据结构](data_structures.md)
-15. [recyclerview](recyclerview.md)
-16. [okhttp](okhttp.md)
-17. [数据结构](data_structure.md)
+**[设计模式](pattern/pattern.md)**
+**[网络通信/Socket](network/README.md)**
+**[数据结构](data_structures.md)**
+**[aosp](aosp/README.md)**
+
 
 * 接口的意义
   规范、扩展、回调

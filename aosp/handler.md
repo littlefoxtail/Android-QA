@@ -130,7 +130,11 @@ workerThread.start();
 mHandler = new Handler(workerThread.getLooper());
 ```
 
-![handler](thread_looper_messagequeu_message_handler.png)
+![handler](../img/thread_looper_messagequeu_message_handler.png)
+
+![allhandler](../img/all_handler.jpg)
+
+# [你知道android的MessageQueue.idleHandler吗？](https://mp.weixin.qq.com/s/KpeBqIEYeOzt_frANoGuSg)
 
 
 

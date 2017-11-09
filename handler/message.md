@@ -1,1 +1,0 @@
-![allhandler](../img/all_handler.jpg)

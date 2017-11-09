@@ -178,7 +178,7 @@ ACTION\_DOWN->ACTION\_MOVE->ACTION\_MOVE...->ACTION_UP.
 * View可以自己处理事件，也可以分发给子View处理。
 
 # 四、谁来处理Touch事件
-![View](View)
+![View](../img/View.jpg)
 
 # 五、怎么处理Touch事件
 事件的大概流程：事件接收层(底层：硬件和软件，一般不需要了解)--->窗口管理系统WindowManagerServicer-->因为
@@ -189,9 +189,9 @@ ViewRoot类的dispatchTouchEvent，给当前活动窗口的根view-->根view开�
 
 # 六、View中对事件的处理
 在View中定义了跟事件处理相关的两个重要函数
-![dispatchTouchEvent](view_dispatchTouchEvent)
+![dispatchTouchEvent](../img/view_dispatchTouchEvent.jpg)
 
-![onTouchEvent](view_onTouchEvent)
+![onTouchEvent](../img/view_onTouchEvent.jpg)
 
 # 七、ViewGroup中对事件的处理
 ViewGroup是View的子类，所以自然继承了View的上述两个方法。ViewGroup还重写了`dispatchTouchEvent`方法。
@@ -210,8 +210,8 @@ Activity持有一个Window，而Window持有一个DecorView。而事件是至上
 4. 返回true，通常表示处理或消费了事件，不再传递。
 
 # 给个图
-![图裂](function_touch.png)
-![图裂](motionEvent_activity.png)
+![图裂](../img/function_touch.png)
+![图裂](../img/motionEvent_activity.png)
 
 
 
