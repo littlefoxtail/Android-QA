@@ -1,2 +1,2 @@
-**[Android多线程](threading.md)**
-**[Effective Java for Android (cheatsheet)](effective/Effective.md)**
+- **[Android多线程](threading.md)**
+- **[Effective Java for Android (cheatsheet)](effective/Effective.md)**
