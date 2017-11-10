@@ -18,7 +18,7 @@
 |迭代对数时间|      |\\(O(log^*n)\\)|    |      |
 |对数时间|      |\\(O(logn)\\)|\\(logn\\),\\(logn^2\\)|二分搜索|
 |线性时间|      |\\(O(n)\\)|\\(n\\)|无序数组的搜索|
-|线性对数时间|      |\\(O(nlogn)\\)|\\(nlogn\\),\\(logn!\\)|最快的比较排序|
+|线性对数时间|      |<img src="https://latex.codecogs.com/gif.latex?\bg_green&space;\fn_phv&space;\large&space;\\O(nlogn)\\" title="\large \\O(nlogn)\\" />|\\(nlogn\\),\\(logn!\\)|最快的比较排序|
 |二次时间|  |\\(O(n^2)\\)|\\(n^2\\)|冒泡排序、插入排序|
 |三次时间|  |\\(O(n^3)\\)|\\(n^3\\)|矩阵乘法的基本实现，计算部分相关性|
 -------
