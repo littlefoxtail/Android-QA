@@ -6,24 +6,25 @@
 为了计算时间复杂度，我们通常会估计算法的操作单元数量，每个单元运行的时间都是相同的。因此，总运行时间和算法的操作单元数量最多
 相差一个常量系数。
 
-相同大小的不同输入值仍可能造成算法的运行时间不同，因此我们通常使用算法最坏情况复杂度，记为`T(n)`，定义为任何大小的输入n所需的
+相同大小的不同输入值仍可能造成算法的运行时间不同，因此我们通常使用算法最坏情况复杂度，记为<img src="https://latex.codecogs.com/gif.latex?T(n)" title="T(n)" />，定义为任何大小的输入n所需的
 最大运行时间。另一种较少使用的方法是平均情况复杂度，通常有特别指定才会使用。时间复杂度可以用函数`T(n)`的自然特性加以分类。
-例如：T(n) = O(n)的算法被称作*线性时间算法*；而 T(n) = O(Mn) 和 Mn= O(T(n)) ，其中 M ≥ n > 1 的算法被称作指数时间算法。
+例如：T(n) = O(n)的算法被称作*线性时间算法*；而 <img src="https://latex.codecogs.com/gif.latex?T(n)&space;=&space;O(Mn)" title="T(n) = O(Mn)" /> 和 <img src="https://latex.codecogs.com/gif.latex?Mn=&space;O(T(n))" title="Mn= O(T(n))" /> ，其中 M ≥ n > 1 的算法被称作指数时间算法。
 
 [时间复杂度](https://zh.wikipedia.org/wiki/时间复杂度)
 
 |名称|复杂度类|运行时间(T(n))|运行时间举例|算法举例|
 | ---- | ---- | ---- | ---- | ---- |
-|常数时间|      |\\(O(1)\\)|\\(10\\)|判断一个二进制数的奇偶|
-|迭代对数时间|      |\\(O(log^*n)\\)|    |      |
-|对数时间|      |\\(O(logn)\\)|\\(logn\\),\\(logn^2\\)|二分搜索|
-|线性时间|      |\\(O(n)\\)|\\(n\\)|无序数组的搜索|
-|线性对数时间|      |<img src="https://latex.codecogs.com/gif.latex?\bg_green&space;\fn_phv&space;\large&space;\\O(nlogn)\\" title="\large \\O(nlogn)\\" />|\\(nlogn\\),\\(logn!\\)|最快的比较排序|
-|二次时间|  |\\(O(n^2)\\)|\\(n^2\\)|冒泡排序、插入排序|
-|三次时间|  |\\(O(n^3)\\)|\\(n^3\\)|矩阵乘法的基本实现，计算部分相关性|
+|常数时间|      |<img src="https://latex.codecogs.com/gif.latex?\\O(1)\\" title="\\O(1)\\" />|10|判断一个二进制数的奇偶|
+|迭代对数时间|      |<img src="https://latex.codecogs.com/gif.latex?\\O(log^*n)\\" title="\\O(log^*n)\\" />|    |      |
+|对数时间|DLOGTIME|<img src="https://latex.codecogs.com/gif.latex?\\O(logn)\\" title="\\O(logn)\\" />|<img src="https://latex.codecogs.com/gif.latex?\\logn\\" title="\\logn\\" />,<img src="https://latex.codecogs.com/gif.latex?\\logn^2\\" title="\\logn^2\\" />|二分搜索|
+|线性时间|      |<img src="https://latex.codecogs.com/gif.latex?\\O(n)\\" title="\\O(n)\\" />|n|无序数组的搜索|
+|线性对数时间|      |<img src="https://latex.codecogs.com/gif.latex?O(nlogn)" title="O(nlogn)" />|<img src="https://latex.codecogs.com/gif.latex?\\nlogn\\" title="\\nlogn\\" />,<img src="https://latex.codecogs.com/gif.latex?logn!" title="logn!" />|最快的比较排序|
+|二次时间|  |<img src="https://latex.codecogs.com/gif.latex?O(n^2)" title="O(n^2)" />|<img src="https://latex.codecogs.com/gif.latex?n^2" title="n^2" />|冒泡排序、插入排序|
+|三次时间|  |<img src="https://latex.codecogs.com/gif.latex?O(n^3)" title="O(n^3)" />|<img src="https://latex.codecogs.com/gif.latex?n^3" title="n^2" />|矩阵乘法的基本实现，计算部分相关性|
+|阶乘时间||<img src="https://latex.codecogs.com/gif.latex?O(n!)" title="O(n!)" />|<img src="https://latex.codecogs.com/gif.latex?n!" title="n!" />|通过暴力搜索解决旅行推销员问题|
 -------
 空间复杂度：分析排序算法中需要多少辅助内存
-记做S(n)=O(f(n))。比如直接插入排序空间复杂度O(1)。而一般递归算法就要有O(n)的空间复杂度，
+记做<img src="https://latex.codecogs.com/gif.latex?S(n)=O(f(n))" title="S(n)=O(f(n))" />。比如直接插入排序空间复杂度<img src="https://latex.codecogs.com/gif.latex?O(1)" title="O(1)" />。而一般递归算法就要有<img src="https://latex.codecogs.com/gif.latex?O(n)" title="O(n)" />的空间复杂度，
 因为每次递归都要存储返回信息。
 
 -----------
@@ -32,15 +33,15 @@
 # 1.插入排序
 |      |      |
 | ---- | ---- |
-|数据|数组|
-|时间复杂度|\\(O(n^2)\\)|
-|最优时间复杂度|\\(O(n)\\)|
-|平均时间复杂度|\\(O(n^2)\\)|
-|空间复杂度|总\\(O(n)\\)，需要辅助空间\\(O(1)\\)|
+|数据结构|数组|
+|时间复杂度|<img src="https://latex.codecogs.com/gif.latex?O(n^2)" title="O(n^2)" />|
+|最优时间复杂度|<img src="https://latex.codecogs.com/gif.latex?O(n)" title="O(n)" />|
+|平均时间复杂度|<img src="https://latex.codecogs.com/gif.latex?O(n^2)" title="O(n^2)" />|
+|空间复杂度|总<img src="https://latex.codecogs.com/gif.latex?O(n)" title="O(n)" />，需要辅助空间<img src="https://latex.codecogs.com/gif.latex?O(1)" title="O(1)" />|
 
 
 ## 1.1 性能分析
-时间复杂度\\(O(n^2)\\),空间复杂度`O(1)`
+时间复杂度<img src="https://latex.codecogs.com/gif.latex?O(n^2)" title="O(n^2)" />,空间复杂度<img src="https://latex.codecogs.com/gif.latex?O(1)" title="O(1)" />
 排序时间与输入相关：输入的元素个数；元素已排序的程度。
 最佳情况，输入数组是已经排好序的数组，运行时间是`n`的线性函数；最坏情况，输入数组是逆序，运行时间是`n`的二次函数
 
@@ -59,20 +60,20 @@
 # 2.冒泡排序
 |      |      |
 | ---- | ---- |
-|数据|数组|
-|时间复杂度|\\(O(n^2)\\)|
-|最优时间复杂度|\\(O(n)\\)|
-|平均时间复杂度|\\(O(n^2)\\)|
-|空间复杂度|总共\\(O(n)\\)，需要辅助空间\\(O(1)\\)|
+|数据结构|数组|
+|最坏时间复杂度|<img src="https://latex.codecogs.com/gif.latex?O(n^2)" title="O(n^2)" />|
+|最优时间复杂度|<img src="https://latex.codecogs.com/gif.latex?O(n)" title="O(n)" />|
+|平均时间复杂度|<img src="https://latex.codecogs.com/gif.latex?O(n^2)" title="O(n^2)" />|
+|空间复杂度|总共<img src="https://latex.codecogs.com/gif.latex?O(n)" title="O(n)" />，需要辅助空间<img src="https://latex.codecogs.com/gif.latex?O(1)" title="O(1)" />|
 
 冒泡排序是一种简单的排序算法。它重复地走访过要排序的数列，一次比较两个元素，如果他们的顺序错误就把他们交换过来。
 走访数列的工作是重复地进行直到没有再需要交换，也就是说该数列已经排序完成。
 
-冒泡排序对n个项目需要\\(O(n^2)\\)的比较次数，且可以原地排序。尽管这个算法是最简单了解和实现的排序算法之一，但它对于少数
+冒泡排序对n个项目需要<img src="https://latex.codecogs.com/gif.latex?O(n^2)" title="O(n^2)" />的比较次数，且可以原地排序。尽管这个算法是最简单了解和实现的排序算法之一，但它对于少数
 元素之外的数列排序是很没有效率的。
 
-冒泡排序与插入排序拥有相等的运行时间，但是两种算法在需要交换的次数却很大地不同。在最好的情况下，冒泡排序需要\\(O(n^2)\\)
-次交换，而插入排序只要最多\\(O(n)\\)交换。
+冒泡排序与插入排序拥有相等的运行时间，但是两种算法在需要交换的次数却很大地不同。在最好的情况下，冒泡排序需要<img src="https://latex.codecogs.com/gif.latex?O(n^2)" title="O(n^2)" />
+次交换，而插入排序只要最多<img src="https://latex.codecogs.com/gif.latex?O(n)" title="O(n)" />交换。
 
 冒泡排序算法的运作如下：
     1. 比较相邻的元素。如果第一个比第二个大，就交换他们两个。
@@ -83,14 +84,14 @@
 # 3.快速排序
 |      |      |
 | ---- | ---- |
-|数据|不定|
-|时间复杂度|\\(O(n^2)\\)|
-|最优时间复杂度|\\(O(nlogn)\\)|
-|平均时间复杂度|\\(O(nlogn)\\)|
+|数据结构|不定|
+|最坏时间复杂度|<img src="https://latex.codecogs.com/gif.latex?O(n^2)" title="O(n^2)" />|
+|最优时间复杂度|<img src="https://latex.codecogs.com/gif.latex?O(nlogn)" title="O(nlogn)" />|
+|平均时间复杂度|<img src="https://latex.codecogs.com/gif.latex?O(nlogn)" title="O(nlogn)" />|
 |空间复杂度|根据实现方式不同而不同|
 
-在平均状况下，排序n个项目要\\(O(nlogn)\\)次比较。在最坏状况下则需要\\(O(n^2)\\),但这种状况并不常见。事实上，快速排序通常
-明显比其他\\(O(nlogn)\\)算法更快，因为它的内部循环可以在大部分的架构上很有效率地被实现出来。
+在平均状况下，排序n个项目要<img src="https://latex.codecogs.com/gif.latex?O(nlogn)" title="O(nlogn)" />次比较。在最坏状况下则需要<img src="https://latex.codecogs.com/gif.latex?O(n^2)" title="O(n^2)" />,但这种状况并不常见。事实上，快速排序通常
+明显比其他<img src="https://latex.codecogs.com/gif.latex?O(nlogn)" title="O(nlogn)" />算法更快，因为它的内部循环可以在大部分的架构上很有效率地被实现出来。
 
 ## 算法描述
 快速排序使用分治法策略把一个序列(list)分为两个子序列(sub-lists)。
@@ -122,10 +123,10 @@ function quicksort(q)
 |      |      |
 | ---- | ---- |
 |数据结构|数组|
-|时间复杂度|\\(O(nlogn)\\)|
-|最优时间复杂度|\\(O(nlogn)\\)|
-|平均时间复杂度|\\(O(nlogn)\\)|
-|空间复杂度|\\(O(n)\\) total,\\(O(1)\\) auxilary|
+|时间复杂度|<img src="https://latex.codecogs.com/gif.latex?O(nlogn)" title="O(nlogn)" />|
+|最优时间复杂度|<img src="https://latex.codecogs.com/gif.latex?O(nlogn)" title="O(nlogn)" />|
+|平均时间复杂度|<img src="https://latex.codecogs.com/gif.latex?O(nlogn)" title="O(nlogn)" />|
+|空间复杂度|总的<img src="https://latex.codecogs.com/gif.latex?O(n)" title="O(n)" />,辅助<img src="https://latex.codecogs.com/gif.latex?O(1)" title="O(1)" /> |
 
 堆排序(Heapsort)是指利用堆这种数据结构所设计的一种排序算法。堆积是一个近似完全二叉树的结构，
 并同时满足堆积的性质，即子结点的键值或索引总是小于（或者大于）它的父节点。
@@ -134,12 +135,12 @@ function quicksort(q)
 通常堆是通过一维数组来实现的。在数组起始位置为0的情形中：
 * 父节点i的左子节点在位置(1*i+1);
 * 父节点i的右子节点在位置(2*i+2);
-* 子节点i的父节点在位置floor((i-1)/2);
+* 子节点i的父节点在位置floor((i-1)/2); # floor功能，即取不大于x的最大整数
 
 ## 堆的操作
 在堆得数据结构中，堆中的最大值总是位于根节点(在优先队列中使用堆的话堆中的最小值位于根节点)。堆中定义以下几种操作：
 * 最大堆调整(Max_Heaplfy)：将堆得末端子节点作调整，使得子节点永远小于父节点。
-* 创建最大堆(Build_Max_Heap):将堆所有数据重新排序。
+* 创建最大堆(Build\_Max_Heap):将堆所有数据重新排序。
 * 堆排序(HeapSort)：移除位在第一个数据的根节点，并做最大堆调整的递归运算。
 
 # 归并操作
@@ -157,8 +158,3 @@ function quicksort(q)
     1. 将序列每相邻两个数字进行归并操作，形成floor(n/2)个序列，排序后每个序列包含两个元素
     2. 将上述序列再次归并，形成floor(n/4)个序列，每个序列包含四个元素
     3. 重复步骤2，直到所有元素排序完毕
-
-
-
-
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
