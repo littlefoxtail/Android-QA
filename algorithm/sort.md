@@ -20,7 +20,7 @@
 |线性时间|      |<img src="https://latex.codecogs.com/gif.latex?O(n)" title="O(n)" />|n|无序数组的搜索|
 |线性对数时间|      |<img src="https://latex.codecogs.com/gif.latex?O(nlogn)" title="O(nlogn)" />|<img src="https://latex.codecogs.com/gif.latex?nlogn" title="nlogn" />,<img src="https://latex.codecogs.com/gif.latex?logn!" title="logn!" />|最快的比较排序|
 |二次时间|  |<img src="https://latex.codecogs.com/gif.latex?O(n^2)" title="O(n^2)" />|<img src="https://latex.codecogs.com/gif.latex?n^2" title="n^2" />|冒泡排序、插入排序|
-|三次时间|  |<img src="https://latex.codecogs.com/gif.latex?O(n^3)" title="O(n^3)" />|<img src="https://latex.codecogs.com/gif.latex?n^3" title="n^2" />|矩阵乘法的基本实现，计算部分相关性|
+|三次时间|  |<img src="https://latex.codecogs.com/gif.latex?O(n^3)" title="O(n^3)" />|<img src="https://latex.codecogs.com/gif.latex?n^3" title="n^3" />|矩阵乘法的基本实现，计算部分相关性|
 |阶乘时间||<img src="https://latex.codecogs.com/gif.latex?O(n!)" title="O(n!)" />|<img src="https://latex.codecogs.com/gif.latex?n!" title="n!" />|通过暴力搜索解决旅行推销员问题|
 -------
 空间复杂度：分析排序算法中需要多少辅助内存
