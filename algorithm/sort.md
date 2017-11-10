@@ -14,11 +14,11 @@
 
 |名称|复杂度类|运行时间(T(n))|运行时间举例|算法举例|
 | ---- | ---- | ---- | ---- | ---- |
-|常数时间|      |<img src="https://latex.codecogs.com/gif.latex?\\O(1)\\" title="\\O(1)\\" />|10|判断一个二进制数的奇偶|
-|迭代对数时间|      |<img src="https://latex.codecogs.com/gif.latex?\\O(log^*n)\\" title="\\O(log^*n)\\" />|    |      |
-|对数时间|DLOGTIME|<img src="https://latex.codecogs.com/gif.latex?\\O(logn)\\" title="\\O(logn)\\" />|<img src="https://latex.codecogs.com/gif.latex?\\logn\\" title="\\logn\\" />,<img src="https://latex.codecogs.com/gif.latex?\\logn^2\\" title="\\logn^2\\" />|二分搜索|
-|线性时间|      |<img src="https://latex.codecogs.com/gif.latex?\\O(n)\\" title="\\O(n)\\" />|n|无序数组的搜索|
-|线性对数时间|      |<img src="https://latex.codecogs.com/gif.latex?O(nlogn)" title="O(nlogn)" />|<img src="https://latex.codecogs.com/gif.latex?\\nlogn\\" title="\\nlogn\\" />,<img src="https://latex.codecogs.com/gif.latex?logn!" title="logn!" />|最快的比较排序|
+|常数时间|      |<img src="https://latex.codecogs.com/gif.latex?O(1)" title="O(1)" />|10|判断一个二进制数的奇偶|
+|迭代对数时间|      |<img src="https://latex.codecogs.com/gif.latex?O(log^*n)" title="O(log^*n)" />|    |      |
+|对数时间|DLOGTIME|<img src="https://latex.codecogs.com/gif.latex?O(logn)" title="O(logn)" />|<img src="https://latex.codecogs.com/gif.latex?logn" title="logn" />,<img src="https://latex.codecogs.com/gif.latex?logn^2" title="logn^2" />|二分搜索|
+|线性时间|      |<img src="https://latex.codecogs.com/gif.latex?O(n)" title="O(n)" />|n|无序数组的搜索|
+|线性对数时间|      |<img src="https://latex.codecogs.com/gif.latex?O(nlogn)" title="O(nlogn)" />|<img src="https://latex.codecogs.com/gif.latex?nlogn" title="nlogn" />,<img src="https://latex.codecogs.com/gif.latex?logn!" title="logn!" />|最快的比较排序|
 |二次时间|  |<img src="https://latex.codecogs.com/gif.latex?O(n^2)" title="O(n^2)" />|<img src="https://latex.codecogs.com/gif.latex?n^2" title="n^2" />|冒泡排序、插入排序|
 |三次时间|  |<img src="https://latex.codecogs.com/gif.latex?O(n^3)" title="O(n^3)" />|<img src="https://latex.codecogs.com/gif.latex?n^3" title="n^2" />|矩阵乘法的基本实现，计算部分相关性|
 |阶乘时间||<img src="https://latex.codecogs.com/gif.latex?O(n!)" title="O(n!)" />|<img src="https://latex.codecogs.com/gif.latex?n!" title="n!" />|通过暴力搜索解决旅行推销员问题|

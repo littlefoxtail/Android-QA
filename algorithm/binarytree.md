@@ -7,10 +7,10 @@
 
 ## 二叉树的性质
 
-1. 二叉树的第i层至多有<img src="https://latex.codecogs.com/gif.latex?\\(2^{i-1}\)" title="\\(2^{i-1}\)" />个节点(i>=1)。
-2. 深度为k的二叉树至多共有<img src="https://latex.codecogs.com/gif.latex?\\(2^{i-1}\)" title="\\(2^{i-1}\)" />个节点。
+1. 二叉树的第i层至多有<img src="https://latex.codecogs.com/gif.latex?(2^{i-1})" title="(2^{i-1})" />个节点(i>=1)。
+2. 深度为k的二叉树至多共有<img src="https://latex.codecogs.com/gif.latex?(2^{i-1})" title="(2^{i-1})" />个节点。
 3. 对任何一颗二叉树T，如果其终端结点数为
-对任何一棵二叉树T，如果其终端节点数为<img src="https://latex.codecogs.com/gif.latex?\\(n_0\)" title="\\(n_0\)" />,度为2的节点数为<img src="https://latex.codecogs.com/gif.latex?\\(n_2\)" title="\\(n_2\)" />，则<img src="https://latex.codecogs.com/gif.latex?\\(n_0=n_2&plus;1\)" title="\\(n_0=n_2+1\)" />
+对任何一棵二叉树T，如果其终端节点数为<img src="https://latex.codecogs.com/gif.latex?(n_0\)" title="(n_0\)" />,度为2的节点数为<img src="https://latex.codecogs.com/gif.latex?(n_2\)" title="(n_2\)" />，则<img src="https://latex.codecogs.com/gif.latex?(n_0=n_2&plus;1)" title="(n_0=n_2+1)" />
 4. 包含n个结点的二叉树的高度至少为<img src="https://latex.codecogs.com/gif.latex?log_{2}(n&plus;1)" title="log_{2}(n+1)" />
 5. 如果对一个n个结点的完全二叉树(其深度为<img src="https://latex.codecogs.com/gif.latex?[log_{2}(n)]&space;&plus;1" title="[log_{2}(n)] +1" />)的结点按层序编号（从第1层到第<img src="https://latex.codecogs.com/gif.latex?[log_{2}(n)]&space;&plus;1" title="[log_{2}(n)] +1" />）
 
