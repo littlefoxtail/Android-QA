@@ -30,6 +30,20 @@
 -----------
 稳定性：若两个记录A和B的关键字相等，但是排序后AB的先后次序保持不变（稳定）
 
+- [冒泡排序](https://zh.wikipedia.org/wiki/%E5%86%92%E6%B3%A1%E6%8E%92%E5%BA%8F)（bubble sort）— O(*n*2)
+- [插入排序](https://zh.wikipedia.org/wiki/%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F)（insertion sort）—O(*n*2)
+- [鸡尾酒排序](https://zh.wikipedia.org/wiki/%E9%B8%A1%E5%B0%BE%E9%85%92%E6%8E%92%E5%BA%8F)（cocktail sort）—O(*n*2)
+- [桶排序](https://zh.wikipedia.org/wiki/%E6%A1%B6%E6%8E%92%E5%BA%8F)（bucket sort）—O(*n*)；需要O(*k*)额外空间
+- [计数排序](https://zh.wikipedia.org/wiki/%E8%AE%A1%E6%95%B0%E6%8E%92%E5%BA%8F)（counting sort）—O(*n*+*k*)；需要O(*n*+*k*)额外空间
+- [归并排序](https://zh.wikipedia.org/wiki/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F)（merge sort）—O(*n* log *n*)；需要O(*n*)额外空间
+- 原地[归并排序](https://zh.wikipedia.org/wiki/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F)— O(*n* log2 *n*)如果使用最佳的现在版本
+- [二叉排序树](https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%8E%92%E5%BA%8F%E6%A0%91)排序（binary tree sort）— O(*n* log *n*)期望时间；O(*n*2)最坏时间；需要O(*n*)额外空间
+- [鸽巢排序](https://zh.wikipedia.org/wiki/%E9%B8%BD%E5%B7%A2%E6%8E%92%E5%BA%8F)（pigeonhole sort）—O(*n*+*k*)；需要O(*k*)额外空间
+- [基数排序](https://zh.wikipedia.org/wiki/%E5%9F%BA%E6%95%B0%E6%8E%92%E5%BA%8F)（radix sort）—O(*n*·*k*)；需要O(*n*)额外空间
+- [侏儒排序](https://zh.wikipedia.org/w/index.php?title=%E4%BE%8F%E5%84%92%E6%8E%92%E5%BA%8F&action=edit&redlink=1)（gnome sort）— O(*n*2)
+- [图书馆排序](https://zh.wikipedia.org/wiki/%E5%9B%BE%E4%B9%A6%E9%A6%86%E6%8E%92%E5%BA%8F)（library sort）— O(*n* log *n*)期望时间；O(*n*2)最坏时间；需要(1+ε)*n*额外空间
+- [块排序](https://zh.wikipedia.org/w/index.php?title=%E5%A1%8A%E6%8E%92%E5%BA%8F&action=edit&redlink=1)（block sort）— O(*n* log *n*)
+
 # 1.插入排序
 |      |      |
 | ---- | ---- |
