@@ -64,7 +64,7 @@ AMS的进程相关的成员变量:
 AMS是四大组件最为核心：
 
 ## APP端的组件信息
-![image](../img/client_component.jpg)
+![image](../img/client_component.jpg) 
 主要保存功能：
 * ActivityThread：记录provider,activity,service在客户端的相关信息
 * LoadedApk：记录动态注册的广播接收器，以及bind方式启动service在客户端的相关信息

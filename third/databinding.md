@@ -44,6 +44,8 @@ Java API已经提供了扫描源码并解析注解的框架，你可以继承Abs
 * Databinding中是如何实现将VM的数据绑定到V的？
 
 
+# DataBinding利用编译器在背后做的那些事儿
+![databinding_process](../img/databinding_process.png)
 
 
 
