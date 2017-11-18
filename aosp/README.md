@@ -7,7 +7,7 @@
 - **[binder的理解(未完)](binder.md)**
 - **[应用中的Context](context.md)**
 - **[LayoutInflater如何加载布局的](layoutinflater.md)**
-- **[测量定位绘制流程](measure_layout_draw.md)**
+- **[测量定位绘制流程](measure_layout_draw.md)**
 - **[属性动画](objectanimator.md)**
 - **[RecyclerView](recyclerview.md)**
 - **[RemoteViews](remoteviews.md)**
