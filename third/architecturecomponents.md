@@ -13,6 +13,13 @@ Android系统可能会随时由于用户的行为或者系统状态(比如剩余
 # Lifecycles
 生命周期管理(Lifecycles)帮助开发者创建“可感知生命周期的”组件，让其自己管理自己的生命周期，从而减少内存泄露和崩溃的可能性。
 生命周期库是其他架构组件的基础
+- `ProcessLifecycleOwnerInitializer`初始化Lifecycle框架
+- `LifecycleDispatcher` 通过ActivityLifecycleCallbacks与LifecycleDispatcher配合监听当前进程中Activitys的生命周期变化并在必要时产生相应lifecycle事件
+- `ProcessLifecycleOwner`通过ActivityLifecycleCallbacks与LifecycleDispatcher配合监听当前进程中Activitys的生命周期变化并在必要时产生相应的lifecycle事件
+- `LifecycleService`，通过重写Service的生命周期方法并在相应方法内产生相应的lifecycle事件
+
+## LifecycleRegistry的addObserver流程
+
 
 # LiveData
 LiveData是一款基于观察者模式的可感知生命周期的核心组件。LiveData为界面代码(Observer)的监视对象(Observable)。当LiveData
