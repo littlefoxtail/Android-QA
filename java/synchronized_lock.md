@@ -1,3 +1,8 @@
+# synchronized(this)
+
+
+
+# ReentranLock
 ReentranLock，字面意思就是可重入锁，它支持同一个线程对资源的重复加锁，也是我们平时在处理java并发情况下用的最多的同步组件之一
 (volatile, synchronized)
 

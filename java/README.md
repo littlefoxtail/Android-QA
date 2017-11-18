@@ -1,2 +1,9 @@
-- **[Android多线程](threading.md)**
-- **[Effective Java for Android (cheatsheet)](effective/Effective.md)**
+- **[多线程](threading.md)**
+- **[futuretask](futuretask.md)**
+- **[volatile关键字的作用](volatile.md)**
+- **[exception的处理](exception.md)**
+- **[java基础](javabasic.md)**
+- **[同步的理解](synchronized_lock.md)**
+- **[死锁的理解](deadlock.md)**
+- **[红黑树的理解](redblacktree.md)**
+- **[Effective Java for Android (cheatsheet)](Effective.md)**

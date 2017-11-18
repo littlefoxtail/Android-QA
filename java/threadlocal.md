@@ -14,7 +14,7 @@ mStringThreadLocal.get();
 1. 获取当前线程
 2. 利用当前线程作为句柄获取一个ThreadLocalMap的对象
 3. 如果没有ThreadLocalMap对象，则创建并设置值
-> 句柄： 本质相当于带有引用计数的智能指针
+> 句柄： 本质相当于带有引用计数的智能指针
 
 总结：实际上ThreadLocal的值是放入了当前线程一个ThreadLocalMap实例中，所以只能在本线程中访问，其他线程无法访问。
 
