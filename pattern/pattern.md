@@ -10,11 +10,42 @@
 
 ## 创建型模式（五种）
 ### 名称：工厂方法模式(Factory Method)
+工厂方法模式又称为工厂模式，也叫虚拟构造器(Virtual Constructor)模式或者多态工厂，它属于类创建型。在工厂方法模式中，工厂父类负责定义创建产品对象的公共接口，而工厂子类则负责生产具体的产品对象，这样做的目的是将产品类的实例化操作延迟到工厂子中完成。
+工厂父类:
+```java
+public interface Blacksmith {
+    Weapon manufactureWeapon(WeaponType weaponType);
+}
+```
+工厂子类：
+```java
+public class ElfBlacksmith implements Blacksmith {
+   public Weapon manufactureWeapon(WeaponType weaponType) {
+       return new ElfWeapon(weaponType);
+   }
+}
+```
+
+```java
+public class OrcBlacksmith implements Blacksmith {
+    public Weapon manufactureWeapon(WeaponType weaponType) {
+        return new OrcWeapon(weaponType);
+    }
+}
+```
+
 * 意图：定义一个用于创建对象的接口，让子类决定实例化哪一个类。Factory Method使一个类的实例化延迟到其子类。
 * 适用性：
     1. 当一个类不知道它所必须创建的对象的类的时候。
     2. 当一个类希望由它的子类来指定它所创建的对象的时候。
     3. 当类将创建对象的职责委托给多个帮助子类中的某一个，并且你希望将哪一个帮助子类是代理者这一信息局部化的时候。
+
+#### 模式分析
+工厂方法模式是简单工厂模式的进一步抽象和推广。由于使用了面向对象的多态性，工厂方法模式保持了简单工厂模式的有点，而且克服了它的缺点。在工厂方法模式中，核心的工厂类不在负责所有产品的创建，而是将具体创建工作交给子类去做。这个核心类仅仅负责给出具体工厂必须实现的接口，而不负责哪一个产品类被实例化这种细节，这使得工厂方法模式可以允许系统在不修改工厂角色的情况下引入新的产品。
+
+#### 缺点
+* 在添加新产品时，需要编写新的具体产品类，而且还要提供与之对应的具体工厂类，系统中类的个数将成对增加，在一定程度上增加了系统的复杂度，有更多的类需要编译和运行，会给系统带来一些额外的开销
+* 由于考虑到系统的可扩展性，需要引入抽象层，在客户端代码中均使用抽象层进行定义，增加了系统的抽象性和理解难度
 
 #### Known uses
 
@@ -27,6 +58,49 @@
 * [javax.xml.bind.JAXBContext](https://docs.oracle.com/javase/8/docs/api/javax/xml/bind/JAXBContext.html#createMarshaller--)
 
 ### 名称：抽象工厂模式(Abstract Factory)
+抽象工厂模式提供一个创建一系列相关或相互依赖对象的接口，而无须指定它们具体的类。抽象工厂模式又称为Kit模式，属于对象创建型模式。
+
+```java
+public interface KingdomFactory {
+    Castle createCastle();
+
+    King createKing();
+
+    Army createArmy();
+}
+```
+
+```java
+public class ElfKingdomFactory implements KingdomFactory {
+    public Castle createCastle() {
+        return new ElfCastle();
+    }
+
+    public King createKing() {
+        return new ElfKing();
+    }
+
+    public Army createArmy() {
+        return new ElfArmy();
+    }
+}
+```
+
+```java
+public class OrcKingdomFactory implements KingdomFactory {
+    public Castle createCastle() {
+        return new OrcCastle();
+    }
+
+    public King createKing() {
+        return new OrcKing();
+    }
+
+    public Army createArmy() {
+        return new OrcArmy();
+    }
+}
+```
 * 意图：提供一个创建一系列相关或相互依赖对象的接口，而无需指定它们具体的类。
 * 适用性：
     1. 一个系统要独立于它的产品的创建、组合和表示时。
@@ -34,6 +108,9 @@
     3. 当你要强调一系列相关的产品对象的设计以便进行联合使用时。
     4. 当你提供一个产品类库，而只想显示它们的接口而不是实现时。
 
+#### 缺点
+- 在添加新的产品对象时，难以扩展抽象工厂来生产新种类的产品，这是因为在抽象工厂角色中规定了所有可能被创建的产品集合，要支持新种类的产品就意味着要对接口进行扩展，而这将涉及到对抽象工厂角色以及其所有子类的修改。
+- 开闭原则的倾斜性(增加新的工厂和产品组容易，增加新的产品等级结构麻烦)。
 #### Real world examples
 
 * [javax.xml.parsers.DocumentBuilderFactory](http://docs.oracle.com/javase/8/docs/api/javax/xml/parsers/DocumentBuilderFactory.html)
@@ -41,11 +118,42 @@
 * [javax.xml.xpath.XPathFactory](http://docs.oracle.com/javase/8/docs/api/javax/xml/xpath/XPathFactory.html#newInstance--)
 
 ### 名称：建造者模式（Builder）
+将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。
+建造者模式是一步一步创建一个复杂的对象，它允许用户只通过指定复杂对象的类型和内容就可以构建它们，用户不需要知道内部的具体构建细节。
+
+```java
+public final class Hero {
+    
+    private Hero(Builder builder) {
+        this.profession = builder.profession;
+    }
+
+    public Profression getProfession() {
+        return profession;
+    }
+
+    public static class Builder {
+        private final Profession profession;
+
+        public Builder (Profession profession) {
+            this.profession = profession;
+        }
+
+        public Hero build() {
+            return new Hero(this);
+        }
+    }
+}
+```
 * 意图：将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。
 * 适用性：
     1. 当创建复杂对象的算法应该独立于该对象的组成部分以及它们的装配方式时。
     2. 当构造过程必须运行被构造的对象有不同的表示时。
 
+
+#### 优点
+* 在建造者模式中，客户端不必知道产品内部组成的细节，将产品本身与产品的创建过程解耦，使得相同的创建过程可以创建不同的产品对象
+* 每一个具体建造者都相对独立，而与其他的具体建造者无关，因此可以很方便地替换具体建造者或增加新的具体建造者，用户
 #### Real world examples
 
 * [java.lang.StringBuilder](http://docs.oracle.com/javase/8/docs/api/java/lang/StringBuilder.html)
@@ -162,6 +270,7 @@
 ③可处理一个请求的对象集合应被动态指定。
 
 ### 名称：Command(命令模式)
+
 * 意图：将一个请求封装为一个对象，从而使你可用不同的请求对客户进行参数化；对请求排队或记录请求日志，以及支持可撤销的操作。
 * 适用性：①抽象出待执行的动作以参数化某对象，你可用过程语言中的回调函数表达这种参数化机制。回调函数指函数在某处注册，而它将在稍后某个需要的时候被调用。command模式是回调机制的一个面向对象的替代品。
 ②在不同的时刻指定、排列和执行请求。一个Command对象可以有一个初始请求无关的生存期。如果一个请求的接受者可用一种与地址空间无关的方式表达，那么就将负责该请求的命令对象传送给另一个不同的进程并在那儿实现该请求。
