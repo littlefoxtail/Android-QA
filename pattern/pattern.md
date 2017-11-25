@@ -118,33 +118,81 @@ public class OrcKingdomFactory implements KingdomFactory {
 * [javax.xml.xpath.XPathFactory](http://docs.oracle.com/javase/8/docs/api/javax/xml/xpath/XPathFactory.html#newInstance--)
 
 ### 名称：建造者模式（Builder）
+*通俗来讲： 允许您创建不同的对象风格，同时避免构造器污染。 当可能有几种风格的对象时很有用。 或者当创建对象时涉及很多步骤*
+
 将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。
 建造者模式是一步一步创建一个复杂的对象，它允许用户只通过指定复杂对象的类型和内容就可以构建它们，用户不需要知道内部的具体构建细节。
 
 ```java
 public final class Hero {
+    private final Profession profession;
+    private final String name;
+    private final HairType hairType;
+    private final HairColor hairColor;
+    private final Armor armor;
+    private final Weapon weapon;
+
     
     private Hero(Builder builder) {
         this.profession = builder.profession;
-    }
-
-    public Profression getProfession() {
-        return profession;
-    }
-
-    public static class Builder {
-        private final Profession profession;
-
-        public Builder (Profession profession) {
-            this.profession = profession;
-        }
-
-        public Hero build() {
-            return new Hero(this);
-        }
+        this.name = builder.name;
+        this.hairColor = builder.hairColor;
+        this.hairType = builder.hairType;
+        this.weapon = builder.weapon;
+        this.armor = builder.armor;
     }
 }
 ```
+
+builder:
+```java
+public static class Builder {
+    private final Profession profession;
+    private final String name;
+    private HairType hairType;
+    private HairColor hairColor;
+    private Armor armor;
+    private Weapon weapon;
+    public Builder(Profession profession, String name) {
+        if (profression == null || name == null) {
+            throw new IllegalArgumentException("not be null")
+        }
+        this.profession = profession;
+        this.name = name;
+    }
+
+    public Builder withHairType(HairType hairType) {
+        this.hairType = hairType
+        return this;
+    }
+
+    public Builder withHairColor(HairColor hairColor) {
+        this.hairColor = hairColor;
+        return this;
+    }
+
+    public Builder withArmor(Armor armor) {
+        this.armor = armor;
+        return this;
+    }
+
+    public Builder withWeapon(Weapon weapon) {
+        this.weapon = weapon;
+        return this;
+    }
+
+    public Hero build() {
+        return new Hero(this);
+    }
+
+}
+```
+
+used:
+```java
+Hero mage = new Hero.Builder(Profession.Name, "Riobard").withHairColor(HairColor.BLACK).withWeapon(WeaponD.AGGER).build();
+```
+
 * 意图：将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。
 * 适用性：
     1. 当创建复杂对象的算法应该独立于该对象的组成部分以及它们的装配方式时。
@@ -153,7 +201,15 @@ public final class Hero {
 
 #### 优点
 * 在建造者模式中，客户端不必知道产品内部组成的细节，将产品本身与产品的创建过程解耦，使得相同的创建过程可以创建不同的产品对象
-* 每一个具体建造者都相对独立，而与其他的具体建造者无关，因此可以很方便地替换具体建造者或增加新的具体建造者，用户
+* 每一个具体建造者都相对独立，而与其他的具体建造者无关，因此可以很方便地替换具体建造者或增加新的具体建造者，用户使用不同的具体建造者即可得到不同的产品对象。
+* 可以更加精细地控制产品的创建过程。将复杂产品的创建步骤分解在不同的方法中，使得创建过程更加清晰，也更方便使用程序来控制创建过程。
+* 增加新的具体建造者无需修改原有类库的代码，指挥者类针对抽象建造者类编程，系统扩展方便，符合“开闭原则”
+
+#### 缺点
+* 建造者模式所创建的产品一般具有较多的共同点，其组成部分相似，如果产品之间的差异性很大，则不适合使用建造者模式，因此其使用范围受到一定的限制。
+* 如果产品的内部变化复杂，可能会导致需要定义很多具体建造者类来实现这种变化，导致系统变得很庞大。
+
+
 #### Real world examples
 
 * [java.lang.StringBuilder](http://docs.oracle.com/javase/8/docs/api/java/lang/StringBuilder.html)
@@ -174,11 +230,84 @@ public final class Hero {
 
 ## 结构型模式（七种）
 ### 名称：Adapter(适配器模式)
+在适配器模式中可以定义一个包装类，包装不兼容接口的对象，这个包装类指的就是适配器(Adapter)，它所包装的对象就是是适配者(Adaptee)，即被适配的类。
+适配器提供客户类需要的接口，适配器的实现就是把客户类的请求转化为对适配者的相应接口的调用。也就是说：当客户类调用适配器的方法时，在适配器类的内部将调用适配者类的方法，而这个过程对客户类是透明的，客户类并不直接访问适配者类。因此，适配器可以使由于接口不兼容而不能交互的类可以一起工作。这就是适配器模式的模式动机
+
+适配模式(Adapter Pattern)：将一个接口转换成客户希望的另一个接口，适配器模式使接口不兼容的那些类可以一起工作，其别名为包装(Wrapper)。适配器模式既可以做为类结构型模式，也可以作为对象结构型模式。
+
+Client
+```java
+public class Captain implements RowingBoat {
+    private RowingBoat rowingBoat;
+
+    public Captain() {
+
+    }
+
+    public Captain(RowingBoat rowingBoat) {
+        this.rowingBoat = rowingBoat;
+    }
+
+    public void setRowingBoat(RowingBoat rowingBoat) {
+        this.rowingBoat = rowingBoat;
+    }
+
+    @Override
+    public void row() {
+        rowingBoat.row();
+    }
+}
+```
+
+Adaptee
+```java
+public class FishingBoat {
+
+    public void sail() {
+        log.i("The fishing boat is sailing")
+    }
+}
+```
+
+Adapter
+```java
+public class FinishBoatAdapter implements RowingBoat {
+
+    private FinishBoatAdapter boat;
+
+    public FinishBoatAdapter() {
+        boat = new FinishBoat();
+    }
+
+    @Override
+    public void row() {
+        boat.sail();
+    }
+}
+```
+
+
 * 意图：将一个类的接口转换成客户希望的另一个接口。adapter模式使得原本由于接口不兼容而不能一起工作的那些类可以一起工作。
 * 适用性：
     1. 你想使用一个已经存在的类，而它的接口不符合你的需求。
     2. 你想创建一个可以复用的类，该类可以与其他不想关或不可预见的类（即那些接口可能不一定兼容的类）协同工作。
     3. (仅使用对象adapter)你想使用一些已经存在的子类，但是不可能对每一个都进行子类化以匹配它们的接口。对象适配器可以适配它的父类接口。
+
+### 优点
+* 将目标类和适配者类解耦，通过引入一个适配类来重用现有的适配者类，而无需修改原有代码
+* 增加类的透明性和复用性，将具体的实现封装在适配者类中，对于客户端类来说透明的，而且了提高了适配者的复用性
+* 灵活性和扩展性都非常好，通过使用配置文件，可以很方便地更换适配器，也可以在不修改原有代码的基础上增加新的适配器类，符合“开闭原则”
+
+**类适配模式具有如下优点**
+由于适配器类适配者类的子类，因此可以在适配器类中置换一些适配者的方法，使得适配的灵活性更强
+
+**对象适配器模式具有如下优点**
+一个对象适配器可以把多个不同的适配者适配到同一个目标，也就是说，同一个适配器可以把适配者类和它的子类都适配到目标接口
+
+#### 缺点
+类适配器对于不支持多重继承的语言，一次最多只能适配一个适配者类，而且目标抽象类只能为抽象，不能为具体类，其使用有一定的局限性，不能讲一个适配者类和它的子类都适配到目标接口
+
+对象适配器模式置换时适配者的方法不容易
 
 #### Real world examples
 * [java.util.Arrays#asList()](http://docs.oracle.com/javase/8/docs/api/java/util/Arrays.html#asList%28T...%29)
@@ -214,20 +343,6 @@ public final class Hero {
 * [java.awt.Container](http://docs.oracle.com/javase/8/docs/api/java/awt/Container.html) and [java.awt.Component](http://docs.oracle.com/javase/8/docs/api/java/awt/Component.html)
 * [Apache Wicket](https://github.com/apache/wicket) component tree, see [Component](https://github.com/apache/wicket/blob/91e154702ab1ff3481ef6cbb04c6044814b7e130/wicket-core/src/main/java/org/apache/wicket/Component.java) and [MarkupContainer](https://github.com/apache/wicket/blob/b60ec64d0b50a611a9549809c9ab216f0ffa3ae3/wicket-core/src/main/java/org/apache/wicket/MarkupContainer.java)
 
-### 名称：Decorator(装饰器模式)
-* 意图：动态地给一个对象添加一些额外的职责。就增加功能来说，decorator模式相比生成子类更为灵活。
-* 适用性：
-    1. 在不影响其他对象的情况下，以动态、透明的方式给单个对象添加职责
-    2. 处理那些不可撤销的职责。
-    3. 当不能生成子类的方法进行扩充时。一种情况是，可能有大量的扩展，为支持每一种组合将产生大量的子类，使得子类数据呈爆炸性增长。
-另一种情况可能是因为类定义被隐藏，或类定义不能用于生成子类。
-
-#### Real world examples
- * [java.io.InputStream](http://docs.oracle.com/javase/8/docs/api/java/io/InputStream.html), [java.io.OutputStream](http://docs.oracle.com/javase/8/docs/api/java/io/OutputStream.html),
- [java.io.Reader](http://docs.oracle.com/javase/8/docs/api/java/io/Reader.html) and [java.io.Writer](http://docs.oracle.com/javase/8/docs/api/java/io/Writer.html)
- * [java.util.Collections#synchronizedXXX()](http://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#synchronizedCollection-java.util.Collection-)
- * [java.util.Collections#unmodifiableXXX()](http://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#unmodifiableCollection-java.util.Collection-)
- * [java.util.Collections#checkedXXX()](http://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#checkedCollection-java.util.Collection-java.lang.Class-)
 
 ### 名称：Facade(外观模式)
 * 意图：为子系统中的一组接口提供一个一致的界面，Facad模式定义了一个高层接口，这个接口使得这一子系统更加容易使用。
@@ -245,6 +360,83 @@ public final class Hero {
 ④如果删除对象的外部状体，那么可以用相对较少的共享对象取代很多组对象。
 ⑤应用程序不依赖于对象标识。由于Flyweight对象可以被共享，对于概念上明显有别的对象，标识测试将返回真值。
 
+
+### 名称：Decorator(装饰器模式)
+装饰模式以对客户透明的方式动态地给一个对象附件上更多的责任，换言之，客户端并不会觉得对象在装饰前和装饰后有什么不同。装饰模式可以在不需要创造更多子类的情况下，将对象的功能加以扩展。这就是装饰模式的动机。
+
+* 意图：动态地给一个对象添加一些额外的职责。就增加功能来说，decorator模式相比生成子类更为灵活。其别名也可以称为包装器(Wrapper)，与适配器模式的别名相同。
+* 适用性：
+    1. 在不影响其他对象的情况下，以动态、透明的方式给单个对象添加职责
+    2. 处理那些不可撤销的职责。
+    3. 当不能生成子类的方法进行扩充时。一种情况是，可能有大量的扩展，为支持每一种组合将产生大量的子类，使得子类数据呈爆炸性增长。
+另一种情况可能是因为类定义被隐藏，或类定义不能用于生成子类。
+Interface:
+```java
+public interface Troll {
+    void attach();
+
+    int getAttackPower();
+
+    void fleeBattle();
+}
+```
+Decorator:
+```java
+public ClubbedTroll implements Troll {
+    private Troll decorated;
+
+    public ClubbedTroll (Troll decorated) {
+        this.decorated = decorated;
+    }
+
+    @Override
+    public void attack() {
+        decorated.attach();
+    }
+
+    @Override
+    public void getAttackPower() {
+        decorated.getAttackPower() + 10;
+    }
+
+    @Override
+    public void fleeBattle() {
+        decorated.fleeBattle();
+    }
+}
+```
+
+```java
+public class SimpleTroll implements Troll {
+    @Override
+    public void attach() {
+        log.i("the troll tries to grab you!");
+    }
+    @Override
+    public int getAttackPower() {
+        return 10;
+    }
+    @Override
+    public void fleeBattle() {
+        log.i("The troll shrieks in horror and runs away!");
+    }
+}
+```
+### 缺点
+装饰模式的优点：
+- 装饰模式与继承关系的目的都是要扩展对象的功能，但是装饰模式可以提供比继承更多的灵活性。
+- 可以通过一种动态的方式来扩展一个对象的功能，通过配置文件可以在运行时选择不同的装饰器，从而实现不同的行为。
+- 通过使用不同的具体装饰器以及这些装饰类的排列组合，可以创造出很多不同行为的组合。可以使用多个具体装饰类来装饰同一对象，得到功能更为强大的对象。
+- 具体构建类与具体修饰类可以独立变化，用户可以根据需要增加新的具体构件类和具体修饰类，在使用时再对其进行组合，原有代码无须改变，符合"开闭原则"
+
+
+#### Real world examples
+ * [java.io.InputStream](http://docs.oracle.com/javase/8/docs/api/java/io/InputStream.html), [java.io.OutputStream](http://docs.oracle.com/javase/8/docs/api/java/io/OutputStream.html),
+ [java.io.Reader](http://docs.oracle.com/javase/8/docs/api/java/io/Reader.html) and [java.io.Writer](http://docs.oracle.com/javase/8/docs/api/java/io/Writer.html)
+ * [java.util.Collections#synchronizedXXX()](http://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#synchronizedCollection-java.util.Collection-)
+ * [java.util.Collections#unmodifiableXXX()](http://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#unmodifiableCollection-java.util.Collection-)
+ * [java.util.Collections#checkedXXX()](http://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#checkedCollection-java.util.Collection-java.lang.Class-)
+
 ### 名称：Proxy(代理模式)
 * 意图：为其他对象提供一种代理以控制对这个对象的访问。
 * 适用性：在需要比较通用和复杂的对象指针代替简单的指针的时候，使用Proxy模式，下面是一些可以使用Proxy模式常用情况：
@@ -255,6 +447,54 @@ public final class Hero {
 1.对指向实际对象的引用计数，这样当该对象没有引用时，可以自动释放它
 2.当第一次引用一个持久对象时，将它装入内存。
 3.在访问一个实际对象前，检查是否已经锁定了它，以确保其他对象不能改变它。
+
+```java
+public interface WizardTowser {
+    void enter(Wizard wizard);
+}
+
+public class IvoryTowser implements WizardTowser {
+    public void enter(Wizard wizard) {
+        log.i("看不见");
+    }
+}
+```
+
+```java
+public class Wizard {
+    private final String name;
+    public Wizard(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+}
+```
+```java
+public class WizardTowerProxy implements WizardTower {
+    private static final int NUM_WIZARDS_ALLOWED = 3;
+
+    private int numWizards;
+
+    private final WizardTower tower;
+
+    public WizardTowerProxy(WizardTower tower) {
+        this.tower = tower;
+    }
+
+    public void enter(Wizard wizard) {
+        if (numWizards < NUM_WIZARDS_ALLOWED) {
+            tower.enter(wizard);
+            numWizards++;
+        } else {
+            Log.i("allowed to enter");
+        }
+    }
+}
+```
 
 #### Real world examples
 
@@ -302,7 +542,62 @@ public final class Hero {
 如果一个用接口来让其它对象直接得到这些状态，将会暴露对象的实现细节并破坏对象的封装性。
 
 ### 名称 Observer(观察者模式)
-* 意图 定义对象间的一宗一对多的依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都得到通知并被自动更新。
+#### 模式动机
+ 定义对象间的一宗一对多的依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都得到通知并被自动更新。发生改变的对象称为观察目标，而被通知的对象称为观察者，一个观察目标可以对应多个观察者，而且这些观察者之间没有相互联系，可以根据需要增加和删除观察者。
+#### 模式定义
+观察者模式(Observer Pattern):观察者模式又叫做(Publish/Subscribe)模式、模型-视图(Model/View)模式、源-监听器(Source/Listener)模式
+Observed(被观察者):
+```java
+public class Weather {
+    private WeatherType currentWeather;
+    private List<WeatherObserver> observers;
+
+    public Weather() {
+        observers = new ArrayList<>();
+        currentWeather = WeatherType.SUNNY;
+    }
+
+    public void addObserver(WeatherObserver obs) {
+        observers.add(obs);
+    }
+
+    public void removeObserver(WeatherObserver obs) {
+        observers.remove(obs);
+    }
+
+    public void timePasses() {
+        WeatherType[] enumValues = WeatherType.values();
+        currentWeather = enumValues[(currentWeather.ordinal() + 1) % enumValues.length];
+        notifyObservers();
+    }
+
+    private void notifyObservers() {
+        for (WeatherObserver obs : observers) {
+            obs.update(currentWeather);
+        }
+    }
+}
+```
+
+Observer:
+```java
+public interface WeatherObserver {
+    void update(WeatherType currentWeather);
+}
+```
+
+#### 优点
+观察者模式的优点
+- 观察者模式可以实现表示层和数据逻辑层的分离，并定义了稳定的消息更新传递机制，抽象了更新接口，使得可以有各种各样不同的表示层作为具体观察者角色。
+- 观察者模式在观察目标和观察者之间建立了一个抽象的耦合。
+- 观察者模式支持广播通信。
+- 观察者模式符合"开闭原则"的要求
+
+#### 缺点
+- 如果一个观察目标对象有很多直接和间接的观察者的话，将所有的观察者都通知会花费很多时间
+- 如果观察者和观察目标之间有循环依赖的话，观察目标会触发它们之间进行循环调用，可能导致系统崩溃
+- 观察者模式没有相应的机制让观察者知道所观察的目标对象是怎么发生变化的，而仅仅只是知道观察目标发生了变化
+
 * 适用性 
     1. 当一个抽象模型有两个方面，其中一个方面依赖于另一个方面。将两者封装在独立的对象中以使它们可以各自独立地改变和复用
     2. 当对一个对象的改变需要同时改变其它对象，而不知道具体有多少对象有待改变。
