@@ -29,7 +29,7 @@
 ## 自关联：
 ![image](http://note.youdao.com/yws/api/personal/file/WEB8afa1cf89c051b8c2e0befa2993edcde?method=download&shareKey=e8d71b1b6b4c511859eda4e456e26bec)
 
-4.聚合(Aggregation)
+# 聚合(Aggregation)
 【聚合关系】：是整体与部分的关系，且部分可以离开整体而单独存在。如车和轮胎是整体和部分的关系，轮胎离开车仍然可以存在。
 聚合关系时关联关系的一种，是强的关联关系；关联和聚合在语法上无法区分，必须考虑具体的逻辑关系。
 【代码体现】：成员变量

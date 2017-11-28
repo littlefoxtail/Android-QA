@@ -317,8 +317,11 @@ public class FinishBoatAdapter implements RowingBoat {
 
 
 ### 名称：Bridge(桥接模式)
+桥接模式将继承关系转换为关联关系，从而降低类与类之间的耦合，减少了代码编写量。
+
+
 * 意图：将抽象部分与它的实现部分分离，使它们都可以独立地变化。
- (妈的 下面一大堆，其实就是，子类有两个维度的排列组合 用桥接模式)
+ (其实就是，子类有两个维度的排列组合 用桥接模式)
   脱耦：脱耦就是将抽象化和实现化之间的耦合解脱开，或者说是将它们之间的强关联换成弱关联，将两个角色之间的继承关系
   改为关联关系。桥接模式中所谓的脱耦，就是指一个软件系统的抽象化和实现化之间使用关联关系而不是继承关系。
 * 适用性：
@@ -327,6 +330,140 @@ public class FinishBoatAdapter implements RowingBoat {
     3. 对一个抽象的实现部分的修改应对客户不产生影响，即客户的代码不必重新编译。
     4. 有许多类要生成。这样一种类层次结构说明你必须将一个对象分解成两个部分。称这种类层次结构为“嵌套的普化”（nested generalizations ）
     5. 你想在多个对象间共享实现，但同时要求客户并不知道这一点。
+
+```java
+public interface Weapon {
+    void wield();
+
+    void swing();
+
+    void unwield();
+
+    Enchantment getEnchantment();
+}
+```
+
+```java
+public class Sword implements Weapon {
+    private final Enchantment enchantment;
+
+    public Sword(Enchantment enchantment) {
+        this.enchantment = enchantment;
+    }
+
+    @Override
+    public void wield() {
+        log.i("咖喱棒");
+        enchantment.onActivate();
+    }
+
+    @Override
+    public void swing() {
+        log.i("那么多路人")
+        enchantment.apply();
+    }
+
+    @Override
+    public void unwield() {
+        log.i("甲");
+        enchantment.onDeactivate();
+    }
+
+    @Override
+    public Enchantment getEnchantment() {
+        return enchantment;
+    }
+}
+```
+
+```java
+public class Hammer implements Weapon {
+
+    private static Enchantment enchantment;
+
+    public Hammer(Enchantment enchaantment) {
+        this.enchantment = enchantment;
+    }
+
+    @Override
+    public void wield() {
+        log.i("星星")
+        enchantment.onActivate();
+    }
+
+    @Override
+    public void swing() {
+        enchantment.apply();
+    }
+
+    @Override
+    public void unwield() {
+        enchantment.onDeactivate();
+    }
+
+    @Override
+    public void unwield() {
+        enchantment.onDeactivate();
+    }
+
+    @Override
+    public Enchantment getEnchantment() {
+        return enchantment;
+    }
+}
+```
+
+```java
+public interface Enchantment {
+    void onActivate();
+
+    void apply();
+
+    void onDeactivate();
+}
+```
+
+```java
+public class FlyingEnchantment implements Enchantment {
+    public void onActiviate() {
+        log.i("🐶");
+    }
+
+    public void apply() {
+        log.i("fly apply");
+    }
+
+    public void onDeactivate() {
+        log.i("fly ondeactivate");
+    }
+}
+```
+
+```java
+public class SoulEatingEnchantment implements Enchantment {
+    public void onActivate() {
+        log.i("soul activate");
+    }
+
+    public void apply() {
+        log.i("soul apply");
+    }
+
+    public void onDeactivate() {
+        log.i("soul deactivate")
+    }
+}
+```
+
+#### 优点
+- 分离抽象接口及其实现部分
+- 桥接模式有时类似于多继承方案，但是多继承方案违背了类的单一职责原则，复用性较差，而且多继承结构中类的个数非常庞大，桥接模式是比多继承方案更好的解决方法。
+- 桥接模式提高了系统的可扩充性，在两个变化唯独中任意扩展一个维度，都不需要修改原有系统。
+- 实现细节对客户透明，可以对用户隐藏实现细节
+
+#### 缺点
+- 桥接模式引入会增加系统的理解和设计难度，由于聚合关联关系建立在抽象层，要求开发者针对抽象进行设计和编程
+- 桥接模式要求正确识别出系统中两个独立变化的维度，因此其使用范围有一定的局限
 
 ### 名称：Composite(组合模式)
 * 意图：将对象组合成树形结构以表示"部分-整体"的层次结构。composite使得用户对单个对象和组合对象的使用具有一致性。

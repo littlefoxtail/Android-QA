@@ -1,3 +1,34 @@
+# RecyclerView的设计结构
+|||
+|:---:|:---:|
+|RecyclerViewDataObserver|数据观察器|
+| Recycler|View循环复用系统，核心部件|
+| SaveState|RecyclerView状态|
+| AdapterHelper|适配器更新|
+| ChildHelper|管理子View|
+| ViewInfoStore|存储子VIEW的动画信息|
+| Adapter|数据适配器|
+|LayoutManager|负责子VIEW的布局，核心部件|
+|ItemAnimator|Item动画|
+|ViewFlinger|快速滑动管理|
+|NestedScrollingChildHelper|管理子View嵌套滑动|
+
+
+```java
+@Override
+protected void onMeasure(int widthSpec, int heightSpec) {
+    if (mLayout == null) {
+        defaultOnMeasure(widthSpec, heightSpec)
+    }
+    if (mLayout.mAutoMeasure) {
+        final int widthMode = MeasureSpec.getMode(widthSpec);
+    }
+}
+```
+
+
+
+
 Android默认提供的RecyclerView支持线性布局、网格布局、瀑布流布局三种，同时能够控制横向还是纵向滚动。
 
 * ViewHolder的编写规范
