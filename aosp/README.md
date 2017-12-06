@@ -10,6 +10,9 @@
 - **[测量定位绘制流程](measure_layout_draw.md)**
 - **[属性动画](objectanimator.md)**
 - **[RecyclerView](recyclerview.md)**
+- **[RecyclerView](recyclerview.md)**
+- **[RecyclerView_DiffUtill](recyclerview_diffutil.md)**
 - **[RemoteViews](remoteviews.md)**
 - **[图片缓存处理](image.md)**
 - **[Android性能调优](performance.md)**
+- **[Android中的线程所有知识点](android_thread.md)**

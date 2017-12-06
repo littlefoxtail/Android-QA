@@ -1,5 +1,4 @@
-- **[多线程](threading.md)**
-- **[futuretask](futuretask.md)**
+
 - **[volatile关键字的作用](volatile.md)**
 - **[exception的处理](exception.md)**
 - **[java基础](javabasic.md)**
