@@ -8,7 +8,32 @@
 5. 迪米特法则(最少知道原则)(Demeter Principle)：最少知道原则。一个实体应当尽量少的与其他实体之间发生相互作用
 6. 合成复用原则(Composite Reuse Principle)：尽量使用合成/聚合的方式，而不是使用继承
 
-## 创建型模式（五种）
+## 创建型模式（六种）
+在面向对象程序设计中，工厂通常是一个用来创建其他对象的对象。工厂是构造方法的抽象，用来实现不同的分配方案。
+有时，特定类型对象的控制过程比简单地创建一个对象更复杂。在这种情况下，工厂对象就派上用场了。工厂对象可能会动态地创建产品对象的类，或者从对象池中返回一个对象
+
+### 简单工厂(Simple Factory)
+普通的工厂方法模式通常伴随着对象的具体类型与工厂具体的类型的一一对应，客户端代码根据需要选择合适具体类型工厂使用。然而，这种选择可能包含复杂的逻辑。这时，可以创建一个单一的工厂类，
+以包含这种逻辑选择，根据参数的不同选择实现不同的具体对象
+
+```java
+public class ImageReaderFactory {
+    public static ImageReader imageReaderFactoryMethod(InputStream is) {
+        ImageReader product = null;
+
+        int imageType = determineImageType(is);
+        switch (imageType) {
+            case ImageReaderFactory.GIF:
+                product = new GifReader(is);
+            case ImageReaderFactory.JPEG:
+                product = new JpegReader(is);
+            //...
+        }
+        return product;
+    }
+}
+```
+
 ### 名称：工厂方法模式(Factory Method)
 工厂方法模式又称为工厂模式，也叫虚拟构造器(Virtual Constructor)模式或者多态工厂，它属于类创建型。在工厂方法模式中，工厂父类负责定义创建产品对象的公共接口，而工厂子类则负责生产具体的产品对象，这样做的目的是将产品类的实例化操作延迟到工厂子中完成。
 工厂父类:
@@ -59,6 +84,7 @@ public class OrcBlacksmith implements Blacksmith {
 
 ### 名称：抽象工厂模式(Abstract Factory)
 抽象工厂模式提供一个创建一系列相关或相互依赖对象的接口，而无须指定它们具体的类。抽象工厂模式又称为Kit模式，属于对象创建型模式。
+可以将一组具有同一主题的单独的工厂封装起来，正常使用中，客户端程序需要创建抽象工厂的具体实现，然后使用抽象工厂作为接口来创建这一主题的具体对象。
 
 ```java
 public interface KingdomFactory {
