@@ -1,6 +1,6 @@
 Java提供了很多同步操作
 [同步档](https://fangjian0423.github.io/2016/04/18/java-synchronize-way/)
-
+[ReentrantLock源码分析](http://www.jianshu.com/p/4ca65aa20763)
 # ReentranLock
 ReentranLock，字面意思就是可重入锁，它支持同一个线程对资源的重复加锁，也是我们平时在处理java并发情况下用的最多的同步组件之一
 (volatile, synchronized)
