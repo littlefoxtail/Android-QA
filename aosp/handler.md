@@ -1,33 +1,6 @@
 
-# handler sendMessage()将消息加入message队列
-
-```java
-//handler.post()
-//调用sendMessageDelayed，最终调用enqueueMessage
-public final boolean post(Runnable r) {
-    return sendMessageDelayed(getPostMessage(r), 0);
-}
-
-//Message.obtain() 利用对象池的方式获得Message 对象, 并且将Runnable 设置为Message对象的callback
-private static Message getPostMessage(Runnable r) {
-    Message m = Message.obtain();
-    m.callback = r;
-    return m;
-}
-
-//将msg 加入到MessageQueue
-private boolean enqueueMessage(MessageQueue queue, Message msg, long uptimeMillis) {
-    //msg.target 保持当前handler对象的引用
-    msg.target = this;
-    if (mAsynchronous) {
-        msg.setAsynchronous(true);
-    }
-    return queue.enqueueMessage(msg, uptimeMillis);
-}
-```
 # looper循环处理消息队列
-主线程默认调用如下两个方法。如果在子线程使用handler就要在前后加入这两个方法，这样就会在子线程中轮询
-MessageQueue了
+主线程默认调用如下两个方法。如果在子线程使用handler就要在前后加入这两个方法，这样就会在子线程中轮询MessageQueue了
 
 ## looper.prepare()
 创建Looper对象，创建MessageQueue，并且Looper持有MessageQueue的引用，当前线程持有Looper对象引用
@@ -38,6 +11,7 @@ private static void prepare(boolean quitAllowed) {
         throw new RuntimeException("Only one Looper may be created per thread");
     }
     //这里把new 出来的Looper对象保存到当前线程中
+    // ThreadLocal维护变量时，ThreadLocal为每个使用该变量的线程提供独立的变量副本
     sThreadLocal.set(new Looper(quitAllowed));
 }
 
@@ -70,6 +44,78 @@ public static void loop() {
         //调用Message对象引用的handler对象的dispatchMessage()分发消息
         msg.target.dispatchMessage(msg);
     }
+}
+```
+# Handler的创建
+```java
+public Handler(Callback callback, boolean async) {
+    if (FIND_POTENTIAL_LEAKS) {
+        final Class<? extends Handler> klass = getClass();
+        if ((klass.isAnonymousClass() || klass.isMemberClass() || klass.isLocalClass()) &&
+                    (klass.getModifiers() & Modifier.STATIC) == 0) {
+                Log.w(TAG, "The following Handler class should be static or leaks might occur: " +
+                    klass.getCanonicalName());
+            }
+    }
+    mLooper = Looper.myLooper();
+    if (mLooper == null) {
+        throw new RuntimeException("Cant't create handler inside thread that has not called Looper.prepare()");
+    }
+    mQueue = mLooper.mQueue;
+    mCallback = callback;
+    mAsynchronous = async;
+}
+```
+在Handler构造中，主要初始化了一下变量，并判断Handler对象的初始化不应在内部类，静态类，匿名类中，并且保存了当前线程中的Looper对象。
+
+# handler#sendMessage()将消息加入message队列
+跟进源代码，其最后会调用：
+```java
+//将msg 加入到MessageQueue
+private boolean enqueueMessage(MessageQueue queue, Message msg, long uptimeMillis) {
+    //msg.target 保持当前handler对象的引用
+    msg.target = this;
+    if (mAsynchronous) {
+        msg.setAsynchronous(true);
+    }
+    return queue.enqueueMessage(msg, uptimeMillis);
+}
+```
+
+MessageQueue#enqueueMessage()
+```java
+boolean enqueueMessage(Message msg, long when) {
+    ...
+    synchronized(this) {
+        msg.markInUse();
+        msg.when = when;
+        Message p = mMessage;
+        boolean needWake;
+        if (p == null || when == 0 || when < p.when) {
+            msg.next = p;
+            mMessage = msg;
+            needWake = mBlocked;
+        } else {
+            needWake = mBlocked && p.target == null && msg.isAsynchronous();
+            Message prev;
+            for(;;) {
+                prev = p;
+                p = p.next;
+                if (p == null || when < p.when) {
+                    break;
+                }
+                if (needWake && p.isAsynchronous()) {
+                    needWake = false;
+                }
+            }
+            msg.next = p;
+            prev.next = msg;
+        }
+        if (needWake) {
+            nativeWake(mPtr);
+        }
+    }
+    return true;
 }
 ```
 
