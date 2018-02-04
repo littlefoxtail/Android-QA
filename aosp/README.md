@@ -1,6 +1,7 @@
 - **[Fragment](fragment.md)**
 - **[ClassLoader](classloader.md)**
 - **[Interpolator](interpolator.md)**
+- **[ThreadLocal](threadlocal.md)**
 - **[Touch事件](TouchEvent.md)**
 - **[WebView遇到的一些问题和总结](webView.md)**
 - **[Handler](handler.md)**
