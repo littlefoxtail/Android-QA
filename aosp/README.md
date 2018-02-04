@@ -1,4 +1,6 @@
 - **[Fragment](fragment.md)**
+- **[ClassLoader](classloader.md)**
+- **[Interpolator](interpolator.md)**
 - **[Touch事件](TouchEvent.md)**
 - **[WebView遇到的一些问题和总结](webView.md)**
 - **[Handler](handler.md)**
@@ -9,7 +11,6 @@
 - **[LayoutInflater如何加载布局的](layoutinflater.md)**
 - **[测量定位绘制流程](measure_layout_draw.md)**
 - **[属性动画](objectanimator.md)**
-- **[RecyclerView](recyclerview.md)**
 - **[RecyclerView](recyclerview.md)**
 - **[RecyclerView_DiffUtill](recyclerview_diffutil.md)**
 - **[RemoteViews](remoteviews.md)**
