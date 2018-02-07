@@ -150,12 +150,132 @@ public final void measure(int widthMeasureSpec, int heightMeasureSpec) {
 
             }
         ...
+        mOldWidthMeasureSpec = widthMeasureSpec;
+        mOldHeightMeasureSpec = heightMeasureSpec;
+        mMeasureCache.put(key, ((long)mMeasureWidth << 32 | (long)mMeasuredHeight & 0xffffffffL);
 }
 ```
 DecoreView是FragmeLayout子类，因此它实际上调用的是DecorView#onMeasure方法，最后会调用super.onMeasure，即FrameLayout#onMeasure方法
  
 onMeasure不同的ViewGroup有着不同的实现，但大体是对每个子View进行遍历，根据ViewGroup的
 MeasureSpec及子View的layoutParams来确定自身的测量宽高，然后根据所有子View的测量宽高信息再确定父容器的测量宽高
+
+FrameLayout#onMeasure
+```java
+@Override
+protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int count = getChildCount();
+        // 长或宽的SpecMode不为EXACTLY时，measureMatchParentChildren置为true
+        final boolean measureMathchParentChildren = MeasureSpec.getMode(widhtMeasureSpec) != MeasureSpec.EXACTLY || 
+        MeasureSpec.getMode(heightMeasureSpec) != MeasureSpec.EXACTLY;
+        mMatchParentChildren.clear();
+        int maxHeight = 0;
+        int maxWidth = 0;
+        int childState = 0;
+        // 依次measure子View
+        for (int i = 0; i < count; i++) {
+                if (mMeasureAllChildren || child.getVisibility() != GONE){
+                // 具体的测量函数
+                        measureChildWidthMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
+                        // 不断迭代出子View需要的最大宽度和最大高度
+                        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                        maxWidth = Math.max(maxWidth, child.getMeasureWidth() + lp.leftMargin + lp.rightMargin);
+                        maxHeight = Math.max(maxHeight, child.getMeausreHeight() + lp.topMargin + lp.bottomMargin);
+                        childState = combineMeasuredStates(childState, child.getMeasuredState());
+                        if (measureMatchParentChildren) {
+                                if (lp.width == LayoutParams.MATCH_PARENT || lp.height == LayoutParams.MATCH_PARENT) {
+                                        mMatchParentChildren.add(child);
+                                }
+                        }
+                } 
+        }
+        // 最大宽度和高度需要叠加padding
+        maxWidth += getPaddingLefWithForegound() + getPaddingRightWithForeground();
+        maxHeight += getPaddingTopWithForegound() + getPaddingBottomWithForegound();
+
+        // 需要判断是否满足设置的最小宽高的要求
+        maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
+        maxWidth = Math.max(maxWidth, getSuggestedMinmumWidth());
+
+        final Drawable drawable = getForeground();
+        if (drawable != null) {
+                maxHeight = Math.max(maxHeight, drawable.getMininumHeight());
+                maxWidth = Math.max(maxWidth, drawable.getMininumWidth());
+        }
+        // 经过一些列步骤，得到了ViewGroup的maxHeight和maxWidth的最终值
+        // 表示当容器用这个尺寸就能够正常显示器所有字View
+
+        // 此处resolveSizeAndState根据数值、MeasureSpec和childState计算出最终的数值
+        // 然后用setMeasureDimension保存到mMeasureWidth与mMeasureHeight成员变量(定义于View)
+        setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, childState), resolveSizeAndState(maxHeight, heightMeasureSpec, 
+        childState << MEASURED_HEIGHT_STATE_SHIFT));
+        count = mMatchParentChildren.size();
+        if (count > 1) {
+                for (int i = 0; i < count; i++) {
+                        // 根据父容器的参数生成新的约束条件
+                        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+                }
+        }
+
+}
+```
+
+ViewGroup#measureChildWithMargins
+```java
+protected void measureChildWithMargins(View child, int parentWidthMeasureSpec, int widthUsed, int parentHeightMeasureSpec, int heightUsed) {
+        // 获取子View的LayoutParams
+        final MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
+        // 生成新的约束条件
+        final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec, mPaddingLeft + mPaddingRight + lp.leftMargin + lp.rightMargin + widthUsed, lp.width);
+        final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasure, mPaddingTop + mPaddingBottom + lp.topMargin + lp.bottomMargin + heightUsed, lp.height);
+        // 调用子View的measur
+        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+}
+```
+
+ViewGroup#getChildMeasureSpec
+```java
+public static int getChildMeasureSpec(int spec, int padding, int childDimension) {
+        int specMode = MeasureSpec.getMode(spec);
+        int specSize = MeasureSpec.getSize(spec);
+        // 得到父view在相应方向上的可用大小
+        int resultSize = 0;
+        int resultMode = 0;
+        int size = Math.max(0, specSize - padding);
+        switch (specMode) {
+                case MeasureSpec.EXACTLY:
+                        if (childDimension >= 0) {
+                                resultSize =` childDimension;
+                                resultMode = MeasureSpec.EXACTLY;
+                        } else if (childDimension == LayotParams.MATCH_PARENT) {
+                                // 子View想要父view的大小
+                                resultSize = size;
+                                resultMode = MeasureSpec.EXACTLY;
+                        } else if (childDimension == LayoutParms.WRAP_CONTENT) {
+                                resultSize = size;
+                                resultMode = MeasureSpec.AT_MOST;
+                        }
+                        break;
+                        // 父 已经指定一个最大值
+                case MeasureSpec.AT_MOST:
+                        if (childDimension >= 0) {
+                                // 子view,希望一个固定的大小
+                                resultSize = childDimension;
+                                resultMode = MeasureSpec.EXACTLY;
+                        } else if (child == LayoutParams.MATCH_PARENT){
+                                resultSize = size;
+                                resultMode = MeasureSpec.AT_MOST;
+                        } else if (childDimension == LayoutParams.WRAP_CONTENT) {
+                                resultSize = size;
+                                resultMode = MeasureSpec.AT_MOST;
+                        }
+                        break;
+                case MeasureSpec.UNSPECIFIED:
+                //      不关注
+                        break;
+        }
+}
+```
 
 
 ### View的测量过程
