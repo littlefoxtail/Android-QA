@@ -127,7 +127,7 @@ public final void measure(int widthMeasureSpec, int heightMeasureSpec) {
         final boolean forceLayout = (mPrivateFlags & PFLAG_FORCE_LAYOUT) == PFLAG_FORCE_LAYOUT;
         final boolean specChanged = widthMeasureSpec != mOldWidthMeasureSpec || heightMeasureSpec != mOldHeightMeasureSpec;
         ...
-        if ((forceLayout || neddsLayout) {
+        if ((forceLayout || needsLayout) {
                 // 通过按位操作，重置View的状态mPrivateFlags，将其标记为未量算状态
             mPrivateFlags &= ~PFLAG_MEASURED_DIMENSION_SET;
             //在真正进行量算之前，View还想进一步确认能不能从已有缓存mMeasureCache中读取缓存过的量算结果
@@ -232,7 +232,8 @@ protected void measureChildWithMargins(View child, int parentWidthMeasureSpec, i
         child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
 }
 ```
-
+日常开发中接触最多的不是MeasureSpec而是LayoutParams，在View测量的时候，LayoutParams会和父View的MeasureSpec
+相结合被换算成View的MeasureSpec，进而决定View的大小。
 ViewGroup#getChildMeasureSpec
 ```java
 public static int getChildMeasureSpec(int spec, int padding, int childDimension) {
@@ -276,7 +277,8 @@ public static int getChildMeasureSpec(int spec, int padding, int childDimension)
         }
 }
 ```
-
+* 对于顶级View(DecorView)其MeasureSpec由窗口的尺寸和自身的LayoutParams共同确定的
+* 对于普通View其MeasureSpec由父容器的Measure和自身LayoutParams
 
 ### View的测量过程
 ViewGroup提到measureChildWithMargin方法，它接收的主要参数是子View以及父容器的MeasureSpec，所以它的作用就是对子View进行测量，
@@ -486,7 +488,6 @@ private void sizeChange(int newWidth, int newHeight, int oldWidth, int oldHeight
                 mOverlay.getOverlayView().setBottom(newHeight);
         }
         rebuidOutline();
-
 }
 
 ```
@@ -494,6 +495,47 @@ private void sizeChange(int newWidth, int newHeight, int oldWidth, int oldHeight
 #### onSizeChanged
 onSizeChange()方法是个空方法时，通过sizeChange()方法的执行而被调用。当View第一次加到View树中，该方法也会被调用。只不过传入的旧尺寸OldWidth和oldHeight都是
 
+View的onLayou为一个空实现
+### FrameLayout@onLayout
+```java
+@Override
+protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    layoutChildren(left, top, right, bottom, false);
+}
+```
+
+```java
+void layoutChildren(int left, int top, int right, int bottom, booean forceLeftGravity) {
+    final int count= getChildCount();
+// parentLeft表示当前View为其子View显示区域指定的一个左边界
+// 也就是子View显示区域的左边缘到父View的左边缘的距离
+    final int parentLeft = getPaddingLeftWithForeground();
+    final int parentRight = right - left - getPaddingRightWithForeground();
+    final int parentTop = getPaddingTopWithForeground();
+    final int parentBottom = bottom - top - getPaddingBottomWithForeground();
+
+    for (int i = 0; i < count; i++) {
+        final View child = getChildAt(i);
+        if (child.getVisibility() != GONE) {
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            final int width = child.getMeasuredWidth();
+            final int height = child.getMeasureHeight();
+
+            int childLeft;
+            int childTop;
+
+            int gravity = lp.gravity;
+            if (gravity == -1) {
+                gravity = DEFAULT_CHILD_GRAVITY;
+            }
+            final int layoutDirection = getLayoutDirection();
+            final int absoluteGravity = GRAVITY.GetAbsoluteGravity(gravity, layoutDirection);
+                ...
+            child.layout(childLeft, childTop, childLeft + width, childTop + height);
+        }
+    }
+}
+```
 
 ### 子View的布局流程
 子View的布局流程也很简单。如果子View是一个ViewGroup,那么会重复以上步骤，如果是一个View，那么会直接调用  
@@ -509,15 +551,73 @@ View的布局流程就已经全部分析完了。可以看出，布局流程的�
 ![draw_hierarchy](../img/draw_hierarchy.png)
 ![Draw](../img/draw.png)
 绘制流程将决定View的样子，一个View该显示什么由绘制流程完成。
-### ViewRootImpl#performDraw
+### ViewRootImpl@performDraw
 
 里面又调用了ViewRootImpl#draw方法，并传递了fullRedrawNeeded参数。
 该参数由mFullRedrawNeeded成员变量获取，它的作用是判断是否重新绘制全部视图，如果是第一次绘制视图，
 那么显示应该绘绘制所有的视图，如果由于某些原因，导致了视图重绘，那么就没有必要绘制所有视图。
 
-### ViewRootImpl#draw
+### ViewRootImpl@draw
+```java
+private void draw(boolean fullRedrawNeeded) {
+    if (!dirty.isEmpty() || mIsAnimating ||            accessibilityFocusDirty) {
+            //如果采用硬件渲染绘制且ThreadedRenderer可用，进入该流程
+        if (mAttachInfo.mThreadedRenderer != null && mAttachInfo.mThreadedRenderer.isEnabled()) {
+            mAttachInfo.mThreadedRenderer.draw(mView, mAttachInfo, this)
+        } else {
+            //如果需要硬件渲染，但ThreadedRenderer不可用
+        //     则进行ThreadRenderer初始化工作（以便下次用）
+            if (mAttchInfo.mThreadedRenderer != null &&
+                !mAttachInfo.mThreadedRenderer.isEnabled() &&
+                mAttachInfo.mThreadedRenderer.isRequested()) {
+                    try {
+
+                    } catch (OutOfResourcesException e) {
+                        handleOutOfResourcesException(e);
+                        return;
+                    }
+                }
+                mFullRedrawNeeded = true;
+                scheduleTraversals();
+                return;
+        }
+        // 不用硬件渲染，或者硬件渲染不可用，则靠软件绘制
+        if (!drawSoftware(surface, mAttachInfo, xOffset, yOffset, scalingRequired, dirty)) {
+            return;
+        }
+    }
+}
+```
 首先获取了mDirty值，该值保存了需要重绘区域的信息，关于视图绘制。根据fullRedrawNeeded来判断是否需要
 重置dirty区域，最后调用了ViewRootImpl#drawSoftware方法，并把相关参数传递进去，包括dirty区域
+
+ViewRootImpl@drawSoftware
+```java
+final Canvas canvas;
+try {
+//获取画布
+   canvas = mSurface.lockCanvas(dirty);
+   canvas.setDensity(mDensity);
+} catch (Surface.OutOfResourcesException e) {
+   
+}
+
+try {
+
+        try {
+            mView.draw(canvas);
+        } finally {
+            
+        }
+    
+} finally {
+    try {
+        surface.unlockCanvasAndPost(canvas);
+    } catch(IllegalArgumentException e) {
+        
+    }
+}
+```
 
 首先实例化了Canvas对象，然后锁定该canvas的区域，由dirty区域决定，接着对canvas进行一系列的属性赋值，
 最后调用了mView.draw方法，前面分析过mView就是DecorView，也就是说从DecorView开始绘制。
@@ -532,6 +632,92 @@ View的布局流程就已经全部分析完了。可以看出，布局流程的�
 5. 绘制View的褪色的边缘，类似于阴影效果。
 6. 绘制View的装饰
 
+View@draw
+```java
+public void draw(Canvas canvas) {
+    int saveCount;
+
+    if (!dirtyOpaque) {
+       drawBackground(canvas);
+    }
+
+    final int viewFlags = mViewFlags;
+    //判断View是否具有Fading Edge, xml里需要主动配置，以支持边缘渐变效果
+    boolean horizontalEdges = (viewFlags & FADING_EDGE_HORIZONTAL) != 0;
+    boolean verticalEdges = (viewFlags & FADING_EDGE_VERTICAL) != 0;
+//一般情况下，不支持这种效果时
+    if (!verticalEdges && !horizontalEdges) {
+        //     绘制自身内容
+        if (!dirtyOpaque) onDraw(canvas);
+        // 绘制child view
+        dispatchDraw(canvas);
+
+        onDrawForeground(canvas);
+
+        drawDefaultFocusHighlight(canvas);
+
+    }
+}
+```
+
+ViewGroup@dispatchDraw
+```java
+@Override
+protected void dispatchDraw(Canvas canvas) {
+    boolean usingRenderNodeProperties = canvas.isRecordingFor(mRenderNode);
+    final int childredCount = mChildredCount;
+    final View[] children = mChildren;
+    int flags = mGroupFlags;
+
+    if ((flags & FLAG_RUN_ANIMATION) != 0  && canAnimate()) {
+
+    }
+    int clipSaveCount = 0;
+    //如果CLIP_TO_PADDING_MASK != 1, 则说明参数canvas描述的是画布的裁剪区域，该裁剪区域不包含当前视图组的内边距
+    final boolean clipToPadding = (flags & CLIP_TO_PADDING_MASK) == CLIP_TO_PADDING_MASK;
+    if (clipToPadding) {
+        //裁剪画布
+        clipSaveCount = canvas.save(Canvas.CLIP_SAVE_FLAG);
+        canvas.clipRect(mScrollX, + mPaddingLeft, mScrollY + mPaddingTop, 
+                        mScrollX + mRight - mLeft - mPaddingRight, 
+                        mScrollY + mBottom - mTop - mPaddingBottom);
+    }
+
+    mPrivateFlags &= ~PFLAG_DRAW_ANIMATION;
+    mPrivateFlags &= ~FLAG_INVALIDATE-REQUIRED;
+
+    boolean more = false;
+    final long drawingTime = getDrawingTime();
+
+    final ArrayList<View> preorderedList = usingRenderNodeProperties 
+        ? null : buildOrderedChildList();
+    final boolean customOrder = preorderedList == null && isChildredDrawingOrderEnabled();
+// 默认先序遍历绘制
+    for (int i = 0; i < childrenCount; i++) {
+       final int childIndex = getAndVerifyPreorderedIndex(childredCount, i, customOrder);
+       final View child = getAndVerifyPreorderedView(preorderedList, children, childIndex);
+       if ((child.mViewFlags & VISIBILITY_MASK) == VISIBLE || child.getAnimation() != null) {
+        //        内部还是调用View的draw函数
+            more |= drawChild(canvas, child, drawingTime);
+       }
+    }
+}
+```
+
+ViewGroup@drawChild
+```java
+protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+   return child.draw(canvas, this, drawingTime);
+}
+```
+
+View@draw(未完成)
+```java
+boolean draw(Canvas canvas, ViewGroup child, long drawingTime) {
+    boolean more = false;
+
+}
+```
 
 ### 补充章节
 #### 确定View大小（onSizeChanged）
@@ -568,12 +754,289 @@ View的布局流程就已经全部分析完了。可以看出，布局流程的�
 
 子View调用requestLayout方法，会标记当前View及父容器，同时逐层向上提交，直到ViewRootImpl处理该事件，ViewRootImpl会调用三大流程，从measure开始，对于每一个含有标记位的view及其子View都会进行测量、布局、绘制。
 
+```java
+public void requestLayout() {
+  if (mMeasureCache != null) mMeasureCache.clear();
+  if (mAttachInfo != null && mAttachInfo.mViewRequestingLayout == null) {
+          ViewRootImpl viewRoot = getViewRootImpl();
+          if (viewRoot != null && viewRoot.isInLayout()) {
+                //   判断View树是否正在布局流程
+                  if (!viewRoot.requestLayoutDuringLayout(this)) {
+                          return;
+                  }
+          }
+          mAttachInfo.mViewRequestingLayout = this;
+  }
+//   为当前view设置标记为 PFLAG_FORCE_LAYOUT，该标记位的作用就是标记了当前的View是需要进行重新布局的，接着调用mParent.requestLayout方法，为父容器添加PFLAG_FORCE_LAYOUT标记位，而父容器又会调用它的父容器的requestLayout方法，即requestLayout事件层层向上传递，直到DecorView，即根View，而根View又会传递给ViewRootImpl
+// 见view.assignParent(this);)
+// 也即是说子View的requestLayout事件，最终会被ViewRootImpl接收并得到处理。
+  mPrivateFlags |= PFLAG_FORCE_LAYOUT;
+  mPrivateFlags |= PFLAG_INVALIDATED;
+
+  if (mParent != null && !mParent.isLayoutRequested()) {
+        //   向父容器请求布局
+          mParent.requestLayout();
+  }
+  if (mAttachInfo != null && mAttachInfo.mViewRequestingLayout == this) {
+          mAttachInfo.mViewRequestingLayout = null
+  }
+}
+```
+
+ViewRootImpl@requestLayout
+```java
+public void requestLayout() {
+        if (!mHandlingLayoutInLayoutRequest) {
+                checkThread();
+                mLayoutRequested = true;
+                scheduleTraversals();
+        }
+}
+```
+scheduleTraversals最终会调用performTraversals方法，
+
+首先是判断一下标记位，如果当前View的标记位为PFLAG_FORCE_LAYOUT，那么就会进行测量流程，调用onMeasure，对该View进行测量，接着最后为标记位设置为PFLAG_LAYOUT_REQUIRED,这个标记位的作用就是在View的layout流程中，如果当前View设置了该标记位，则会进行布局流程
+
 
 ### invalidate
-该方法调用会引起View树的重绘，常用于内部调用或者需要刷新界面的时候，需要在主线程中调用该方法。当子View调用了invalidate方法后，会为该View添加一个标记位，同时不断向父容器请求刷新，父容器通过计算得出自身需要重绘的区域，知道传递到ViewRootImpl中，最终触发performTraversals方法，进行开始View树重绘流程。
+该方法调用会引起View树的重绘，常用于内部调用或者需要刷新界面的时候，需要在主线程中调用该方法。当子View调用了invalidate方法后，会为该View添加一个标记位，同时不断向父容器请求刷新，父容器通过计算得出自身需要重绘的区域，直到传递到ViewRootImpl中，最终触发performTraversals方法，进行开始View树重绘流程。
+
+```java
+public void invalidate() {
+        invalidate(true);
+}
+```
+
+```java
+public void invalidate(boolean invalidateCache) {
+        invalidateInternal(0,  0, mRight - mLeft, mBottom - mTop, invalidateCache, true);
+}
+```
+
+```java
+public void invalidateInternal(int l, int t, int r, int b, boolean invalidateCache, boolean fullInvalidate) {
+        ...
+        if (skipInvalidate()) {
+                return;
+        }
+        ////根据View的标记位来判断该子View是否需要重绘，假如View没有任何变化，那么就不需要重绘
+        if ((mPrivateFlags & (PFLAG_DRAW | PFLAG_HAS_BOUNDS)) == (PFLAG_DRAW | PFLAG_HAS_BOUNDS) || ...) {
+                // 设置PFLAG_DIRTY
+                mPrivateFlags |= PFLAG_DIRTY;
+
+                final AttachInfo ai = mAttachInfo;
+                final ViewParent p = mParent;
+                if(p != null && ai != null && l < r && t < b) {
+                        final Rect damage = ai.mTmpInvalRect;
+                        damage.set(l, t, r, b);
+                        // 调用父容器的方法，向上传递事件
+                        p.invalidateChild(this, damage);
+                }
+        }
+
+}
+```
+ViewGroup@invalidateChild
+
+该方法内部，先设置当前视图的标记位，接着一个do...while循环，该循环的作用主要是不断向上回溯父容器，求得父容器和子View需要重绘的区域的并集(dirty)。当父容器不是ViewRootImpl，调用的是ViewGroup的invalidateChildInParent
+```java
+public final void invalidateChild(View child, final Rect dirty) {
+        ViewParent parent = this;
+        if (attachInfo != null) {
+                final boolean drawAnimation = (child.mPrivateFlags & PFLAG_DRAW_ANIMATION) != 0;
+                Matrix childMatrix = child.getMatrix();
+                final boolean isOpaque = child.isOpaque() && !drawAnimation && child.getAnimation() == null && childMatrix.isIdentity();
+                int opaqueFlag = isOpaque ? PFLAG_DIRTY_OPAQUE : PFLAG_DIRTY;
+
+                if (child.mLayerType != LAYER_TYPE_NONE) {
+                    mPrivateFlags |= PFLAG_INVALIDATED;
+                    mPrivateFlags &= ~PFLAG_DRAWING_CACHE_VALID;
+                }
+                //存储子View的mLeft和mTop值
+                final int [] location = attachInfo.mInvalidateChildLocation;
+                location[CHILD_LEFT_INDEX] = child.mLeft;
+                location[CHILD_TOP_INDEX] = child.mTop;
+                ...
+                do {
+                    View view = null;
+                    if (parent instanceof View) {
+                        view = (View) parent;
+                    }
+    
+                    if (drawAnimation) {
+                        if (view != null) {
+                            view.mPrivateFlags |= PFLAG_DRAW_ANIMATION;
+                        } else if (parent instanceof ViewRootImpl) {
+                            ((ViewRootImpl) parent).mIsAnimation = true;
+                        }
+                    }
+
+                    if (view != null) {
+                        if ((view.mViewFlags & FADING_EDGE_MASK) != 0 && view.getSolidColor() == 0) {
+                            opaqueFlag = PFLAG_DIRTY;
+                        }
+                        if ((view.mPrivateFlags & PFLAG_DIRTY_MASK) != PFLAG_DIRTY)  {
+                        //对当前View的标记位进行设置
+                            view.mPrivateFlags = (view.mPrivateFlags & ~PFLAG_DIRTY_MASK) | opaqueFlag;
+                        }
+                    }
+
+                    parent = parent.invalidateChildInParent(location, dirty);
+                    if (view != null) {
+                        Matrix m = view.getMatrix;
+                        if (!m.isIndentity()) {
+                            RectF boundingRect  = attachInfo.mTmpTransformRect;
+                            boundingRect.set(dirty);
+                            m.mapRect(boundingRect);
+                            dirty.set((int) Math.floor(boundngRect.left), 
+                            (int) Math.floor(boundingRect.top), 
+                            (int) Math.floor(boundingRect.right),
+                            (int) Math.floor(boundingRect.bottom));
+                        }
+                    }
+                } while (parent != null);
+        }
+}
+```
+
+ViewGroup@invalidateChildInParent
+主要工作：调用offset方法，把当前dirty区域的坐标转化为父容器中的坐标，接着调用union方法，把子dirty区域与父容器的区域求并集，换句话说，dirty区域变成父容器区域。最后返回当前视图的父容器，以便下一次循环。
+```java
+public ViewParent invalidateChildInParent(final int[] location, final Rect dirty) {
+    if ((mPrivateFlags & (PFLAG_DRAW | PFLAG_DRAWING_CACHE_VALID)) != 0) {
+        if ((mGroupFlags & (Flag_OPTIMIZE_INVALIDATE | FLAG_ANIMATION_DONE)) != FLAG_OPTIMIZE_INVALIDATE) {
+                // 将dirty中的坐标转化为父容器中的坐标，考虑mScrollX和mScrollY的影响
+            dirty.offset(location[CHILD_LEFT_INDEX] - mScrollX,
+                        location[CHILD_TOP_INDEX] - mScrollY);
+            if ((mGroupFlags & FLAG_CLIP_CHILDREN) == 0) {
+                    //求并集，结果是把子视图的dirty区域转化为父容器的dirty区域
+                dirty.union(0, 0, mRight - mLeft, mBottom - mTop);
+            }
+
+            final int left = mLeft;
+            final int top =  mTop;
+            
+            if ((mGroupFlags & FLAG_CLIP_CHILDREN) == FLAG_CLIP_CHILDREN) {
+                if (!dirty.intersect(0, 0, mRight - left, mBottom - top)) {
+                    dirty.setEmpty();
+                }
+            }
+            //记录当前视图的mLeft和mTop值，在下一次循环中会把当前值再向父容器的坐标转化
+            location[CHILD_LEFT_INDEX] = left;
+            location[CHILD_TOP_INDEX] = top;
+        } else {
+            if ((mGroupFlags & FLAG_CLIP_CHILDREN) == PFLAG_CLIP_CHILDREN) {
+                dirty.set(0， 0， mRight - mLeft, mBottom - mTop);
+            } else {
+                dirty.union(0, 0, mRight - mLeft, mBottom - mTop);
+            }
+            location[CHILD_LEFT_INDEX] = mLeft;
+            location[CHILD_TOP_INDEX] = mTop;
+            mPrivateFlags &= ~PFLAG_DRAWN;
+        }
+        mPrivateFlags &= ~PFLAG_DRAWING_CACHE_VALID;
+        if (mLayerType != LAYER_TYPE_NONE) {
+            mPrivateFlags |= PFLAG_INVALIDATED;
+        }
+        return mParent;
+    }
+    return null;
+}
+```
+
+ViewRootImpl@invalidateChildInParent
+```java
+public ViewParent invalidateChildInParent(int[] location, Rect dirty) {
+    checkThread();
+
+    if (dirty == null) {
+        invalidate();
+        return null;
+    } else if (dirty.isEmpty() && !mIsAnimation) {
+        return null;
+    }
+
+    if (mCurScrollY != 0 || mTranslator != null) {
+        mTempRect.set(dirty);
+        dirty = mTempRect;
+        if (mCurScrolly != 0) {
+            dirty.offset(0, -mCurScrollY);
+        }
+        if (mTranslator != null) {
+            mTranslator.translateRectInAppWindowToScreen(dirty);
+        }
+        if (mAttachInfo.mScalingRequired) {
+            dirty.inset(-1, -1)
+        }
+    }
+    invalidateRectOnScreen(dirty);
+    return null;
+}
+```
+
+都进行了offset和union对坐标的调整，然后把dirty区域的信息保存在mDirty中，
+最后调用scheduleTraversal方法，触发View的工作流程，由于没有添加measure和layout的标记位，因此measure、layout流程不会执行，而是直接从draw流程开始。
+```java
+private void invalidateRectOnScreen(Rect dirty) {
+   final Rect localDirty = mDirty;
+   if (!localDirty.isEmpty() && !localDirty.contains(dir)) {
+        mAttachInfo.mSetIgnoreDirtyState = true;
+        mAttachInfo.mIgnoreDirtyState = true;
+   }
+//    求并集
+   localDirty.union(dirty.left, dirty.top, dirty.right, dirty.bottom);
+   
+   final float appScale = mAttachInfo.mApplicationScale;
+//    求交集
+   final boolean intersected = localDirty.intersect(0, 0, (int)(mWidth * appScale + 0.5f), (int)(mHeight * appScale + 0.5f));
+
+   if (!intersected) {
+        localDirty.setEmpty();
+   }
+   if(!mWillDrawSoon && (intersected || mIsAnimating)) {
+       scheduleTraversals();
+   }
+}
+```
 
 ### postInvalidate
 postInvalidate是在非UI线程中调用，invalidate是在UI线程中调用
+
+View@postInvalidate
+```java
+public void postInvalidate() {
+   postInvalidateDelayed(0);
+}
+```
+
+```java
+public void postInvalidateDelayed(int delayMilliseconds) {
+   final AttachInfo attachInfo = mAttachInfo;
+   if (attachInfo != null) {
+       attachInfo.mViewRootImpl.dispatchInvalidateDelayed(this, delayMilliseconds);
+   }
+}
+```
+
+ViewRootImpl@dispatchInvalidateDelayed
+```java
+public void dispatchInvalidateDelayed(View view, long delayMilliseconds) {
+    Message msg = mHandler.obtainMessage(MSG_INVALIDATE, view);
+    mHandler.sendMessageDelayed(msg, delayMilliseconds);
+}
+```
+
+```java
+final class ViewRootHandler extends Handler {
+    @Override
+    public void handleMessage(Message msg) {
+       switch(msg.what) {
+            case MSG_INVALIDATE:
+               ((View)msg.obj).invalidate();
+       }
+    }
+}
+```
 
 一般来说，如果View确定自身不再适合当前区域，比如说它的LayoutParams发生了改变，需要父布局对其进行重新测量、布局、绘制这三个流程，往往使用requestLayout。而invalidate则是刷新当前View，使当前View进行重绘，不会进行测量、布局流程，因此如果View只需要重绘而不需要测量，布局的时候，使用invalidate方法往往比requestLayout方法更高效
 
