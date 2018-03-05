@@ -160,6 +160,11 @@ DecoreView是FragmeLayout子类，因此它实际上调用的是DecorView#onMeas
 onMeasure不同的ViewGroup有着不同的实现，但大体是对每个子View进行遍历，根据ViewGroup的
 MeasureSpec及子View的layoutParams来确定自身的测量宽高，然后根据所有子View的测量宽高信息再确定父容器的测量宽高
 
+> 1. RelativeLayout会让子View调用2次onMeasure，LinearLayout在有weight时，也会调用子View2次onMe
+> 2. ReletiveLayout的子View如果高度和RelativeLayout不同，则会引发效率问题，当子View很复杂时候，这个问题会更加严重。如果可以，尽量使用padding代替margin
+> 3. 在不影响层级深度的情况下，使用LinearLayout和FrameLayout而不是RelativeLayout
+> 4. 布局中不得不使用ViewGroup多重嵌套时，不要使用LinearLayout改用RelativeLayout，可以有效降低嵌套数
+
 FrameLayout#onMeasure
 ```java
 @Override
