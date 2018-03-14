@@ -41,7 +41,7 @@ public class ReentrantLockTest {
 ```
 
 ReentranLock是通过Sync及其子类来实现同步控制。
-ReentranLock也是通过FairSync与NoFairSync来支持ReentranLock在获取锁时公平与非公平选择
+ReentranLock也是通过FairSync与NoFairSync来支持ReentranLock在获取锁时公平与非公平选择
 
 ## 公平与非公平锁
 |||
@@ -91,8 +91,8 @@ public final void acquire(int arg) {
     selfInterrupt();
 }
 ```
-
 非公平锁tryAcquire(int)实现
+
 ```java
 final boolean nonfairyTryAcquire(int acquires) {
     final Thread current = Thread.currentThread();
