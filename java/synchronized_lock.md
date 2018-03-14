@@ -114,7 +114,7 @@ final boolean nonfairyTryAcquire(int acquires) {
 }
 ```
 
-公平锁的tryAcquire(int)实现
+公平锁的tryAcquire(int)实现
 
 ```java
 protected final boolean tryAcquire(int acquires) {
