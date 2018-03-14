@@ -21,11 +21,11 @@
 >
 > `X` 表示没有该方法。
 
-| 类型   | 相关方法                  | Activity | ViewGroup | View |
-| ---- | --------------------- | -------- | --------- | ---- |
-| 事件分发 | dispatchTouchEvent    | √        | √         | √    |
-| 事件拦截 | onInterceptTouchEvent | X        | √         | X    |
-| 事件消费 | onTouchEvent          | √        | √         | √    |
+| 类型   | 相关方法                  | Activity | ViewGroup | View |作用|调用时刻|
+| ---- | --------------------- | -------- | --------- | ---- |:--:|:--:|
+| 事件分发 | dispatchTouchEvent    | √        | √         | √    |分发点击事件|当点击事件能够传递给当前View时，该方法就会被调用|
+| 事件拦截 | onInterceptTouchEvent | X        | √         | X    |判断是否拦截了某个事件|在dispatchTouchEvent()内部调用|
+| 事件消费 | onTouchEvent          | √        | √         | √    |处理点击事件|在dispatchTouchEvent()内部调用|
 
 这个三个方法均有一个 boolean(布尔) 类型的返回值，通过返回 true 和 false 来控制事件传递的流程。
 
@@ -38,15 +38,163 @@ PS: 从上表可以看到 Activity 和 View 都是没有事件拦截的，这是
 ## 事件分发流程
 
 ```
-WMS -> ViewRootImp -> PhoneWindow$decorView ->Activity －> PhoneWindow －> DecorView －> ViewGroup －> ... －> View
-
+Native层 -> WMS -> ViewRootImp -> PhoneWindow$decorView.dispatchPointerEvent ->Activity.dispatchTouchEvent －> PhoneWindow.superDispatchTouchEvent －> DecorView.superDispatchTouchEvent －> ViewGroup.dispatchTouchEvent －> ... －> View.dispatchTouchEvent
 ```
-如果没有任何View消费掉事件，那么这个事件会按照反方向回传，最终传回给Activity，如果最后 Activity 也没有处理，本次事件才会被抛弃:
+### 在Native层android系统的事件流程：
+- Android系统是从底层驱动中获取各种原始的用户消息，包括按键、触摸屏、鼠标
+- 在获取用户消息之后，android系统会对最原始的消息进行预处理，包括两个方面：一个方面讲消息转化成系统可以处理的消息事件；另一个方面，处理一些特殊的事件，比如HOME/MENU/POWER键等处理
+- Android系统使用InputManager类来管理消息，而具体功能则是通过InputReaderThread和InputDispatcherThread线程来实现。其中InputReaderThread线程负责消息的读取，而InputDispatcherThread则负责消息的预处理和分发到各个应用进程中。
+- Activity系统在SystemServer进程中启动WindowManagerService服务，然后在WindowManagerService服务中启动InputManagerService
 
+### ViewRootImpl
+在Native层的事件分发线程中，经过事件的分发流程，最终会调用InputEventSender的dispatchInputEventFinished 
+
+```java
+private void dispatchInputEventFinished(int seq, boolean handled) {
+    onInputEventFinished(seq, handled);
+}
+```
+Native层最终调用的是ImeInputEventSender
+```java
+private final class ImeInputEventSender extends InputEventSender {
+    public ImeInputEventSender(InputChannel inputChannel, Looper looper) {
+        super(inputChannel, looper);
+    }
+
+    @Override
+    public void onInputEventFinished(int seq, boolean handled) {
+        finishedInputEvent(seq, handled, false);
+    }
+}
+```
+
+```java
+void finishedInputEvent(int seq, boolean handled, boolean timeout) {
+    final PendingEvent p;
+    synchronized(mH) {
+        int index = mPendingEvents.indexOfKey(seq);
+        if (index < 0) {
+            return;
+        }
+        p = mPendingEvents.valueAt(index);
+        mPendingEvents.removeAt(index);
+
+        invokeFinishedInputEventCallback(p, handled);
+    }
+}
+```
+
+```java
+void invokeFinishedInputEventCallback(PendingEvent p, boolean handled) {
+    p.mHandled = handled;
+    if (p.mHandler.getLooper().isCurrentThread()) {
+        p.run();
+    } else {
+        Message msg = Message.obtain(p.mHandler, p);
+        msg.setAsynchronous(true);
+        msg.sendToTarget();
+    }
+}
+```
+InputMethodManager
+```java
+public void run() {
+    mCallback.onFinishedInputEvent(mToken, mHandled);
+    synchronized(mH) {
+        recyclePendingEventLocked(this);
+    }
+}
+```
+可以发现在run方法中我们调用了mCallback的onFinishedInputEvent方法，需要说明的是这里的mCallback就是我们ViewRootImpl中的ImeInputStage类对象
+
+ViewRootImpl@ImeInputStage
+```java
+final class ImeInputStage extends AsyncInputStage 
+        implements InputMethodManager.FinishedInputEventCallback {
+            public void onFinshedInputEvent(Object token, boolean handled) {
+                QueuedInputEvent q = (QueuedInputEvent)token;
+                if (handled) {
+                    finish(q, true);
+                    return;
+                }
+                forward(q);
+            }
+        }
+```
+
+
+经过一系列责任链：
+```
+t android.view.ViewRootImpl$ViewPostImeInputStage.processKeyEvent(ViewRootImpl.java:4152)
+at android.view.ViewRootImpl$ViewPostImeInputStage.onProcess(ViewRootImpl.java:4114)
+at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:3662)
+at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:3715)
+at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:3681)
+at android.view.ViewRootImpl$AsyncInputStage.forward(ViewRootImpl.java:3807)
+at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:3689)
+at android.view.ViewRootImpl$AsyncInputStage.apply(ViewRootImpl.java:3864)
+at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:3662)
+at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:3715)
+at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:3681)
+at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:3689)
+at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:3662)
+at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:3715)
+at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:3681)
+at android.view.ViewRootImpl$AsyncInputStage.forward(ViewRootImpl.java:3840)
+at android.view.ViewRootImpl$ImeInputStage.onFinishedInputEvent(ViewRootImpl.java:4006)
+at android.view.inputmethod.InputMethodManager$PendingEvent.run(InputMethodManager.java:2272)
+at android.view.inputmethod.InputMethodManager.invokeFinishedInputEventCallback(InputMethodManager.java:1893)
+at android.view.inputmethod.InputMethodManager.finishedInputEvent(InputMethodManager.java:1884)
+at android.view.inputmethod.InputMethodManager$ImeInputEventSender.onInputEventFinished(InputMethodManager.java:2249)
+at android.view.InputEventSender.dispatchInputEventFinished(InputEventSender.java:141)
+```
+
+
+
+
+如果没有任何View消费掉事件，那么这个事件会按照反方向回传，最终传回给Activity，如果最后 Activity 也没有处理，本次事件才会被抛弃:
 ```
 Activity <－ PhoneWindow <－ DecorView <－ ViewGroup <－ ... <－ View
 ```
 
+```java
+if (mFirstTouchTarget == null) {
+    handled = dispatchTransformedTouchEvent(ev, canceled, null, TouchTarget.ALL_POINTER_IDS);
+}
+```
+ViewGroup@dispatchTransformedTouchEvent()
+```java
+private boolean dispatchTransformedTouchEvent(MotionEvent event, boolean cancel,
+                View child, int desiredPointerIdBits) {
+    final boolean handled;
+
+    final int oldAction = event.getAction()    ;
+    if (cancel || oldAction == MotionEvent.ACTION_CANCEL) {
+        event.setAction(MotionEvent.ACTION_CANCEL);
+        if (child == null) {
+            handled = super.dispatchTouchEvent(event);
+        } else {
+            handled = child.dispatchTouchEvent(event);
+        }
+        event.setAction(oldAction);
+        return handled;
+    }
+}
+```
+
+
+### 事件分发的对象？
+* 当用户触摸屏幕时候(View或者ViewGroup派生的控件)，将产生点击事件(Touch事件)
+> Touch事件相关细节被封装成MotionEvent对象
+
+* 主要发生的Touch事件有如下四种：
+ * MotionEvent.ACTION_DOWN：按下View（所有事件的开始）
+ * MotionEvent.ACTION_MOVE：滑动View
+ * MotionEvent.ACTION_CANCEL：非人为原因结束本次事件
+ * MotionEvent.ACTION_UP：抬起View（与DOWN对应）
+
+### 事件分发的本质
+将点击事件(MotionEvent)向某个View进行传递并最终得到处理
 
 关于`ViewGroup`的触摸事件，要能正确处理Touch事件。必须重写`onInterceptTouchEvent`方法。
 
@@ -197,6 +345,80 @@ ViewRoot类的dispatchTouchEvent，给当前活动窗口的根view-->根view开�
 ViewGroup是View的子类，所以自然继承了View的上述两个方法。ViewGroup还重写了`dispatchTouchEvent`方法。
 ViewGroup包含了多个View，事件分发时总要先判断事件落在哪个View中，不像非ViewGroup那样简单。
 
+ViewGroup@dispatchTouchEvent
+```java
+public boolean dispatchTouchEvent(MotionEvent ev) {
+    
+    boolean handled = false;
+    if (onFilterTouchEventForSecurity(ev)) {
+        final int action = ev.getAction();
+        final int actionMasked = action & MotionEvent.ACTION_MASK;
+
+        if (actionMasked == MotionEvent.ACTION_DOWN) {
+            // 把ACTION_DOWN作为一个Touch手势的起始点，清除之前的手势状态
+            // 把mFirstTouchTarget重置为null(mFirstTouchTarget为最近一次对处理Touch事件的View)
+            cancelAndClearTouchTargets(ev);
+            // 重置FLAG_DISALLOW_INTERCEPT该标记为true则表示禁止拦截本次事件
+            resetTouchState();
+        }
+        // 判断是否拦截
+        final boolean intercepted;
+        if (actionMasked == MotionEvent.ACTION_DOWN || mFirstTouchTarget != null) {
+                // 本次事件是ACTION_DOWN，或者mFirstTouchTarget不为null
+                final boolean disallowIntercept = (mGroupFlags & FLAG_DISALLOW_INTERCEPT) != 0;
+                // 判断禁止拦截的FLAG，因为子View可以通过requestDisallowInterceptTouchEvent禁止父View执行是否需要拦截的判断
+                if (!disallowIntercept) {
+                    // 禁止拦截的FLAG为false，说明可以执行拦截判断
+                    intercepted = onInterceptTouchEvent(ev);
+                    ev.setAction(action);
+                } else {
+                    intercepted = false;
+                }
+        } else {
+            intercepted = true;
+        }
+
+        if (!canceled && !intercepted) {
+            // 非cancel且不拦截
+            if (actionMasked == MotionEvent.ACTION_DOWN
+                || (split && actionMasked == MotionEvent.ACTION_POINTER_DOWN) 
+                || actionMasked == MotionEvent.ACTION_HOVER_MOVE) {
+                    final int actionIndex = ev.getActionIndex();
+                    final int childredCount = mChildrenCount;
+                    if (newTouchTarget == null && childrenCount != 0) {
+                        final float x = ev.getX(actionIndex);
+                        final float y = ev.getY(actionIndex);
+// 寻找可以接收事件的child，扫描children从前到后
+                        final ArrayList<View> preorderedList = buildTouchDispatchChildList();// buildTouchDispatchChildList内部会调用buildOrderedChildList方法，该方法会将子元素根据Z轴排序，同一个Z平面上的子元素则会根据绘制的先后顺序排序
+                        final boolean customOrder = preorderedList == null && isChildrenDrawingOrderEnabled();
+                        final View[] childrend = mChildren;
+                        // 逆序遍历所有child
+                        for (int i = childrenCount - 1; i >=0; i--) {
+                            final int childIndex = getAndVerifyPreorderedIndex(childrenCount, i, customOrder);
+                            final View child = getAndVerifyPreorderedView(preorderedList,children, childIndex);
+
+                            newTouchTarget = getTouchTarget(child);
+
+                        // 把ACTION_DOWN事件传递给子View进行处理
+                            if (dispatchTransformedTouchEvent(ev, false, child, idBitsToAssign)) {
+                                // 如果此子View消费了这个touch事件
+                                newTouchTarget = addTouchTarget(child, idBitsToAssign);
+                                alreadyDispatchedToNewTouchTarget = true;
+                                break;
+                            }
+
+
+                        }
+                    }
+                }
+        }
+        if (mFirstTouchTarget == null) {
+            handled = dispatchTransformedTouchEvent(ev, canceled, null, TouchTarget.ALL_POINTER_IDS);
+        }
+    }
+}
+```
+
 # 八、Activity对Touch事件的处理
 Activity持有一个Window，而Window持有一个DecorView。而事件是至上而下分发的，所以Activity对事件拥有最高的
 优先处理权，它可以决定是否要将事件分发给Window。
@@ -215,4 +437,4 @@ Activity持有一个Window，而Window持有一个DecorView。而事件是至上
 
 
 
-
+通过Thread.dumpStack()来打印出当前线程的调用栈信息
