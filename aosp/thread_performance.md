@@ -30,6 +30,37 @@ cancel并不能真正立即取消task，如果想要立即取消还需要isCance
 HandlerThread 比较合适处理那些在工作线程执行，需要花费时间偏长的任务。我们只需要把任务发送给 HandlerThread，然后就只需要等待任务执行结束的时候通知返回到主线程就好了。
 另外很重要的一点是，一旦我们使用了 HandlerThread，需要特别注意给 HandlerThread 设置不同的线程优先级，CPU 会根据设置的不同线程优先级对所有的线程进行调度优化。
 
+```java
+HandlerThread handlerThread = new HandlerThread("handlerThread");
+
+handlerThread.start();
+// 创建的Handler将会在mHandlerThread线程中执行
+final Handler mHandler = new Handler(mHandlerThread.getLooper()) {
+  @Override
+  public void handleMessage(Message msg) {
+    Log.i("tag", "接收到消息:" + msg.obj.toString());
+  }
+}
+```
+
+HandlerThread内部具体实现：
+```java
+@Override
+public void run() {
+  mTid = Process.myTid();
+  Looper.prepare();
+  synchronized(this) {
+    mLooper = Looper.myLooper();
+    notifiAll();
+  }
+  Process.setThreadPriority(mPriority);
+  onLooperPrepared();
+  Loop.loop();
+  mTid = -1;
+}
+```
+Android体系中一个线程其实就是对应着一个Looper对象、一个MessageQueue对象，以及N各Handler对象。
+
 ## Swimming in Threadpools
 线程池适合用在把任务进行分解，并发进行执行的场景。通常来说，系统里面会针对不同的任务设置一个单独的守护线程用来专门处理这项任务。
 例如使用Networking Thread用来专门处理网络请求的操作，使用IO Thread用来专门处理系统的I\O操作。
@@ -47,6 +78,38 @@ HandlerThread 比较合适处理那些在工作线程执行，需要花费时间
 ThreadPoolExecutor为我们提供了初始化的并发线程数量，以及最大的并发数量进行控制，
 
 ## The Zen of IntentService
+```java
+public void onCreate() {
+  super.onCreate();
+  HandlerThread thread = new HandlerThread("IntentService[" + mName + "]");
+  thread.start();
+
+  mServiceLooper = thread.getLooper();
+  mServiceLooper = new ServiceHandler(mServiceLooper);
+}
+```
+
+```java
+public void onStart(Intent intent,int startId) {
+  Message msg = mServiceHandler.obtanMessage();
+  msg.arg1 = startId;
+  msg.obj = intent;
+  mServiceHandler.sendMessage(msg);
+}
+```
+
+```java
+private final class ServiceHandler extends Handler {
+  public ServiceHandler(Looper looper) {
+    super(looper);
+  }
+
+  public void handlerMessage(Message msg) {
+    onHandleIntent((Intent)msg.obj);
+    stopSelf(msg.arg1);
+  }
+}
+```
 默认的Service是执行在主线程的，可是通常情况下，这很容易影响到程序的绘制性能（抢了主线程的资源）。除了前面介绍的
 AsyncTask与HandlerThread，还可以选择使用IntentService来实现异步操作。IntentService继承来自
 普通Service同时又在内部创建了一个HandlerTrhead，在`onHandlerIntent()`的回调里面处理扔到IntentService的
@@ -125,9 +188,10 @@ Executors工厂方法：
 但是如果调用了allowCoreThreadTimeOut(boolean)方法，在线程池中的线程数不大于corePoolSize时，keepAliveTime参数也会起作用(即核心线程)，直到线程池中的线程数为0
 * workQueue:一个阻塞队列，用来存储等待执行的任务，这个参数的选择也很重要，会对线程池的运行过程产生重要影响，
 一般来说，有以下几种选择：
-> ArrayBlockingQueue  
-  LinkedBlockingQueue  
-  SynchrnousQueue
+  1. ArrayBlockingQueue:基于数组的有界阻塞队列。队列按FIFO原则对元素进行排序，队列头部是在队列中存活时间最长的元素，对尾则是存在时间最短的元素。新元素插入到队列的尾部，队列获取操作则是从队列头部开始获得元素。这是一个典型的"有界缓存"，固定大小的数组在其中保持生产者插入的元素和使用者提取的元素。一旦创建了这样的缓存区，就不能再增加其容量。
+  2. LinkedBlockingQueue：基于链表的无界阻塞队列。与ArrayBlockingQueue一样采用了FIFO原则对元素进行排序。基于链表的队列吞吐量通常高于数组的队列。
+  3. SynchrnousQueue：同步的阻塞队列。其中每个插入操作必须等待另一个线程的对应移除操作，等待过程一直处于阻塞状态，同理，每一个移除操作必须等到另一个线程的对应插入操作。
+  4. PriorityBlockingQueue：基于优先级的无界阻塞队列。优先级队列的元素按照其自然顺序进行排序，或者根据构造队列时提供的Comparator进行排序，具体取决于所使用的构造方法。优先级队列不允许使用null元素。依靠自然顺序的优先级队列还不允许插入不可比较对象(这样做可能导致ClassCastException)。虽然此队列逻辑上是无界的，但是资源被耗尽时试图执行add操作也将失败。
 
 * AtomicInteger ctl: 整个线程池的控制状态，包含了两个属性：有效线程的数量(workerCount)、线程池的状态(runState)
   - ctl 包含32位数据，低29位存线程数，高3位存runState，这样runState有5个值
