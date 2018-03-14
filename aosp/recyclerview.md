@@ -14,16 +14,101 @@
 |NestedScrollingChildHelper|管理子View嵌套滑动|
 
 
+RecyclerView的Measure过程
+
 ```java
 @Override
 protected void onMeasure(int widthSpec, int heightSpec) {
     if (mLayout == null) {
+        // 1.没有LayoutManager的情况
         defaultOnMeasure(widthSpec, heightSpec)
     }
     if (mLayout.mAutoMeasure) {
-        final int widthMode = MeasureSpec.getMode(widthSpec);
+        // 2. 有LayoutManager并开启了自动测量
+    } else {
+        // 3. 有LayoutManager但没有开启自动测量
+
     }
 }
+```
+
+RecyclerView的自动测绘过程
+```java
+protected void onMeasure(int widthSpec, int heightSpec) {
+    if (mLayout.mAutoMeasure) {
+        // 1. 首先执行的LayoutManager的onMeasure方法
+        // 2. 检查width和height都已经是精确值的嘶吼，就不用再跟进内容进行计算所需要的width和height
+        final int widthMode = MeasureSpec.getMode(widthSpec);
+        final int heightMode = MeausreSpec.getMode(heightSpec);
+        final boolean skipMeasure = widthMode = MeasureSpec.EXACTLY 
+            && heightMode == MeasureSpec.EXACTLY;
+        mLayout.onMeasure(mRecycler, mState, widthSpec, heightSpec);
+        if (skipMeasure || mAdapter == null) {
+            return;
+        }
+        // 开启布局流程计算出所有Child的边界
+        // 然后根据计算出的child的边界计算出RecyclerView的所需width和heght
+        // 检查是否需要再次测量
+        if (mState.mLayoutStep == State.STEP_START) {
+            dispatchLayoutStep1();
+        }
+        mLayout.setMeasureSpecs(widthSpec, heightSpec);
+        mState.mIsMeasuring = true;
+        dispatchLayoutStep2();
+        // 布局过程结束，根据Childrend中的边界信息计算并设置RecyclerView长宽的测量值
+        mLayout.setMeasuredDimensionFromChildren(widthSpec, heightSpec);
+
+        // 检查是否需要再次测量。
+        if (mLayout.shouldMeasureTwice()) {
+            mLayout.setMeasureSpecs(MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(getMeasuredHeight(), MeasureSpec.EXACTLY));
+            mState.mIsMeasuring = true;
+            dispatchLayoutStep2();
+            mLayout.setMeasuredDimensionFromChildren(widthSpec, heightSpec);
+        } else {
+
+        }
+    }
+}
+```
+
+RecyclerView的非自动测绘流程
+```java
+if (mHasFixedSize) {
+    // 如果RecyclerView已经设置Size固定，则执行LayoutManager onMeasure
+    mLayout.onMeasure(mRecycler, mState, widthSpec, heightSpec);
+    return;
+// 1. 如果过在测量的过程中有数据更新，则先处理更新的数据
+// 2.执行自定义测量流程，需要自定义LayoutManager实现onMeasure方法
+    if (mAdapterUpdateDuringMeasure) {
+        eatRequestLayout();
+        onEnterLayoutOrScroll();
+        processAdapterUpdatesAndSetAnimationFlags();
+
+        if (mState.mRunPredictiveAnimations) {
+            mState.mInPreLayout = true;
+        } else {
+            mAdapterHelper.consumeUpdatesInOnePass();
+            mState.mInPreLayout = false;
+        }
+        mAdapterUpdateDuringMeasure = false;
+        resumeRequestLayout(false);
+    } else if (mState.mRunPredictiveAnimation) {
+        setMeasuredDimension(getMeasureWidth(), getMeasureHeight());
+        return;
+    }
+    // 处理完新更新的数据，执行自定义测量操作
+    if (mAdapter != null) {
+        mStae.mItemCount = mAdapter.getItemCount();
+    } else {
+        mState.mItemCount = 0;
+    }
+    eatRquestLayout();
+    mLayout.onMeasure(mRecycler, mState, widthSpec, heightSpec);
+    resumeRequestLayout(false);
+    mState.mInPreLayout = false;
+}
+
 ```
 
 
@@ -68,8 +153,9 @@ createView和bindView
     
 ## RecyclerView条目缓存机制
 RecyclerView缓存基本上是通过三个内部类管理的，Recycler、RecycledViewPool和ViewCacheExtension
-Recycler:
-用于管理以及废弃或者与RecyclerView分离的ViewHolder，
+- Recycler:一个Recycler是负责管理称为碎片的视图或者已经detached的视图，从而实现View的复用。
+- RecycledViewPool:可以让你在多个RecyclerView之间分享视图
+
 
 |变量|作用|
 |:---:|:---:|
