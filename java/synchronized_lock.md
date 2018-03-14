@@ -40,7 +40,8 @@ public class ReentrantLockTest {
 }
 ```
 
-ReentranLock是通过Sync及其子类来实现同步控制。ReentranLock也是通过FairSync与NoFairSync来支持ReentranLock在获取锁时的公平与非公平选择。
+ReentranLock是通过Sync及其子类来实现同步控制。
+ReentranLock也是通过FairSync与NoFairSync来支持ReentranLock在获取锁时公平与非公平选择
 
 ## 公平与非公平锁
 |||
@@ -56,8 +57,7 @@ public void lock() {
     sync.lock();
 }
 ```
-
-初始化成员遍历
+初始化成员遍历
 ```java
 public ReentrantLock(boolean fair) {
     sync = fair ? new FairSync() : new NonfairSync();
@@ -92,7 +92,7 @@ public final void acquire(int arg) {
 }
 ```
 
-非公平锁tryAcquire(int)实现：
+非公平锁tryAcquire(int)实现
 ```java
 final boolean nonfairyTryAcquire(int acquires) {
     final Thread current = Thread.currentThread();
@@ -206,7 +206,7 @@ waitStatus表示Node节点的一些状态，pre/next表示该队列是由双向�
 |CONDITION(-2)	|节点在等待队列中，节点 线程等待在Condition上，当其他线程对Condition调用了signal方法时，该节点将会从等待队列中转移到同步队列 ，加入到对同步状态的获取中。|
 |PROPAGATE(-3)	|表示下一次共享式 同步状态获取将会 无条件被传播下去|
 
-### AQS的acquire方法的分析
+### AQS的acquire方法的分析
 没有成功获取同步状态的线程会被加入同步等待队列的尾部
 
 * 先创建线程节点并加入同步队列
@@ -275,7 +275,7 @@ final boolean acquireQueue(final Node node, int arg) {
 ```
 
 # synchronized(this)
-synchronized关键字和ReentranLock一样，也支持可重入锁(一个线程可以多次获取同一把锁，无需重新获得锁)，但是它是一个关键字，是一种语法级别的同步方式，成为内置锁。
+synchronized关键字和ReentranLock一样，也支持可重入锁(一个线程可以多次获取同一把锁，无需重新获得锁),但它是一个关键字,是一种语法级别的同步方式，成为内置锁。
 
 synchronized跟ReentrantLock相比，有几点局限性：
 1. 加锁的时候不能设置超时。ReentrantLock提供tryLock方法，可以设置超时时间，如果超过了这个时间并且没有获取到锁，就会放弃，而synchronized没有这种功能。
@@ -336,8 +336,7 @@ public class ConditionTest {
 
 }
 ```
-thread1执行到condition.await()时，当前线程会被挂起，直到thread2调用了condition.signalAll()方法后，thread1才会重新被激活执行。
-
+thread1执行到condition.await()时，当前线程会被挂起，直到thread2调用了condition.signalAll()方法后，thread1才会重新被激活执行
 thread1调用Condition的await方法之后，thread1线程释放锁，然后马上加入到Condition的等待队列，由于thread1释放了锁，thread2获取锁并执行
 
 
