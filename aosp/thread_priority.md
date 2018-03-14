@@ -1,8 +1,8 @@
 #Android平台中的进程调度接口
 ![Process](../img/android_process.png)
+- 讨论Process.java提供的setThreadPriority和setThreadGroup函数
+- 调用分发顺序从java一直贯穿JNI,Native层后，setThreadPriority直接转移到setPriority系统调用，而setThreadGroup通过set\_sched\_policy处理后，再转移给sched_setscheduler系统调用
 
-* 讨论下Process.java提供的setThreadPriority和setThreadGroup函数
-* 调用分发顺序从java一直贯穿JNI,Native层后，setThreadPriority直接转移到setPriority系统调用，而setThreadGroup通过set\_sched\_policy处理后，再转移给sched_setscheduler系统调用。
 #设置调度优先级
 OS在调度进程的时候是遵循一定规则的，优先级高的进程分配CPU的时间多，而优先级低的进程相对分配的CPU时间少。(理论上，具体时间分配是和OS相关的)
 
