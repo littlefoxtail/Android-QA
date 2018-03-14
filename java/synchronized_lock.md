@@ -64,7 +64,7 @@ public ReentrantLock(boolean fair) {
 }
 ```
 
-非公平锁lock实现：
+非公平锁lock实现
 ```java
 final void lock() {
     if (comparAndSetState(0, 1))
@@ -76,7 +76,7 @@ final void lock() {
 }
 ```
 
-公平锁lock实现：
+公平锁lock实现
 ```java
 final void lock() {
     acquire(1);
@@ -114,7 +114,7 @@ final boolean nonfairyTryAcquire(int acquires) {
 }
 ```
 
-公平锁的tryAcquire(int)实现:
+公平锁的tryAcquire(int)实现
 
 ```java
 protected final boolean tryAcquire(int acquires) {
