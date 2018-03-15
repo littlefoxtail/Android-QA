@@ -672,6 +672,97 @@ public class WizardTowerProxy implements WizardTower {
 ②你想在不明确指定接收者的情况下，向多个对象中的一个提交一个请求。
 ③可处理一个请求的对象集合应被动态指定。
 
+```java
+public class Requst {
+    private final RquestType requestType;
+    private final String requestDescription;
+    private boolean handled;
+
+    public Request(final RquestType requestType, final String requestDecription) {
+        this.requestType = Objects.requestNonNull(requestType);
+        this.requestDescription = Object.requestNonNull(requestDescription);
+    }
+
+    public String getRequestDescription() { return requestDescription; }
+
+    public RequestType getRequestType() { return requestType; }
+
+    public void markHandled() { this.handled = true; }
+
+    public boolean isHandled() { return this.handled; }
+
+    @Override
+    public String toString() { return getRequestDescription(); }
+    }
+
+    public enum RequestType {
+    DEFEND_CASTLE, TORTURE_PRISONER, COLLECT_TAX
+    }
+```
+
+```java
+public abstract class RequestHandler {
+    private static final LOGGER = LoggerFactory.getLogger(RequestHandler.class);
+    private RequestHandler next;
+
+    public RequestHandler(RequestHandler next) {
+        this.next = next;
+    }
+    public void handleRequest(Request req) {
+        if (next != null) {
+            next.handleRequest(req);
+        }
+    }
+
+    protected void printHandling(Request req) {
+        LOGGER.info("{} handling rquest\"{}\"", this, req);
+    }
+
+    @Override
+    public abstract String toString();
+}
+
+
+public class OrcCommand extends RequestHandler {
+    public OrcCommand(RequestHandler handler) {
+        super(handler);
+    }
+
+    @Override
+    public void handleRequest(Request req) {
+        if (req.getRequestType().equals(RequestType.DEFEND_CASTLE)) {
+            printHanling(req);
+            req.markHandled();
+        } else {
+            super.handleRequest(req);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Orc commander";
+    }
+}
+```
+
+```java
+public class OrcKing {
+    RequestHandler chain;
+
+    public OrcKing() {
+        buildChain();
+    }
+
+    private void buildChain() {
+        chain = new OrcCommander(new OrcOffice(new OrcSoldier(null)));
+    }
+
+    public void makeRequest(Request req) {
+        chain.handleRequest(req);
+    }
+}
+```
+
 ### 名称：Command(命令模式)
 
 * 意图：将一个请求封装为一个对象，从而使你可用不同的请求对客户进行参数化；对请求排队或记录请求日志，以及支持可撤销的操作。
