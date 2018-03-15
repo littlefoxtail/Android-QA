@@ -898,33 +898,65 @@ Visitor使得你可以将相关的操作集中起来定义在一个类中。当�
 
 定义的对象结构的类很少改变，但经常需要在此结构上定义新的操作。改变对象结构类需要重定义对所有访问者的接口，这可能需要很大的代价。如果对象结构类经常改变，那么可能还是在这些类中定义这些操作较好。
 
+### Delegation委托模式
+在委托模式中，有两个对象参与处理同一个请求，接受请求的对象将请求委托给另一个对象来处理，许多其他的模式，如状态模式、策略模式、访问者模式本质上是在更特殊的场合采用了委托模式。委托模式使得我们可以用聚合来替代继承
 
+```java
+public interface Printer {
+    void print(final String message);
+}
+```
 
+```java
+public class HpPrinter implements Printer {
+    @Override
+    public void print(String message) {
+        Log.i("谁都不行");
+    }
+}
+```
 
+```java
+public class CanonPrinter implements Printer {
+    @Override
+    public void print(String message) {
+        Log.i("鬼也不行");
+    }
+}
+```
 
+```java
+public class EpsonPrinter implements Printer {
+    @Override
+    public void print(String messgae) {
+        Log.i("神也不行");
+    }
+}
+```
 
+```java
+public class PrinterController implements Printer {
+    private final Printer printer;
 
+    public PrinterController(Printer printer) {
+        this.printer = printer;
+    }
 
+    @Override
+    public void print(String message) {
+        printer.print(message);
+    }
+}
+```
 
+```java
+PrinterController hpPrinterController = new PrinterController(new HpPrinter());
+PrinterController canonPrinterController = new PrinterController(new CanonPrinter());
+PrinterController epsonPrinterController = new PrinterController(new EpsonPrinter());
 
+hpPrinterController.printer("hello world!");
+canonPrinterController.printer("hello world!");
+epsonPrinterController.printer("hello world!");
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```
 
