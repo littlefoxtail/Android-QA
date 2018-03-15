@@ -585,6 +585,16 @@ public class SimpleTroll implements Troll {
     }
 }
 ```
+
+```java
+Troll troll = new SimpleTroll();
+troll.attack();
+troll.fleeBattle();
+
+troll = new ClubbedTroll(troll);
+troll.attack();
+troll.fleeBattle();
+```
 ### 缺点
 装饰模式的优点：
 - 装饰模式与继承关系的目的都是要扩展对象的功能，但是装饰模式可以提供比继承更多的灵活性。
