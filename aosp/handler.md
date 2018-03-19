@@ -165,6 +165,50 @@ Looper.prepareMainLooper();
     Looper.loop();
 }
 ```
+
+## Handle.obtainMessage
+Handler@obtainMessage
+```java
+public final Message obtainMessage() {
+    return Message.obtain(this);
+}
+```
+
+Message@obtain
+```java
+public static Message obtain(Handler h) {
+    Message m = obtain();
+    m.target = h;
+    return m;
+}
+```
+
+Message@obtain
+```java
+public static Message obtain() {
+    synchronized (sPoolSync) {
+        if (sPool != null) {
+            Message m = sPool;
+            sPool = m.next;
+            m.next = null;
+            m.flags = 0;
+            sPoolSize--;
+            return m;
+        }
+    }
+}
+```
+
+1. **sPoolSync**：给Message加一个对象锁，不允许多个线程同时访问Message类和obtain方法，保证获取到的sPool是最新的
+2. **sPool**：存储循环利用Message的单链表。sPool只是链表的头节点
+3. **sPoolSize**：单链表的链表长度，即存储Message对象的个数
+
+obtain对链表操作，具体逻辑：
+1. 加锁
+2. 判断是否是空链表
+3. 链表操作，链表头结点移除作为重用Message对象，第二个节点作为头节点
+4. 链表长度减1
+
 ## HandlerThread
 主要作用是很简单的创建一个带looper的线程，方便的使用handler的机制做异步处理。
 但是他只有一个线程，适合串行任务，不适合做并行任务。比如网络IO阻塞时间比较长，推荐
@@ -181,6 +225,5 @@ mHandler = new Handler(workerThread.getLooper());
 ![allhandler](../img/all_handler.jpg)
 
 # [你知道android的MessageQueue.idleHandler吗？](https://mp.weixin.qq.com/s/KpeBqIEYeOzt_frANoGuSg)
-
 
 
