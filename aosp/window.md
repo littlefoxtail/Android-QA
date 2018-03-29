@@ -83,7 +83,7 @@ z-index对应着WindowManager.LayoutParams里的type参数
 最终转为window的surface, surface被锁住并返回Canvas对象，此时View拿到Canvas对象来绘制自己。当所有View绘制完成后，Surface解锁，并且post到绘制缓存用于绘制，
 通过Surface Flinger来组织各个Window，显示最终的整个屏幕。
 
-在Activity的attach方法中新建了PhoneWindow对象
+在Activity的attach方法中新建了PhoneWindow对象
 
 PhoneWindow的setContentView函数会调用installDecor来创建DecorView对象
 ```java
@@ -110,7 +110,7 @@ public void setContentView(int layoutResId) {
 }
 ```
 
-在installDecor函数中调用了generateDecor函数来创建按DecorView对象
+在installDecor函数中调用了generateDecor函数来创建按DecorView对象
 ```java
 private void installDecor() {
     if (mDecor == null) {
@@ -190,7 +190,7 @@ public final class WindowManagerImpl implements WindowManager {
 }
 ```
 
-WindowManagerGlobal类主要有3个非常重要的变量:
+WindowManagerGlobal类主要有3个非常重要的变量:
 1. mViews保存的是View对象，DecorView
 2. mRoots保存和顶层View关联的ViewRootImple对象
 3. mParams保存的是创建顶层View的layout参数
