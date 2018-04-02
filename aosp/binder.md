@@ -21,7 +21,11 @@ Android系统中，每个应用程序是由Android的Activity,Service,Broadcast,
 5. 从Android APP层：Binder是客户顿和服务端进行通信的媒介，当bindService的时候，服务端会返回一个包含了服务端业务调用的Binder对象，通过这个Binder对象，客户端就可以获取服务端提供的服务或者数据，这里的服务包括普通服务和基于AIDL的服务
 
 # 二、Binder
-
+Binder是Android系统中的一种IPC进程间通信结构
+Binder的整个设计师C/S结构，客户端进程通过获取服务端进程的代理，并通过向这个代理接口方法中读取数据来完成进程间的数据通信。
+Android选择Binder原因
+1. 安全，每个进程会被Android系统分配UID和PID，不像传统的在数据里加入UID，这就让那些恶意进程无法直接和其他进程通信，进程间通信的安全性得到提升
+2. 高效，Socket的IPC每次数据拷贝都需要2次，而Binder只要1次。
 ## Binder原理
 Binder通信采用C/S架构，从组件视角来说，包含Client、Server、ServiceManager以及binder驱动，其中ServiceManager用于管理系统中的各种服务。架构图如下所示：
 ![image](../img/cs.jpg)
