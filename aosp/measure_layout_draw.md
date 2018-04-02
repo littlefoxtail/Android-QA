@@ -98,8 +98,7 @@ performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
 
 
 ### ViewGroup的测量过程
-由于DecodeView继承自FrameLayout，是PhoneWindow的一个内部类，而FrameLayout没有measure方法，因此调用的是父类View
-的measure方法，
+由于DecodeView继承自FrameLayout，是PhoneWindow的一个内部类，而FrameLayout没有measure方法，因此调用的是父类View的measure方法，
 ```java
 public final void measure(int widthMeasureSpec, int heightMeasureSpec) {
         //首先判断当前view的layoutMode是不是特例LAYOUT_MODE_OPTICAL_BOUNDS
