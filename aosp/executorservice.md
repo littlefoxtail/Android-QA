@@ -93,7 +93,7 @@ shutdown()只是关闭了提交通道，用submit()是无效的；而内部该�
 
 ## shutdown和awaitTermination()
 shutdown()后，不能再提交新的任务进去；但是awaitTermination()后，可以继续提交
-awitTermination()是阻塞的，返回结果是线程池是否已停止(true/false)；shutdown不阻塞
+awaitTermination()是阻塞的，返回结果是线程池是否已停止(true/false)；shutdown不阻塞
 
 # 总结
 * 优雅的关闭，用shutdown()
