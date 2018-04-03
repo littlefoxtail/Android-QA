@@ -835,13 +835,209 @@ public class OrcKing {
 ```
 
 ### 名称：Command(命令模式)
+需要向某些对象发送请求（调用其中的某个或某些方法），但并不知道请求的接收者是谁，也不知道请求的操作是哪个，此时希望能够以一种松耦合的方式来设计软件
+
+命令模式(Command Pattern)：将一个请求封装为一个对象，从而让我们可用不同的请求对客户进行参数化，对请求排队或者记录请求日志，以及支持可撤销的操作，命令模式是一种对象行为型模式，其别名为动作(Action)或事务(Transaction)模式
+命令模式包含的角色：
+- Command(抽象命令类)
+```java
+public abstract class Command {
+    public abstract void execute(Target target);
+
+    public abstract void undo();
+
+    public abstract void redo();
+
+    @Override
+    publci abstarct String toString();
+}
+```
+- ConcreteCommand(具体命令类)
+```java
+public class InvisibilitySpell extends Command {
+    private Target target;
+
+    @Override
+    public void execute(Target target) {
+        target.setVisibility(Visibility.INVISIBLE);
+        this.target = target;
+    }
+    
+    @Override
+    public void undo() {
+        if (target != null) {
+            target.setVisibility(Visibility.INVISIBLE);
+        }
+    }
+
+    @Override
+    public void redo() {
+        if (target != null) {
+            target.setVisibility(Visibility.INVISIBLE);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Invisibility spell";
+    }  
+}
+```
+
+```java
+public class ShrinkSpell extends Command {
+    private Size oldSize;
+    private Target target;
+
+    @Override
+    public void execute(Target target) {
+        oldSize = target.getSize();
+        target.setSize(Size.SMALL);
+        this.target = target;
+    }
+
+    @Override
+    public void undo() {
+        if (oldSize != null && target != null) {
+            Size temp = target.getSize();
+            target.setSize(oldSize);
+            oldSize = temp;
+        }
+    }
+
+    @Override
+    public void redo() {
+        undo();
+    }
+
+    @Override
+    public String toString() {
+        return "Shrink spell";
+    }
+
+}
+```
+
+- Invoker(调用者)
+```java
+public class Wizard {
+    private Deque<Command> undoStack =  new LinkedList<>();
+    private Deque<Command> redoStack =  new LinkedList<>();
+
+    public Wizard() {
+
+    }
+
+    public void castSpell(Command command, Target target) {
+        command.execute(target);
+        undoStack.offerLast(command);
+    }
+
+    public void undoLastSpell() {
+        if (!unsoStack.isEmpty()) {
+            Command previousSpell = undoStack.pollLast();
+            redoStack.offerLast(previousSpell);
+            previousSpell.undo();
+        }
+    }
+
+    public void redoLastSpell() {
+        if (!redoStack.isEmpty()) {
+            Command previousSpell = redoStack.pollLast();
+            undoStack.offerLast(previousSpell);
+            previousSpell.redo();
+        }
+    }
+
+    public void redoLastSpell() {
+        if (!redoStack.isEmpty()) {
+            Command previousSpell = redoStack.pollLast();
+            previousSpell.redo();
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Wizard";
+    }
+}
+```
+
+- Receiver(接收者)
+```java
+public abstract class Target {
+    private Size size;
+    private Visibility visibility;
+
+    public Size getSize() {
+        return size;
+    }
+
+    public void setSize(Size size) {
+        this.size = size;
+    }
+
+    public Visibility getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(Visibility visibility) {
+        this.visibility = visibility;
+    }
+
+    @Override
+    public abstract String toString();
+
+    public void printStatus() {
+
+    }
+}
+```
+
+```java
+public class Goblin extends Target {
+    public Goblin() {
+        setSize(Size.NORMAL);
+        setVisibility(Visibility.VISIBLE);
+    }
+
+    @Override
+    public String toString() {
+        return "Goblin";
+    }
+}
+```
+
+Client
+```java
+Wizard wizard = new Wizard();
+Goblin goblin = new Goblin();
+
+goblin.printStatus();
+
+wizard.castSpell(new ShrinkSpell(), goblin);
+goblin.printStatus();
+```
+
+命令队列可以将请求发送者和接受者解耦，请求发送者通过命令对象来间接引用请求接收者，使得系统具有更好的灵活性和可扩展性
+
 
 * 意图：将一个请求封装为一个对象，从而使你可用不同的请求对客户进行参数化；对请求排队或记录请求日志，以及支持可撤销的操作。
-* 适用性：①抽象出待执行的动作以参数化某对象，你可用过程语言中的回调函数表达这种参数化机制。回调函数指函数在某处注册，而它将在稍后某个需要的时候被调用。command模式是回调机制的一个面向对象的替代品。
-②在不同的时刻指定、排列和执行请求。一个Command对象可以有一个初始请求无关的生存期。如果一个请求的接受者可用一种与地址空间无关的方式表达，那么就将负责该请求的命令对象传送给另一个不同的进程并在那儿实现该请求。
-③支持取消操作。command的Excute操作可在实施操作前将状态存储起来，在取消操作时这个状态用来消除该操作的影响，执行的命令将被存储在一个历史列表中。可通过向后和向前遍历这一列表并分别调用unExcute和Excute来实现重数不限的“取消”和“重做”。
-④支持修改日志，这样当系统崩溃时，这些修改可以被重做一遍。在Command接口中添加装载操作和存储操作，可以用来保持变动的一个一致的修改日志。在崩溃中恢复的过程包括从磁盘中重新读入记录下来的命令并用excute操作重新执行它们。
-⑤在构建的原语操作上的高层操作构造一组变动。command模式提供了对事务进行建模的方法。command有一个公共接口，使得你可以用同一种方式调用所有的事务。同时使用该模式也易于添加新事务以扩展系统。
+* 适用性：
+    - 抽象出待执行的动作以参数化某对象，你可用过程语言中的回调函数表达这种参数化机制。回调函数指函数在某处注册，而它将在稍后某个需要的时候被调用。command模式是回调机制的一个面向对象的替代品。
+    - 在不同的时刻指定、排列和执行请求。一个Command对象可以有一个初始请求无关的生存期。如果一个请求的接受者可用一种与地址空间无关的方式表达，那么就将负责该请求的命令对象传送给另一个不同的进程并在那儿实现该请求。
+    - 支持取消操作。command的Excute操作可在实施操作前将状态存储起来，在取消操作时这个状态用来消除该操作的影响，执行的命令将被存储在一个历史列表中。可通过向后和向前遍历这一列表并分别调用unExcute和Excute来实现重数不限的“取消”和“重做”。
+    - 支持修改日志，这样当系统崩溃时，这些修改可以被重做一遍。在Command接口中添加装载操作和存储操作，可以用来保持变动的一个一致的修改日志。在崩溃中恢复的过程包括从磁盘中重新读入记录下来的命令并用excute操作重新执行它们。
+    - 在构建的原语操作上的高层操作构造一组变动。command模式提供了对事务进行建模的方法。command有一个公共接口，使得你可以用同一种方式调用所有的事务。同时使用该模式也易于添加新事务以扩展系统。
+
+#### 优点
+- 降低耦合度。由于请求者与接收者之间不存在直接引用，因此请求者与接收者完全解耦
+- 新的命令可以很容易地加入到系统中，符合开闭原则
+- 可以比较容易设计一个命令队列或组合命令
+- 为请求的撤销和恢复操作提供了一种设计和实现方案
+
+#### 缺点
+导致某些系统有过多的具体命令类
 
 ### 名称：Interpreter(解释器模式)
 * 意图：给定一个语言，定义它的文法的一种表示，并定义一个解释器，这个解释器使用该表示来解释语言中的句子。
