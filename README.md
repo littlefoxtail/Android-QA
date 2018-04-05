@@ -1,9 +1,7 @@
 # Android-QA
 - **[设计模式](pattern/pattern.md)** 
 - **[网络通信/Socket](network/README.md)** 
-- **[数据结构](data_structures.md)**
 - **[aosp](aosp/README.md)**
-- **[算法](algorithm/README.md)**
 - **[third](third/README.md)**
 - **[Java](java/README.md)**
 
