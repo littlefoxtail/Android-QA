@@ -3,11 +3,11 @@
 - **[Fragment](fragment.md)**
 - **[ClassLoader](classloader.md)**
 - **[Interpolator](Interpolator.md)**
-- **[ThreadLocal](threadlocal.md)**
+
 - **[Touch事件](TouchEvent.md)**
 - **[WebView遇到的一些问题和总结](webView.md)**
 - **[Handler](handler.md)**
-- **[Choreographer舞蹈指挥家，控制同步处理输入、动画、绘制](choreographer.md)**
+- **[Choreographer控制同步处理输入、动画、绘制](choreographer.md)**
 - **[进程与AMS的关系](ams.md)**
 - **[binder的理解(未完)](binder.md)**
 - **[应用中的Context](context.md)**
@@ -15,7 +15,6 @@
 - **[测量定位绘制流程](measure_layout_draw.md)**
 - **[属性动画](objectanimator.md)**
 - **[RecyclerView](recyclerview.md)**
-- **[RecyclerView_DiffUtill](recyclerview_diffutil.md)**
 - **[RemoteViews](remoteviews.md)**
 - **[图片缓存处理](image.md)**
 - **[Android性能调优](performance.md)**
