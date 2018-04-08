@@ -314,7 +314,8 @@ Hero mage = new Hero.Builder(Profession.Name, "Riobard").withHairColor(HairColor
 
 适配模式(Adapter Pattern)：将一个接口转换成客户希望的另一个接口，适配器模式使接口不兼容的那些类可以一起工作，其别名为包装(Wrapper)。适配器模式既可以做为类结构型模式，也可以作为对象结构型模式。
 
-Client
+根据适配器类与适配者类的关系不同，适配器模式可分为对象适配器和类适配器两种，在对象适配器模式中，适配器与适配者之间是关联关系；在类适配器模式中，适配器与适配者之间是继承关系。
+Target（目标抽象类）
 ```java
 public class Captain implements RowingBoat {
     private RowingBoat rowingBoat;
@@ -338,7 +339,7 @@ public class Captain implements RowingBoat {
 }
 ```
 
-Adaptee
+Adaptee（被适配者）
 ```java
 public class FishingBoat {
 
@@ -348,7 +349,7 @@ public class FishingBoat {
 }
 ```
 
-Adapter
+Adapter（适配器类）
 ```java
 public class FinishBoatAdapter implements RowingBoat {
 
