@@ -1065,10 +1065,12 @@ goblin.printStatus();
 
 ### 名称 Observer(观察者模式)
 #### 模式动机
- 定义对象间的一宗一对多的依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都得到通知并被自动更新。发生改变的对象称为观察目标，而被通知的对象称为观察者，一个观察目标可以对应多个观察者，而且这些观察者之间没有相互联系，可以根据需要增加和删除观察者。
+ 定义对象间的一宗一对多的依赖关系，观察者模式描述了如何建立对象与对象之间的关系，当一个对象的状态发生改变时，所有依赖于它的对象都得到通知并被自动更新。发生改变的对象称为观察目标，而被通知的对象称为观察者，一个观察目标可以对应多个观察者，而且这些观察者之间没有相互联系，可以根据需要增加和删除观察者。
 #### 模式定义
-观察者模式(Observer Pattern):观察者模式又叫做(Publish/Subscribe)模式、模型-视图(Model/View)模式、源-监听器(Source/Listener)模式
-Observed(被观察者):
+观察者模式(Observer Pattern):观察者模式又叫做发布-订阅(Publish/Subscribe)模式、模型-视图(Model/View)模式、源-监听器(Source/Listener)模式
+
+Subject(目标):目标指被观察者。在目标中定义了一个观察者集合，一个观察目标可以接受任意数量的观察者来观察，它提供了一系列方法来增加和删除观察者对象，同时它定义了nofity()。
+目标类可以是抽象类或者具体类
 ```java
 public class Weather {
     private WeatherType currentWeather;
@@ -1101,12 +1103,25 @@ public class Weather {
 }
 ```
 
-Observer:
+Observer（观察者）:观察者将堆观察目标的改变作出反应，观察者一般定义为接口，该接口声明了更新数据的`update`，因此称为抽象观察者
 ```java
 public interface WeatherObserver {
     void update(WeatherType currentWeather);
 }
 ```
+
+ConcreteObserver（具体观察者）：
+
+```java
+public class Orcs implements WeatherObserver {
+
+    public void update(WeatherType currentWeather) {
+        
+    }
+}
+```
+
+
 
 #### 优点
 观察者模式的优点
