@@ -564,7 +564,7 @@ View的布局流程就已经全部分析完了。可以看出，布局流程的�
 ### ViewRootImpl@draw
 ```java
 private void draw(boolean fullRedrawNeeded) {
-    if (!dirty.isEmpty() || mIsAnimating ||            accessibilityFocusDirty) {
+    if (!dirty.isEmpty() || mIsAnimating || accessibilityFocusDirty) {
             //如果采用硬件渲染绘制且ThreadedRenderer可用，进入该流程
         if (mAttachInfo.mThreadedRenderer != null && mAttachInfo.mThreadedRenderer.isEnabled()) {
             mAttachInfo.mThreadedRenderer.draw(mView, mAttachInfo, this)
