@@ -674,16 +674,18 @@ public class Sentence extends LetterComposite {
 ⑤应用程序不依赖于对象标识。由于Flyweight对象可以被共享，对于概念上明显有别的对象，标识测试将返回真值。
 
 
-### 名称：Decorator(装饰器模式)
+### 名称：Decorator(装饰模式)
 装饰模式以对客户透明的方式动态地给一个对象附件上更多的责任，换言之，客户端并不会觉得对象在装饰前和装饰后有什么不同。装饰模式可以在不需要创造更多子类的情况下，将对象的功能加以扩展。这就是装饰模式的动机。
 
+装饰模式是一种用来替代你继承的技术，它通过无须定义子类的方式来给对象动态增加职责，使用对象之间的关联关系取代类之间的继承关系。在装饰模式中引入装饰类，在装饰类中既可以调用带装饰的原有类的方法，还可以增加新的方法，以扩充原有类的功能
 * 意图：动态地给一个对象添加一些额外的职责。就增加功能来说，decorator模式相比生成子类更为灵活。其别名也可以称为包装器(Wrapper)，与适配器模式的别名相同。
 * 适用性：
     1. 在不影响其他对象的情况下，以动态、透明的方式给单个对象添加职责
     2. 处理那些不可撤销的职责。
     3. 当不能生成子类的方法进行扩充时。一种情况是，可能有大量的扩展，为支持每一种组合将产生大量的子类，使得子类数据呈爆炸性增长。
 另一种情况可能是因为类定义被隐藏，或类定义不能用于生成子类。
-Interface:
+
+Component（抽象构件）:它是具体构件和抽象装饰类的共同父类，声明了在具体构件展总实现的业务方法，它的引入可以使客户端以一直的方式处理未被装饰的对象以及装饰之后的对象，实现客户端的透明操作
 ```java
 public interface Troll {
     void attach();
@@ -693,7 +695,25 @@ public interface Troll {
     void fleeBattle();
 }
 ```
-Decorator:
+ConcreteComponent (具体构件类)：它是抽象构件类的子类，用于定义具体的构建对象，实现了在抽象构件中声明的方法，装饰器可以给它增加额外的责任
+```java
+public class SimpleTroll implements Troll {
+    @Override
+    public void attach() {
+        log.i("the troll tries to grab you!");
+    }
+    @Override
+    public int getAttackPower() {
+        return 10;
+    }
+    @Override
+    public void fleeBattle() {
+        log.i("The troll shrieks in horror and runs away!");
+    }
+}
+```
+
+Decorator(装饰类)：用于给具体构件增加职责。它维护了一个指向抽象构件对象的引用，通过该引用可以调用装饰之前构件对象的方法，并可以增加新的方法用以扩充欧冠对象的行为
 ```java
 public ClubbedTroll implements Troll {
     private Troll decorated;
@@ -719,22 +739,7 @@ public ClubbedTroll implements Troll {
 }
 ```
 
-```java
-public class SimpleTroll implements Troll {
-    @Override
-    public void attach() {
-        log.i("the troll tries to grab you!");
-    }
-    @Override
-    public int getAttackPower() {
-        return 10;
-    }
-    @Override
-    public void fleeBattle() {
-        log.i("The troll shrieks in horror and runs away!");
-    }
-}
-```
+
 
 ```java
 Troll troll = new SimpleTroll();
@@ -745,6 +750,7 @@ troll = new ClubbedTroll(troll);
 troll.attack();
 troll.fleeBattle();
 ```
+装饰模式降低了系统的耦合度，可以动态增加或删除对象的职责，并使得需要装饰的具体构件类和具体装饰类可以独立变化，以便增加新的具体装饰类
 #### 优点
 - 装饰模式与继承关系的目的都是要扩展对象的功能，但是装饰模式可以提供比继承更多的灵活性。
 - 可以通过一种动态的方式来扩展一个对象的功能，通过配置文件可以在运行时选择不同的装饰器，从而实现不同的行为。
@@ -752,14 +758,13 @@ troll.fleeBattle();
 - 具体构建类与具体修饰类可以独立变化，用户可以根据需要增加新的具体构件类和具体修饰类，在使用时再对其进行组合，原有代码无须改变，符合"开闭原则"
 
 #### 缺点
-* 客户端必须知道所有的策略类，并自行决定使用哪一个策略类
-* 策略模式将造成系统产生很多具体具体策略类
-* 无法同时在客户端使用多个策略类，不支持使用一个策略类完成部分功能后再使用另一个策略类来完成剩余功能的情况
+* 使用装饰模式进行系统设计时将产生很多小对象，这些对象的区别在于它们之间相互连接的方式有所不同
+* 装饰模式比继承有更加的灵活性，但同时也意味着比继承更加容易出错，排错也很困难
+
 
 #### 使用场景
-- 一个系统需要动态地在几种算法中选择一种
-- 一个对象有很多行为，如果不恰当的模式，这些行为就只要使用多重条件选择语句来实现。此时，使用策略模式，把这些行为转移到相应的具体策略类里面，就可以避免使用难以维护的多重条件选择语句
-- 不希望客户端知道复杂、与算法的数据结构
+- 在不影响其他对象的情况下，以动态、透明的方式给单个对象添加职责
+- 当不能采用继承的方式对系统进行扩展或者采用继承不利于系统扩展和维护时可以使用装饰模式
 
 #### Real world examples
  * [java.io.InputStream](http://docs.oracle.com/javase/8/docs/api/java/io/InputStream.html), [java.io.OutputStream](http://docs.oracle.com/javase/8/docs/api/java/io/OutputStream.html),
