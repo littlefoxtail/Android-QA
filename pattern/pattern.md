@@ -57,7 +57,7 @@ public class ImageReaderFactory {
 * 工厂类负责创建的对象比较少
 * 客户端只知道工厂类的参数，对于创建对象不关心
 
-## 名称：工厂方法模式(Factory Method)
+## 工厂方法模式(Factory Method)
 工厂方法模式又称为工厂模式，也叫虚拟构造器(Virtual Constructor)模式或者多态工厂，它属于类创建型。
 
 在工厂方法模式中，不再提供一个统一的工厂类来创建所有的产品对象，而是针对不同的产品提供不同的工厂
@@ -123,7 +123,7 @@ ob.manufactureWeapon(WeaponType.AXE);
 * [java.util.EnumSet](https://docs.oracle.com/javase/8/docs/api/java/util/EnumSet.html#of-E-)
 * [javax.xml.bind.JAXBContext](https://docs.oracle.com/javase/8/docs/api/javax/xml/bind/JAXBContext.html#createMarshaller--)
 
-## 名称：抽象工厂模式(Abstract Factory)
+## 抽象工厂模式(Abstract Factory)
 工厂方法模式通过引入工厂等级结构，解决了简单工厂类职责太重的问题，但由于工厂方法模式中的每一个工厂只生产一类产品，可能会导致系统中存在大量的工厂类。
 
 抽象工厂模式提供一个创建一系列相关或相互依赖对象的接口，而无须指定它们具体的类。抽象工厂模式又称为Kit模式，属于对象创建型模式。
@@ -186,7 +186,7 @@ public class OrcKingdomFactory implements KingdomFactory {
 * [javax.xml.transform.TransformerFactory](http://docs.oracle.com/javase/8/docs/api/javax/xml/transform/TransformerFactory.html#newInstance--)
 * [javax.xml.xpath.XPathFactory](http://docs.oracle.com/javase/8/docs/api/javax/xml/xpath/XPathFactory.html#newInstance--)
 
-## 名称：建造者模式（Builder）
+## 建造者模式（Builder）
 *通俗来讲： 允许您创建不同的对象风格，同时避免构造器污染。 当可能有几种风格的对象时很有用。 或者当创建对象时涉及很多步骤*
 
 将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。
@@ -343,11 +343,11 @@ public class App {
 * All implementations of [java.lang.Appendable](http://docs.oracle.com/javase/8/docs/api/java/lang/Appendable.html)
 * [Apache Camel builders](https://github.com/apache/camel/tree/0e195428ee04531be27a0b659005e3aa8d159d23/camel-core/src/main/java/org/apache/camel/builder)
 
-## 名称：原型模式（Prototype）
+## 原型模式（Prototype）
 * 意图：用原型实例指定创建对象的种类，并且通过拷贝这些原型创建新的对象。
 * 适用性：①当要实例化的类是在运行时刻指定时，例如，通过动态装载；或者为了避免创建一个与产品类层次平行的工厂类层次时；或者当一个类的实例只能有几个不同状态组合中的一种时。建立相应数目的原型并克隆它们可能比每次用合适的状态手工实例化该类更方便一些。
 
-## 名称：单例模式（Singleton）
+## 单例模式（Singleton）
 * 意图：保证一个类仅有一个实例，并提供一个访问它的全局访问点。
 * 适用性：
     1. 当类只能有一个实例而且客户可以从一个众所周知的访问点访问它时。
@@ -362,7 +362,7 @@ public class App {
 * 由于单例模式中没有抽象层，因此单例类的扩展有很大的困难
 * 单例类的职责过重，在一定程度上违背了单一职责。因为单例类既充当了工厂角色，提供了工厂方法，同时又充当了产品角色，包含一些业务方法，将产品的创建和产品的本身的功能融合到一起
 # 结构型模式（七种）
-## 名称：Adapter(适配器模式)
+## Adapter(适配器模式)
 在适配器模式中可以定义一个包装类，包装不兼容接口的对象，这个包装类指的就是适配器(Adapter)，它所包装的对象就是是适配者(Adaptee)，即被适配的类。
 适配器提供客户类需要的接口，适配器的实现就是把客户类的请求转化为对适配者的相应接口的调用。也就是说：当客户类调用适配器的方法时，在适配器类的内部将调用适配者类的方法，而这个过程对客户类是透明的，客户类并不直接访问适配者类。因此，适配器可以使由于接口不兼容而不能交互的类可以一起工作。这就是适配器模式的模式动机
 
@@ -450,7 +450,7 @@ public class FinishBoatAdapter implements RowingBoat {
 * [javax.xml.bind.annotation.adapters.XMLAdapter](http://docs.oracle.com/javase/8/docs/api/javax/xml/bind/annotation/adapters/XmlAdapter.html#marshal-BoundType-)
 
 
-## 名称：Bridge(桥接模式)
+## Bridge(桥接模式)
 桥接模式是一种很实用的结构型设计模式，如果软件系统中某个类存在两个独立变化的维度，通过该模式可以将两个维度分离出来，使两者可以独立扩展，让系统更加符合“单一职责原则”。与多层继承方案不同，它将两个独立变化的维度设计为两个独立的继承结构，并且在抽象层建立一个抽象关联，该关联关系类似一条连接两个独立继承结构的桥，故名桥接模式。
 
 桥接模式用一种巧妙的方式处理多层继承存在的问题，用抽象关联取代了传统的多层继承，将类之间的静态继承关系转换为动态的对象组合关系
@@ -605,7 +605,7 @@ public class SoulEatingEnchantment implements Enchantment {
 - 桥接模式引入会增加系统的理解和设计难度，由于聚合关联关系建立在抽象层，要求开发者针对抽象进行设计和编程
 - 桥接模式要求正确识别出系统中两个独立变化的维度，因此其使用范围有一定的局限
 
-## 名称：Composite(组合模式)
+## Composite(组合模式)
 组合多个对象形成树形结构以表示具有“整体-部分”关系的层次结构。组合模式对单个对象和组合对象的使用具有一致性，组合模式又可以称为“整体-部分”模式，
 它是一种对象结构性模式
 * 意图：将对象组合成树形结构以表示"部分-整体"的层次结构。composite使得用户对单个对象和组合对象的使用具有一致性。
@@ -711,7 +711,7 @@ public class Sentence extends LetterComposite {
 * [Apache Wicket](https://github.com/apache/wicket) component tree, see [Component](https://github.com/apache/wicket/blob/91e154702ab1ff3481ef6cbb04c6044814b7e130/wicket-core/src/main/java/org/apache/wicket/Component.java) and [MarkupContainer](https://github.com/apache/wicket/blob/b60ec64d0b50a611a9549809c9ab216f0ffa3ae3/wicket-core/src/main/java/org/apache/wicket/MarkupContainer.java)
 
 
-## 名称：Facade(外观模式)
+## Facade(外观模式)
 * 意图：为子系统中的一组接口提供一个一致的界面，Facad模式定义了一个高层接口，这个接口使得这一子系统更加容易使用。
 * 适用性：①当你要为一个复杂子系统提供一个简单接口时。子系统往往因为不断演化而变得越来越复杂。大多数模式使用时都会产生更多更小的类。
 这使得子系统更具可重用性，也更容易对子系统进行定制，但这也给那些不需要定制的子系统的用户带来一些使用上的困难。facad可以提供一个简单的缺省视图，
@@ -719,7 +719,7 @@ public class Sentence extends LetterComposite {
 ②客户程序与抽象类的实现部分之间存在着很大的依赖性。引入facade将这个子系统与客户以及其他子系统分离，可以提高子系统的独立性和可移植性。
 ③当你需要构建一个层次结构的子系统时，使用facade模式定义子系统中每层的入口点。如果子系统之间是相互依赖的，你可以让它们仅通过facade进行通讯，从而简化了它们之间的依赖关系。
 
-### 名称：Flyweight(享元模式)
+### Flyweight(享元模式)
 * 意图：运用共享技术有效地支持大量细粒度的对象。
 * 适用性：①一个应用程序使用了大量的对象。
 ②完全由于使用大量的对象，造成很大的存储开销。
@@ -728,7 +728,7 @@ public class Sentence extends LetterComposite {
 ⑤应用程序不依赖于对象标识。由于Flyweight对象可以被共享，对于概念上明显有别的对象，标识测试将返回真值。
 
 
-### 名称：Decorator(装饰模式)
+### Decorator(装饰模式)
 装饰模式以对客户透明的方式动态地给一个对象附件上更多的责任，换言之，客户端并不会觉得对象在装饰前和装饰后有什么不同。装饰模式可以在不需要创造更多子类的情况下，将对象的功能加以扩展。这就是装饰模式的动机。
 
 装饰模式是一种用来替代你继承的技术，它通过无须定义子类的方式来给对象动态增加职责，使用对象之间的关联关系取代类之间的继承关系。在装饰模式中引入装饰类，在装饰类中既可以调用带装饰的原有类的方法，还可以增加新的方法，以扩充原有类的功能
@@ -828,7 +828,7 @@ troll.fleeBattle();
  * [java.util.Collections#unmodifiableXXX()](http://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#unmodifiableCollection-java.util.Collection-)
  * [java.util.Collections#checkedXXX()](http://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#checkedCollection-java.util.Collection-java.lang.Class-)
 
-### 名称：Proxy(代理模式)
+### Proxy(代理模式)
 * 意图：为其他对象提供一种代理以控制对这个对象的访问。
 * 适用性：在需要比较通用和复杂的对象指针代替简单的指针的时候，使用Proxy模式，下面是一些可以使用Proxy模式常用情况：
 1. 远程代理(Remote Proxy)为一个对象在不同的地址空间提供局部代理。
@@ -894,7 +894,7 @@ public class WizardTowerProxy implements WizardTower {
 * Mocking frameworks Mockito, Powermock, EasyMock
 
 # 行为型模式(十一种)
-## 名称：Chain of Responsibility(责任链模式)
+## Chain of Responsibility(责任链模式)
 * 意图：使多个对象都有机会处理请求，从而避免请求的发送者和接受者之间的耦合关系。将这些对象连成一条链，并沿着这条链传递该请求，直到有一个对象处理它为止。
 * 适用性：①有多个的对象可以处理一个请求，哪个对象处理该请求运行时刻自动确定。
 ②你想在不明确指定接收者的情况下，向多个对象中的一个提交一个请求。
@@ -991,7 +991,7 @@ public class OrcKing {
 }
 ```
 
-## 名称：Command(命令模式)
+## Command(命令模式)
 需要向某些对象发送请求（调用其中的某个或某些方法），但并不知道请求的接收者是谁，也不知道请求的操作是哪个，此时希望能够以一种松耦合的方式来设计软件
 
 命令模式(Command Pattern)：将一个请求封装为一个对象，从而让我们可用不同的请求对客户进行参数化，对请求排队或者记录请求日志，以及支持可撤销的操作，命令模式是一种对象行为型模式，其别名为动作(Action)或事务(Transaction)模式
@@ -1196,13 +1196,13 @@ goblin.printStatus();
 ### 缺点
 导致某些系统有过多的具体命令类
 
-## 名称：Interpreter(解释器模式)
+## Interpreter(解释器模式)
 * 意图：给定一个语言，定义它的文法的一种表示，并定义一个解释器，这个解释器使用该表示来解释语言中的句子。
 * 适用性：当有一个语言需要解释执行，并且你可将该语言中的句子表示一个抽象语法树时，可使用解释器模式。而当存在以下情况时该模式效果最好。
 该文法简单对于复杂的文法，文法的类层次变得庞大而无法管理。此时语法分析程序生成器这样的工具是更好的选择。它们无需构建语言树即可解释表达式，这样可以节省空间而且可能节省时间。
 效率不是一个关键问题最高效的解释器通常不是通过直接解释语法分析树实现的，而是首先将它们转换成另一种形式。
 
-## 名称：Iterator(迭代器模式)
+## Iterator(迭代器模式)
 提供一种方法顺序访问一个聚合对象中各个元素，而又不需要暴露该对象的内部表示。
 
 迭代器模式的角色：
@@ -1309,18 +1309,18 @@ public class TreasureChest {
 2. 为一个聚合对象提供多种遍历。
 3. 为遍历不同的聚合结构提供一个统一的接口(即支持多态迭代)
 
-## 名称 Mediator(中介者模式)
+## Mediator(中介者模式)
 * 意图: 用一个中介对象来封装一系列的对象交互。中介者使各对象不需要显示地相互引用，从而使耦合松散，而且可以独立地改变它们之间的交互。
 * 适用性：①一组对象以定义良好但是复杂的方式进行通信。产生的相互依赖关系结构混乱且难以理解。
 ②一个对象引用其他很多对象并且直接与这些对象通信，导致难以复用该对象。
 ③想定制一个分布在对个类中的行为，而又不想生成太多的子类。
 
-## 名称 Memento(备忘录模式)
+## Memento(备忘录模式)
 * 意图 在不破坏封装性的前提下，捕获一个对象的内部状态，并在该对象之外保存这个状态，这样以后就可将该对象恢复到原先保存的状态。
 * 适用性 必须保存一个对象在某一个时刻状态，这样以后需要时它才能恢复到先前的状态。
 如果一个用接口来让其它对象直接得到这些状态，将会暴露对象的实现细节并破坏对象的封装性。
 
-## 名称 Observer(观察者模式)
+## Observer(观察者模式)
 ### 模式动机
  定义对象间的一宗一对多的依赖关系，观察者模式描述了如何建立对象与对象之间的关系，当一个对象的状态发生改变时，所有依赖于它的对象都得到通知并被自动更新。发生改变的对象称为观察目标，而被通知的对象称为观察者，一个观察目标可以对应多个观察者，而且这些观察者之间没有相互联系，可以根据需要增加和删除观察者。
 ### 模式定义
@@ -1397,13 +1397,13 @@ public class Orcs implements WeatherObserver {
     2. 当对一个对象的改变需要同时改变其它对象，而不知道具体有多少对象有待改变。
     3. 当一个对象必须通知其它对象，而它又不能假定其它对象是谁。换言之，你不希望这些对象是紧密耦合的。
 
-## 名称 State(状态模式)
+## State(状态模式)
 * 意图 允许一个对象在其内部状态改变
 * 适用性 一个对象的行为取决于它的状态，并且它必须在运行时刻根据状态改变它的行为。
 一个操作中含有庞大的多分支的条件语句，且这些分支依赖于该对象的状态。这状态通常用一个或多个枚举常量表示。通常，有多个操作包含这一相同的条件结构。
 State模式将每一个条件分支放入一个独立的类中。这使得你可以根据对象自身的情况将对象的状态作为一个对象，这一对象可以不依赖于其他对象独立变化。
 
-## 名称 Strategy(策略模式)
+## Strategy(策略模式)
 定义：
 定义了一系列算法类，将每一个算法封装起来，并让他们可以相互替换，策略模式让算法独立于使用它的客户而变化，也称为政策模式(Policy)。
 
@@ -1478,14 +1478,14 @@ public class DragonSlayer {
 2. 一个对象有很多的行为，如果不用恰当的模式，这些行为就只好使用多重条件选择语句来实现。此时，使用策略设计模式，把这些行为转移到相应的具体策略类，就可以避免使用难以维护的多重条件选择语句
 3. 不希望客户端知道复杂的、与算法相关的数据结构，可以提高算法的保密性与安全性
 
-## 名称 Template Method(模板方法模式)
+## Template Method(模板方法模式)
 * 意图 定义一个操作中的算法的骨架，而将一些步骤延迟到子类中，Template Method使得子类可以不改变一个算法的结构即可重定义该算法的某些特定步骤。
 
 * 适用性 一次性实现一个算法的不便部分，而将可变的行为留给子类来实现.各子类中的公共的行为应被提取出来并集中到一个公共父类中以避免代码重复。
 
 
 
-## 名称 Visitor(访问者模式)
+## Visitor(访问者模式)
 
 * 意图 表示一个作用于某对象结构中的各元素的操作。它使你可以在不改变各元素的前提下定义作用于这些元素的新操作。
 
@@ -1497,7 +1497,9 @@ Visitor使得你可以将相关的操作集中起来定义在一个类中。当�
 
 定义的对象结构的类很少改变，但经常需要在此结构上定义新的操作。改变对象结构类需要重定义对所有访问者的接口，这可能需要很大的代价。如果对象结构类经常改变，那么可能还是在这些类中定义这些操作较好。
 
-## Delegation委托模式
+
+# 附
+## Delegation(委托模式)
 在委托模式中，有两个对象参与处理同一个请求，接受请求的对象将请求委托给另一个对象来处理，许多其他的模式，如状态模式、策略模式、访问者模式本质上是在更特殊的场合采用了委托模式。委托模式使得我们可以用聚合来替代继承
 
 ```java
