@@ -43,18 +43,20 @@ public class ImageReaderFactory {
     }
 }
 ```
-
-### 优点
+### 总结
+简单工厂模式提供了专门的工厂类用于创建对象，将对象的创建和对象的使用分离开
+#### 优点
 * 工厂类抱哈必要的判断逻辑，可以决定在什么时候创建哪一个产品类的实例，客户端可以免除直接创建产品对象的职责，实现创建和使用的分离
 * 客户端无须知道所创建的具体产品类的类名，只需要知道具体产品类所对应的参数即可
+* 通过引入配置文件，可以在不修改任何客户端的情况下更换和增加新的具体产品类，在一定成效上提高了系统的灵活性
 
-### 缺点
+#### 缺点
 * 由于工厂类集中了所有产品的创建逻辑，职责过重
-* 使用简单工厂模式势必增加类的个数，增加系统复杂度和理解难度
+* 使用简单工厂模式势必增加类的个数（引入新的工厂类），增加系统复杂度和理解难度
 * 系统扩展困难，一旦添加新产品就得改工厂逻辑，不利于系统扩展和维护
 * 简单工厂由于使用静态结构，造成工厂角色无法形成与继承的等级结构
-### 使用场景
-* 工厂类负责创建的对象比较少
+#### 使用场景 
+* 工厂类负责创建的对象比较少，不会造成工厂方法中的业务逻辑太过复杂
 * 客户端只知道工厂类的参数，对于创建对象不关心
 
 ## 工厂方法模式(Factory Method)
@@ -90,29 +92,44 @@ public class OrcBlacksmith implements Blacksmith {
 ```
 客户端：
 ```java
-OrcBlacksmith ob = new OrcBlacksmith();
-ob.manufactureWeapon(WeaponType.SPEAR)；
-ob.manufactureWeapon(WeaponType.AXE);
+public class App {
+    private final Blacksmith blacksmith;
+
+    public App(Blacksmith blacksmith) {
+        this.blacksmith = blacksmith;
+    }
+
+    public static void main(String[] args) {
+        App app = new App(new OrcBlacksmith());
+        app.manufactureWeapons();
+
+        app = new App(new ElfBlacksmith());
+        app.manufactureWeapons();
+    }
+
+    private void manufactureWeapons() {
+        Weapon weapon;
+        weapon = blacksmith.manufactureWeapon(WeaponType.SPEAR);
+
+        weapon = blacksmith.manufactureWeapon(WeaponType.AXE);
+    }
+}
 ```
-
-* 意图：定义一个用于创建对象的接口，让子类决定实例化哪一个类。Factory Method使一个类的实例化延迟到其子类。
-* 适用性：
-    1. 客户端不知道它所需要的对象的类。在工厂方法模式中，客户端不需要知道具体产品类的类名。
-    2. 当一个类希望由它的子类来指定它所创建的对象的时候。
-    3. 当类将创建对象的职责委托给多个帮助子类中的某一个，并且你希望将哪一个帮助子类是代理者这一信息局部化的时候。
-
-### 模式分析
+### 总结
 工厂方法模式是简单工厂模式的进一步抽象和推广。由于使用了面向对象的多态性，工厂方法模式保持了简单工厂模式的有点，而且克服了它的缺点。在工厂方法模式中，核心的工厂类不在负责所有产品的创建，而是将具体创建工作交给子类去做。这个核心类仅仅负责给出具体工厂必须实现的接口，而不负责哪一个产品类被实例化这种细节，这使得工厂方法模式可以允许系统在不修改工厂角色的情况下引入新的产品。
 
-### 优点
+#### 优点
 * 工厂方法隐藏了具体产品类将被实例化这一细节，用户只需要关心所需产品的工厂
 * 基于工厂角色和产品角色的多态性设计是工厂方法模式的关键。它能够让工厂可以自主确定创建哪种产品对象
 * 加入一个新产品时，无须修改抽象工厂和抽象产品提供的接口，只要添加一个具体工厂类和具体产品就可以，符合“开闭原则”
 
-### 缺点
+#### 缺点
 * 在添加新产品时，需要编写新的具体产品类，而且还要提供与之对应的具体工厂类，系统中类的个数将成对增加，在一定程度上增加了系统的复杂度，有更多的类需要编译和运行，会给系统带来一些额外的开销
 * 由于考虑到系统的可扩展性，需要引入抽象层，在客户端代码中均使用抽象层进行定义，增加了系统的抽象性和理解难度
 
+#### 适用场景
+- 客户端不知道它所需要的对象的类。在工厂方法模式中，客户端不需要知道具体产品类的类名。
+- 抽象工厂类通过其子类来指定创建哪个对象
 ### Known uses
 
 * [java.util.Calendar](http://docs.oracle.com/javase/8/docs/api/java/util/Calendar.html#getInstance--)
