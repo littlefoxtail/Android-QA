@@ -102,6 +102,48 @@ public class RecyclerView extends ViewGroup {
 }
 ```
 
+LayoutManager只负责对View进行布局，而承担管理View责任的是Recycler，RecyclerView实现了View复用的功能
+
+- removeAndRecycleAllViews(Recycler recycler)：移除当前LayoutManager里的View，并稍后再mRecycler里复用
+```java
+public void removeAndReccyleAllViews(Recycler recycler) {
+    for(int i = getChildCount() - 1; i >= 0; i--) {
+        final View view = getChildAt(i);
+        if (!getChildViewHolderInt(view).shouldIgnore()) {
+            removeAndRecycleViewAt(i, recycler);
+        }
+    }
+}
+```
+- removeAndRecycleScrapInt(Recycler recycler)：移除Scrap View，Scrap View指的是那些暂时处理分离状态的View后面可能还会重新使用
+```java
+void removeAndRecycleScrapInt(Recycler recycler) {
+    finalt int scapCount = recycler.getScrapCount();
+    for (int i = scrapCount - 1; i >= 0; i--) {
+        final View scrap = recycler.getScrapViewAt(i);
+        final ViewHolder vh = getChildViewHolderInt(scrap);
+        if (vh.shouldIgnore()) {
+            continue;
+        }
+
+
+        vh.setIsRecyclable(false);
+        if (vh.isTmDetached()) {
+            mRecyclerView.removeDetachedView(scrap, false);
+        }
+        if (mRecyclerView.mItemAnimator != null) {
+            mRecyclerView.mItemAnimator.endAnimation(vh);
+        }
+        vh.setIsRecyclable(true);
+        recycler.quickRecycleScapView(scrap);
+    }
+    recycler.cleanScrap();
+    if (scapCount > 0) {
+        mRecyclerView.invalidate();
+    }
+}
+```
+
 ## setAdapter()
 ```java
 public void setAdapter(Adapter adapter) {
@@ -137,9 +179,22 @@ private void setAdapterInternal(Adapter adapter, boolean compatibleWithPrevious,
     }
     //触发Recycler.onAdapterChanged
     mRecycler.onAdapterChanged(oldAdapter, mAdapter, compatibleWithPrevious);
-    setDataSetChangedAfterLayout();
+    mState.mStructrueChanged = true;
+    markKnownViewsInvalid();
 }
 ```
+
+- 对以前的Adapter做一些清空操作，停止滑动和动画，准备好重新设置Adapter
+- 重新设置Adapter，重新注册AdapterDataObserver以及关联到RecyclerView，并触发Recycler的onAdapterChanged()方法。通知Adapter已经发生改变，最终触发重新布局的操作
+
+
+
+
+
+
+
+
+
 # RecyclerView布局策略管理器LayoutManager
 >LayoutManager是一个抽象类。它主要用来测量和布局子View，滚动子View以及决定何时回收用户不可见的子View
 
