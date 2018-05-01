@@ -51,6 +51,8 @@ Framework Binder最终通过JNI调用Native Binder的功能，它们在架构上
 
 ## AIDL(Android Interface Definition Language)
 
+![原理](../img/rpc.png)
+
 1. 定义AIDL文件IRemoteService.aidl，定义远程服务需要提供的功能
 ```java
 interface IRemoteService {
@@ -59,6 +61,10 @@ interface IRemoteService {
 ```
 
 2. 定义服务端RemoteService，提供服务，在进程RemoteService.Process
+    这个对象(Binder)有两个特性：
+    1. 具有完全特定任务的能力
+    2. 一个是被跨进程传输的能力
+
 ```java
 private IRemoteService.Stub mBinder = new IRemoteService.Stub() {
     @Override
@@ -67,6 +73,23 @@ private IRemoteService.Stub mBinder = new IRemoteService.Stub() {
     }
 }
 ```
+
+```java
+public class Binder implement IBinder {
+    void attachInterface(IInterface plus, String descriptor)
+    IInterface queryLocalInterface(String descriptor)
+    boolean onTransact(int code, Parcel data, Parcel reply, int flags)
+
+    final class BinderProxy implements IBinder {
+        IInterface queryLocalInterface(String descriptor) {
+            return null;
+        }
+    }
+}
+```
+Binder具有被跨进程传输的能力是因为它实现了IBinder接口，系统会为每个实现了该接口的对象提供跨进程传输
+
+Binder具有的完成特定任务的能力是通过它的attachInterface方法获得的，Binder对象可通过attachInterface方法持有一个IInterface对象的引用，并依靠它获得完成特定任务的能力，queryLocalInterface方法可以认为是根据descriptor查找相应的IInterface对象。
 
 3. 定义客户端ClientActivity，与RemoteSevice绑定，获取服务，在进程ClientActivity.Process
 ```java
