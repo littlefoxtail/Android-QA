@@ -472,8 +472,6 @@ public class FinishBoatAdapter implements RowingBoat {
 
 桥接模式用一种巧妙的方式处理多层继承存在的问题，用抽象关联取代了传统的多层继承，将类之间的静态继承关系转换为动态的对象组合关系
 
-
-
 Abstraction（抽象类）：用于定义抽象类的接口，定义了一个Implementor(实现类接口)类型的对象并可以维护该对象，它与Implementor之间具有关联关系，它即可以包含抽象业务方法，也可以包含具体业务方法
 ```java
 public interface Weapon {
@@ -487,7 +485,7 @@ public interface Weapon {
 }
 ```
 
-RefinedAbstraction（扩充抽象类）
+RefinedAbstraction(扩充抽象类)：扩充由于Abstraction定义的接口，通常情况下它不再是抽象类而是具体类，它实现了抽象类声明的抽象业务方法
 ```java
 public class Sword implements Weapon {
     private final Enchantment enchantment;
@@ -568,6 +566,7 @@ public interface Enchantment {
 }
 ```
 
+ConcreteImplementor(具体实现类)：具体实现Implementor接口，在不同的ConcreteImplementor中提供基本操作的不同实现，在程序运行时，ConcreteImplementor将替换其父类对象，提供给抽象类具体的业务操作方法
 ```java
 public class FlyingEnchantment implements Enchantment {
     public void onActiviate() {
@@ -599,28 +598,46 @@ public class SoulEatingEnchantment implements Enchantment {
     }
 }
 ```
+
+Client:
+```java
+public static void main(String[] args) {
+    Sword enchantedSword = new Sword(new SoulEatingEnchantment());
+    enchantedSword.wield();
+    enchantedSword.swing();
+    enchantedSword.unwield();
+
+    Hammer hammer = new Hammer(new FlyingEnchantment());
+    hammer.wield();
+    hammer.swing();
+    hammer.unwield();
+}
+```
+
+### 总结
+在软件开发中如果一个类或一个系统有多个变化维度时，都可以尝试使用桥接模式对其进行设计。桥接模式为多维度变化的系统提供了一套完整的解决方案，并且降低了系统的复杂度
+
 使用桥接模式时，首先应该识别出一个类所具有的两个独立变化的维度，将它们设计为两个独立的继承等级结构，为两个维度都提供抽象层，为两个维度都提供抽象层，并建立抽象耦合
 * 意图：将抽象部分与它的实现部分分离，使它们都可以独立地变化。
  (其实就是，子类有两个维度的排列组合 用桥接模式)
   脱耦：脱耦就是将抽象化和实现化之间的耦合解脱开，或者说是将它们之间的强关联换成弱关联，将两个角色之间的继承关系
   改为关联关系。桥接模式中所谓的脱耦，就是指一个软件系统的抽象化和实现化之间使用关联关系而不是继承关系。
 
-* 适用性：
-    1. 如果一个系统需要在抽象化和具体化之间增加更多的灵活性，避免在两个层次之间建立静态的继承关系，通过桥接模式可以使它们在抽象层建立一个关联关系。
-    2. 抽象部分和实现部分可以以继承方式独立扩展而互不影响，在程序运行时可以动态将一个抽象化子类的对象和一个实现化子类的对象进行组合。
-    3. 一个类存在两个（或者多个）不同变化的维度，且这两个（或多个）维度都需要独立进行扩展。
-    4. 对那些不希望使用继承或因为多层继承导致系统类的个数急剧增加的系统，桥接模式尤为适用
-
-
-### 优点
+#### 优点
 - 分离抽象接口及其实现部分
 - 桥接模式有时类似于多继承方案，但是多继承方案违背了类的单一职责原则，复用性较差，而且多继承结构中类的个数非常庞大，桥接模式是比多继承方案更好的解决方法。
 - 桥接模式提高了系统的可扩充性，在两个变化唯独中任意扩展一个维度，都不需要修改原有系统。
 - 实现细节对客户透明，可以对用户隐藏实现细节
 
-### 缺点
+#### 缺点
 - 桥接模式引入会增加系统的理解和设计难度，由于聚合关联关系建立在抽象层，要求开发者针对抽象进行设计和编程
 - 桥接模式要求正确识别出系统中两个独立变化的维度，因此其使用范围有一定的局限
+
+#### 适用场景
+- 如果一个系统需要在抽象化和具体化之间增加更多的灵活性，避免在两个层次之间建立静态的继承关系，通过桥接模式可以使它们在抽象层建立一个关联关系。
+- 抽象部分和实现部分可以以继承方式独立扩展而互不影响，在程序运行时可以动态将一个抽象化子类的对象和一个实现化子类的对象进行组合。
+- 一个类存在两个（或者多个）不同变化的维度，且这两个（或多个）维度都需要独立进行扩展。
+-  对那些不希望使用继承或因为多层继承导致系统类的个数急剧增加的系统，桥接模式尤为适用
 
 ## Composite(组合模式)
 组合多个对象形成树形结构以表示具有“整体-部分”关系的层次结构。组合模式对单个对象和组合对象的使用具有一致性，组合模式又可以称为“整体-部分”模式，
@@ -1496,11 +1513,87 @@ public class DragonSlayer {
 3. 不希望客户端知道复杂的、与算法相关的数据结构，可以提高算法的保密性与安全性
 
 ## Template Method(模板方法模式)
-* 意图 定义一个操作中的算法的骨架，而将一些步骤延迟到子类中，Template Method使得子类可以不改变一个算法的结构即可重定义该算法的某些特定步骤。
-
-* 适用性 一次性实现一个算法的不便部分，而将可变的行为留给子类来实现.各子类中的公共的行为应被提取出来并集中到一个公共父类中以避免代码重复。
+定义一个操作中算法的框架，而将一些步骤延迟到子类中。模板方法模式使得子类可以不改变一个算法的结构即可重定义该算法的某些特定步骤
 
 
+AbstractClass（抽象类）：在抽象类中定义了一系列基本操作，这些基本操作可以是具体的，也可以是抽象，每一个基本操作对应算法的一个步骤，在其子类中可以重定义或实现这些步骤
+同时，在抽象类中实现了一个模板方法(Template Method)，用于定义一个算法的框架，模板方法不仅可以调用在抽象类中实现的基本方法
+```java
+public abstract class StealingMethod {
+    protected abstract String pickTarget();
+
+    protected abstract void confuseTarget(String target);
+
+    protected abstract void stealTheItem(String target);
+
+    public void steal() {
+        String target = pickTaget();
+
+        confuseTarget(target);
+        stealTheItem(target);
+    }
+}
+```
+ConcreteClass（具体类）：它是抽象类的子类，用于实现在父类中声明的抽象基本操作以完成子类特定算法步骤，也可以覆盖在父类中已经实现的具体基本操作
+```java
+public class HitAndRunMethod extends StealingMethod {
+    @Override
+    protected String pickTarget() {
+        return "old goblin woman";
+    }
+
+    @Override
+    protected void confuseTarget(String target) {
+        LOGGER.info("Approach the {} from behind.", target);
+    }
+
+    @Override
+    protected void stealTheItem(String target) {
+        LOGGER.info("Grab the handbag and run away fast!");
+    }
+}
+```
+
+```java
+public class SubtleMethod extends StealingMethod {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SubtleMethod.class);
+
+  @Override
+  protected String pickTarget() {
+    return "shop keeper";
+  }
+
+  @Override
+  protected void confuseTarget(String target) {
+    LOGGER.info("Approach the {} with tears running and hug him!", target);
+  }
+
+  @Override
+  protected void stealTheItem(String target) {
+    LOGGER.info("While in close contact grab the {}'s wallet.", target);
+  }
+}
+```
+
+### 总结
+模板方法模式是基于继承的代码复用技术，它体现了面向对象的诸多重要思想，是一种使用频繁的模式。模板方法模式广泛应用于框架设计中，
+以确保通过父类来控制处理流程的逻辑顺序
+
+#### 优点
+- 在父类形式化地定义一个算法，而由它的子类来实现细节的处理，在子类实现详细的处理算法时并不会改变算法中步骤的执行次序
+- 模板方法模式是一种代码复用技术，它在类库设计中尤为重要，它提取了类库中的公共行为，将公共行为放在父类中，而通过其子类来实现不同的行为，它鼓励我们恰当使用继承来实现代码复用
+- 可实现一种反向控制结果，通过子类覆盖父类的钩子方法来决定某一特定步骤是否需要执行
+- 在模板方法模式中可以通过子类来覆盖父类的基本方法，不同的子类可以提供基本方法的不同实现，更换和增加新的子类很方便，符合单一职责原则和开闭原则
+
+#### 缺点
+- 需要为每一个基本方法的不同实现提供一个子类，如果父类中可变的基本方法太多，将会导致类的个数增加，系统庞大，此时可结合桥接模式来进行设计
+
+#### 适用场景
+
+- 对一些复杂算法进行分离，将其算法中固定不变的部分设计为模板方法和父类具体方法，而一些可以改变的细节由其子类来实现
+- 各子类中公共的行为应被提取出来并集中到一个公共父类以避免代码重复
+- 需要通过子类来决定父类算法中某个步骤是否执行，实现子类对父类的反向控制
 
 ## Visitor(访问者模式)
 
