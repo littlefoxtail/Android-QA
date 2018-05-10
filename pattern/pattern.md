@@ -63,18 +63,57 @@ public class ImageReaderFactory {
 工厂方法模式又称为工厂模式，也叫虚拟构造器(Virtual Constructor)模式或者多态工厂，它属于类创建型。
 
 在工厂方法模式中，不再提供一个统一的工厂类来创建所有的产品对象，而是针对不同的产品提供不同的工厂
-系统提供一个域产品等级结构对应的工厂等级结构
+系统提供一个与产品等级结构对应的工厂等级结构
 
-在工厂方法模式中，工厂父类负责定义创建产品对象的公共接口，而工厂子类则负责生产具体的产品对象，这样做的目的是将产品类的实例化操作延迟到工厂子中完成。
+定义一个用于创建对象的接口，让子类决定将哪一个类实例化。工厂方法模式让一个类的实例化延迟到其子类
 
 工厂方法模式提供了一个抽象工厂接口来声明抽象工厂方法，而由其子类来具体实现工厂方法，创建具体的产品对象
-工厂父类:
+
+Product（抽象产品）：它是定义产品的接口，是工厂方法模式所创建对象的超类型，也就是产品对象的公共父类
+```java
+public interface Weapon {
+    WeaponType getWeaponType();
+}
+```
+
+ConcreteProduct（具体产品）：它实现了抽象产品接口，某些类型的具体产品由专门的具体工厂创建，具体工厂和具体产品之间一一对应
+```java
+public class ElfWeapon implements Weapon {
+    private WeaponType weaponType;
+
+    public ElfWeapon(WeaponType weaponType) {
+        this.weaponType = weaponType;
+    }
+
+    @Override
+    public WeaponType getWeaponType() {
+        return weaponType;
+    }
+}
+```
+```java
+public class OrcWeapon implements Weapon {
+    private WeaponType weaponType;
+
+    public OrcWeapon(WeaponType weaponTye) {
+        this.weaponType = weaponType;
+    }
+
+    @Override
+    public WeaponType getWeaponType() {
+        return weaponType;
+    }
+}
+```
+
+Factory（抽象工厂）:抽象工厂类中，声明了工厂方法(Factory Method)，用于返回一个产品。抽象工厂是工厂方法模块的核心，所有创建对象的工厂方法都必须实现该接口
 ```java
 public interface Blacksmith {
     Weapon manufactureWeapon(WeaponType weaponType);
 }
 ```
-工厂子类：
+ConcreteFactory（具体工厂）：它是抽象工厂类的子类，实现了抽象工厂中定义的工厂方法，并可由客户端调用，返回一个具体产品类的实例
+
 ```java
 public class ElfBlacksmith implements Blacksmith {
    public Weapon manufactureWeapon(WeaponType weaponType) {
@@ -131,7 +170,6 @@ public class App {
 - 客户端不知道它所需要的对象的类。在工厂方法模式中，客户端不需要知道具体产品类的类名。
 - 抽象工厂类通过其子类来指定创建哪个对象
 ### Known uses
-
 * [java.util.Calendar](http://docs.oracle.com/javase/8/docs/api/java/util/Calendar.html#getInstance--)
 * [java.util.ResourceBundle](http://docs.oracle.com/javase/8/docs/api/java/util/ResourceBundle.html#getBundle-java.lang.String-)
 * [java.text.NumberFormat](http://docs.oracle.com/javase/8/docs/api/java/text/NumberFormat.html#getInstance--)
@@ -145,7 +183,7 @@ public class App {
 
 抽象工厂模式提供一个创建一系列相关或相互依赖对象的接口，而无须指定它们具体的类。抽象工厂模式又称为Kit模式，属于对象创建型模式。
 可以将一组具有同一主题的单独的工厂封装起来，正常使用中，客户端程序需要创建抽象工厂的具体实现，然后使用抽象工厂作为接口来创建这一主题的具体对象。
-
+AbstractFactory（抽象工厂）：它声明了一组用于创建一族产品的方法，生成一组具体产品，这些产品构成了一个产品族，每一个产品都位于某个产品等级结构中
 ```java
 public interface KingdomFactory {
     Castle createCastle();
@@ -155,7 +193,7 @@ public interface KingdomFactory {
     Army createArmy();
 }
 ```
-
+ConcreteFactory(具体工厂)：它实现了在抽象工厂中声明的创建产品的方法，生成一组具体产品，这些产品构成了一个产品族，每一个产品都位于某个产品等级结构中
 ```java
 public class ElfKingdomFactory implements KingdomFactory {
     public Castle createCastle() {
@@ -187,16 +225,79 @@ public class OrcKingdomFactory implements KingdomFactory {
     }
 }
 ```
-* 意图：提供一个创建一系列相关或相互依赖对象的接口，而无需指定它们具体的类。
-* 适用性：
-    1. 一个系统要独立于它的产品的创建、组合和表示时。
-    2. 一个系统要由多个产品系列中的一个来配置时。
-    3. 当你要强调一系列相关的产品对象的设计，这一约束必须在系统的设计中体现出来，同一个产品族的产品可以每月任何关系，但它们都具有一些共同的约束
-    4. 产品等级结构稳定，设计完成之后，不会向系统中增加新的产品等级结构或者删除已有的产品等级结构。
 
-### 缺点
-- 在添加新的产品对象时，难以扩展抽象工厂来生产新种类的产品，这是因为在抽象工厂角色中规定了所有可能被创建的产品集合，要支持新种类的产品就意味着要对接口进行扩展，而这将涉及到对抽象工厂角色以及其所有子类的修改。
-- 开闭原则的倾斜性(增加新的工厂和产品组容易，增加新的产品等级结构麻烦)。
+AbstractProduct(抽象产品)：它为每种产品声明接口，在抽象产品中声明了产品所具有的业务方法
+```java
+public interface Army {
+    String getDescription();
+}
+```
+
+```java
+public interface Castle {
+    String getDescription();
+}
+```
+
+```java
+public interface King {
+    String getDescription();
+}
+```
+
+ConcreteProduct(具体产品)：它定义具体工厂生产的具体产品对象，实现抽象产品接口中声明的业务方法
+```java
+public class ElfKing implements King {
+    @Override
+    public String getDescription() {
+        return "Elfing";
+    }
+}
+```
+
+```java
+public class OrcKing implements King {
+    @Override
+    public String getDescription() {
+        return "OrcKing"；
+    }
+}
+```
+
+```java
+public class ElfArmy implements Army {
+    @Override
+    public String getDescription() {
+        return "ElfArmy";
+    }
+}
+```
+
+```java
+public class OrcArmy implements Army {
+    @Override
+    public String getDescription() {
+        return "OrcArmy";
+    }
+}
+```
+
+### 总结
+抽象工厂模式是工厂方法模式的进一步延伸，由于它提供了功能更为强大的工厂类并且具有较好的可扩展性。
+
+#### 优点
+- 抽象工厂模式隔离了具体类的生成，使得客户端不需要知道什么被创建。由于这种隔离，更换一个具体工厂就变得相对容易，所有的具体工厂都实现了抽象工厂中定义的那些公共接口
+- 当一个产品族中的多个对象被设计成一起工作时，它能够保证客户端始终只使用同一个产品族中的对象
+- 增加新的产品族很方便，无须修改已有系统，符合“开闭原则”
+
+#### 缺点
+- 增加新的产品等级结构麻烦，需要对原有系统进行较大的修改，甚至需要修改抽象层代码，违背了“开闭原则”
+
+#### 适用场景
+- 一个系统不应当依赖于产品类实例如何被创建、组合和表达的细节，这对于所有类型的工厂模式都是很重要的，用户无须关心对象的创建过程，将对象的创建和使用解耦
+- 系统中有多于一个的产品族，而每次只使用其中某一产品族
+- 属于同一个产品族的产品将在一起使用，这一约束必须在系统的设计中体现出来。同一个产品族中的产品可以是没有任何关系的对象，但是她们都具有一些共同的约束
+- 产品等级结构稳定，设计完成之后，不会向系统中增加新的产品等级结构或者删除已有的产品等级结构
 ### Real world examples
 
 * [javax.xml.parsers.DocumentBuilderFactory](http://docs.oracle.com/javase/8/docs/api/javax/xml/parsers/DocumentBuilderFactory.html)
@@ -1540,9 +1641,7 @@ State模式将每一个条件分支放入一个独立的类中。这使得你可
 策略模式的主要目的是将算法的定义和使用分开，也就是将算法的行为和环境分开，将算法的定义放在专门的策略类中。
 每一个策略类封装了一种实现算法，使用算法的环境类针对抽象策略类进行编程，符合“依赖倒转原则”
 
-
-
-Strategy(抽象策略类)：
+Strategy(抽象策略类)：它为所支持的算法声明了抽象方法，是所有策略类的父类，它可以是抽象类或具体类，也可以是接口。环境类通过抽象策略类中声明的方法在运行时调用具体策略类中实现的算法。
 ```java
 public interface DragonSlayingStrategy {
     void execute();
