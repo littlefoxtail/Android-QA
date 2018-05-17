@@ -126,72 +126,156 @@ optimizedDirectory为null时的默认路径是/data/dalvik-cache目录。
 PathClassLoader是用来加载Android系统类和应用的类
 
 ## ClassLoader加载class的过程
+
 ### BaseDexClassLoader
 ```java
-@Override
-protected Class<?> findClass(String name) throws ClassNotFoundException {
-    List<Throwable> suppressedExceptions = new ArrayList();
-    Class c = pathList.findClass(name, supressedExceptions);
-    if (c == null) {
-            ClassNotFoundException cnfe = new ClassNotFoundException(
-                    "Didn't find class \"" + name + "\" on path: " + pathList);
-            for (Throwable t : suppressedExceptions) {
-                cnfe.addSuppressed(t);
-            }
-            throw cnfe;
-        }
+构造函数：
+public BaseDexClassLoader {
+    private final DexPathList pathList;
+    public BaseDexClassLoader(String dexPath, File optimizedDirectory, String librarySearchPath, ClassLoader parent) {
+        super(parent);
+        this.pathList = new DexPathList(this, dexPath, librarySearchPath, null);
+    }
+}
+```
+- dexPath：包含目标类或资源的apk/jar列表，当多个路径则采用`:`分割
+- optimizedDirectory：优化后的dex文件存在的目录，可以为null
+- libraryPath：native库所在路径列表，当有多个路径则采用`:`分割
+- parent：父类的加载器
+
+加载Class：
+```java
+public BaseDexClassLoader {
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        List<Throwable> suppressedExceptions = new ArrayList();
+        Class c = pathList.findClass(name, supressedExceptions);
         return c;
+    }
 }
 ```
 ### DexPathList
+构造函数：
 ```java
-public Class<?> findCalss(String name, List<Throwable> suppressed) {
-    for (Element element : dexElements) {
-        Class<?> clazz = element.findClass(name, definingContext, suppressed);
-        if (clazz != null) {
-            return clazz;
+public DexPathList {
+    public DexPathList(ClassLoader definingContext, String dexPath, String librarySearchPath, File optimizedDirectory) {
+        this.definingContext = definingContext;
+        // 记录所有的dexFile文件 是一个数组
+        this.dexElements = makeDexElements(spliteDexPath(dexPath), optimizedDirectory, suppressedExceptions, definingContext);
+        // app目录的native库
+        this.nativeLibraryDirectories = splitPaths(librarySearchPath, false);
+        // 系统目录的native库
+        this.systemNativeLibraryDirectories = splitPaths(System.getProperty("java.library.path"), true);
+        List<File> allNativeLibraryDirectories = new ArrayList<>(nativeLibraryDirectories);
+        allNativeLibraryDirectories.addAll(systemNativeLibraryDirectories);
+        // 记录所有Native动态库
+        this.nativeLibraryPathElements = makePathElements(allNativeLibraryDirectories);
+    }
+}
+```
+DexPathList@findClass()：
+```java
+public DexPathList {
+    public Class<?> findClass(String name, List<Throwable> suppressed) {
+        for (Element element : dexElements) {
+            Class<?> clazz = element.findClass(name, definingContext, suppressed);
+            if (clazz != null) {
+                return clazz;
+            }
         }
-    }
-    if (dexElementsSuppressedExceptions != null) {
-        suppressed.addAll(Arrays.asList(dexElementsSuppressedExceptions));
-    }
-    return null;
+        if (dexElementsSuppressedExceptions != null) {
+            suppressed.addAll(Arrays.asList(dexElementsSuppressedExceptions));
+        }
+        return null;
 
+    }
 }
 ```
 
-### DexPathList#Element
+Element@findClass()：
 ```java
-public Class<?> findClass(String name, ClassLoader definingContext,
-    List<Throwable> suppressed) {
-        return dexFile != null ? dexFile.loadClassBinaryName(name, definingContext, suppressed): null;
-    }
+final class DexPathList {
+    static class Element {
+        public Class<?> findClass(String name, ClassLoader definingContext,
+            List<Throwable> suppressed) {
+                return dexFile != null ? dexFile.loadClassBinaryName(name, definingContext, suppressed): null;
+        }
+    } 
+}
 ```
 
-### DexFile#loadClassBinaryName
+## DexFile
 ```java
-public class loadClassBinaryName(String name, ClassLoader loader, List<Throwable> suppressed) {
-    return defineClass(name, loader, mCookie, this, suppressed);
-}
-```
-```java
-private static Class defineClass(String name, ClassLoader loader, Object cookie, DexFile dexFile, List<Throwable> suppressed) {
-    Class result = null;
-    try {
-        result = defineClassNative(name, loader, cookie, dexFile);
-    } catch (NoClassDefFoundError e) {
-        if (suppressed != null) {
-            suppressed.add(e);
-        }
-    } catch (ClassNotFoundException e) {
-        if (suppressed != null) {
-            suppressed.add(e);
-        }
+public final class DexFile {
+    public class loadClassBinaryName(String name, ClassLoader loader, List<Throwable> suppressed) {
+        return defineClass(name, loader, mCookie, this, suppressed);
     }
-    return result;
 }
 ```
+
+```java
+public final class DexFile {
+    private static Class defineClass(String name, ClassLoader loader, Object cookie, DexFile dexFile, List<Throwable> suppressed) {
+        Class result = null;
+        try {
+            result = defineClassNative(name, loader, cookie, dexFile);
+        } catch (NoClassDefFoundError e) {
+            if (suppressed != null) {
+                suppressed.add(e);
+            }
+        } catch (ClassNotFoundException e) {
+            if (suppressed != null) {
+                suppressed.add(e);
+            }
+        }
+        return result;
+    }
+}
+```
+
+## defineClassNative
+
+```c++
+static jclass DexFile_defineClassNative(JNIEnv* env, jclass, jstring javaName, jobject javaLoader,
+                                        jint cookie) {
+  ScopedObjectAccess soa(env);
+  const DexFile* dex_file = toDexFile(cookie);
+  if (dex_file == NULL) {
+    VLOG(class_linker) << "Failed to find dex_file";
+    return NULL; 
+    // dex文件为空，则直接返回
+  }
+  ScopedUtfChars class_name(env, javaName);
+  if (class_name.c_str() == NULL) {
+    VLOG(class_linker) << "Failed to find class_name";
+    return NULL;
+    // 类名为空，则直接返回
+  }
+  const std::string descriptor(DotToDescriptor(class_name.c_str()));
+  const DexFile::ClassDef* dex_class_def = dex_file->FindClassDef(descriptor.c_str());
+  if (dex_class_def == NULL) {
+    VLOG(class_linker) << "Failed to find dex_class_def";
+    return NULL;
+  }
+  ClassLinker* class_linker = Runtime::Current()->GetClassLinker();
+  class_linker->RegisterDexFile(*dex_file);
+  mirror::ClassLoader* class_loader = soa.Decode<mirror::ClassLoader*>(javaLoader);
+//   获取目标类
+  mirror::Class* result = class_linker->DefineClass(descriptor.c_str(), class_loader, *dex_file,
+                                                    *dex_class_def);
+  VLOG(class_linker) << "DexFile_defineClassNative returning " << result;
+//   找到目标类
+  return soa.AddLocalReference<jclass>(result);
+}
+```
+
 BaseDexClassLoader中有个pathList成员变量，pathList包含了一个DexFile的数组dexElements，dexPath传入的原始dex(.apk，.zip，.jar等)文件在optimizedDirectory文件夹中生成相应的优化的odex文件，dexElements数组就是这些odex文件的集合，如果不分包一般这个数组只有一个Element元素，也就只有一个DexFile文件，而对于类加载呢，就是遍历这个集合，通过DexFile去寻找。最终调用native方法的defineClass。
+## 总结
+- PathClassLoader: 主要用于系统和app的类加载器,其中optimizedDirectory为null, 采用默认目录/data/dalvik-cache/
+- DexClassLoader: 可以从包含classes.dex的jar或者apk中，加载类的类加载器, 可用于执行动态加载,但必须是app私有可写目录来缓存odex文件. 能够加载系统没有安装的apk或者jar文件， 因此很多插件化方案都是采用DexClassLoader;
+- BaseDexClassLoader: 比较基础的类加载器, PathClassLoader和DexClassLoader都只是在构造函数上对其简单封装而已.
+- BootClassLoader: 作为父类的类构造器.
+
 
 ## ART虚拟机的兼容性问题
 Android Runtime，在Android5.0及后续Android版本中作为正式的运行时库取代了以往的Dalvik虚拟机。ART能够把应用程序的字节码转换为机器码，是Android所使用的一种新的虚拟机。它与Dalvik的主要不同在于：Dalvik采用的是JIT技术，字节码都需要通过即时编译器转换为机器码，这会拖慢应用的运行效率，而ART采用Ahead-of-time技术，应用在第一次安装的时候，字节码就会预先编译成机器码，这个过程叫做预编译。ART同时也改善了性能、垃圾回收、应用程序除错以及性能分析。
