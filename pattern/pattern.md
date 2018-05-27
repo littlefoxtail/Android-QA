@@ -69,14 +69,14 @@ public class ImageReaderFactory {
 
 工厂方法模式提供了一个抽象工厂接口来声明抽象工厂方法，而由其子类来具体实现工厂方法，创建具体的产品对象
 
-Product（抽象产品）：它是定义产品的接口，是工厂方法模式所创建对象的超类型，也就是产品对象的公共父类
+- Product（抽象产品）：它是定义产品的接口，是工厂方法模式所创建对象的超类型，也就是产品对象的公共父类
 ```java
 public interface Weapon {
     WeaponType getWeaponType();
 }
 ```
 
-ConcreteProduct（具体产品）：它实现了抽象产品接口，某些类型的具体产品由专门的具体工厂创建，具体工厂和具体产品之间一一对应
+- ConcreteProduct（具体产品）：它实现了抽象产品接口，某些类型的具体产品由专门的具体工厂创建，具体工厂和具体产品之间一一对应
 ```java
 public class ElfWeapon implements Weapon {
     private WeaponType weaponType;
@@ -106,7 +106,7 @@ public class OrcWeapon implements Weapon {
 }
 ```
 
-Factory（抽象工厂）:抽象工厂类中，声明了工厂方法(Factory Method)，用于返回一个产品。抽象工厂是工厂方法模块的核心，所有创建对象的工厂方法都必须实现该接口
+- Factory（抽象工厂）：抽象工厂类中，声明了工厂方法(Factory Method)，用于返回一个产品。抽象工厂是工厂方法模块的核心，所有创建对象的工厂方法都必须实现该接口
 ```java
 public interface Blacksmith {
     Weapon manufactureWeapon(WeaponType weaponType);
@@ -129,7 +129,7 @@ public class OrcBlacksmith implements Blacksmith {
     }
 }
 ```
-客户端：
+- Client（客户端）：
 ```java
 public class App {
     private final Blacksmith blacksmith;
@@ -183,7 +183,7 @@ public class App {
 
 抽象工厂模式提供一个创建一系列相关或相互依赖对象的接口，而无须指定它们具体的类。抽象工厂模式又称为Kit模式，属于对象创建型模式。
 可以将一组具有同一主题的单独的工厂封装起来，正常使用中，客户端程序需要创建抽象工厂的具体实现，然后使用抽象工厂作为接口来创建这一主题的具体对象。
-AbstractFactory（抽象工厂）：它声明了一组用于创建一族产品的方法，生成一组具体产品，这些产品构成了一个产品族，每一个产品都位于某个产品等级结构中
+- AbstractFactory（抽象工厂）：它声明了一组用于创建一族产品的方法，生成一组具体产品，这些产品构成了一个产品族，每一个产品都位于某个产品等级结构中
 ```java
 public interface KingdomFactory {
     Castle createCastle();
@@ -193,7 +193,7 @@ public interface KingdomFactory {
     Army createArmy();
 }
 ```
-ConcreteFactory(具体工厂)：它实现了在抽象工厂中声明的创建产品的方法，生成一组具体产品，这些产品构成了一个产品族，每一个产品都位于某个产品等级结构中
+- ConcreteFactory(具体工厂)：它实现了在抽象工厂中声明的创建产品的方法，生成一组具体产品，这些产品构成了一个产品族，每一个产品都位于某个产品等级结构中
 ```java
 public class ElfKingdomFactory implements KingdomFactory {
     public Castle createCastle() {
@@ -226,7 +226,7 @@ public class OrcKingdomFactory implements KingdomFactory {
 }
 ```
 
-AbstractProduct(抽象产品)：它为每种产品声明接口，在抽象产品中声明了产品所具有的业务方法
+- AbstractProduct(抽象产品)：它为每种产品声明接口，在抽象产品中声明了产品所具有的业务方法
 ```java
 public interface Army {
     String getDescription();
@@ -245,7 +245,7 @@ public interface King {
 }
 ```
 
-ConcreteProduct(具体产品)：它定义具体工厂生产的具体产品对象，实现抽象产品接口中声明的业务方法
+- ConcreteProduct(具体产品)：它定义具体工厂生产的具体产品对象，实现抽象产品接口中声明的业务方法
 ```java
 public class ElfKing implements King {
     @Override
@@ -332,9 +332,9 @@ public final class Hero {
     }
 }
 ```
-Builder（抽象建造者）：为创建一个产品对象的各个部件指定抽象接口，在该接口中一般声明两类方法，一类方法是buildPartX()，它们用于创建复杂对象的各个部件；另一类方法是getResult()，它们用于返回复杂对象，Builder既可以是抽象类，也可以是接口。
+- Builder（抽象建造者）：为创建一个产品对象的各个部件指定抽象接口，在该接口中一般声明两类方法，一类方法是buildPartX()，它们用于创建复杂对象的各个部件；另一类方法是getResult()，它们用于返回复杂对象，Builder既可以是抽象类，也可以是接口。
 
-ConcreteBuilder（建造者）:实现了Builder接口，实现各个部件的具体构造和装配方法，定义并明确它所创建的复杂对象，也可以提供一个方法创建返回好的复杂产品对象。
+- ConcreteBuilder（具体建造者）:实现了Builder接口，实现各个部件的具体构造和装配方法，定义并明确它所创建的复杂对象，也可以提供一个方法创建返回好的复杂产品对象。
 ```java
 public static class Builder {
     private final Profession profession;
@@ -378,7 +378,7 @@ public static class Builder {
 }
 ```
 
-Product（产品角色）：它是被构建的复杂对象，包含多个组成组件，具体建造者创建该产品的内部表示定义它的装配过程
+- Product（产品角色）：它是被构建的复杂对象，包含多个组成组件，具体建造者创建该产品的内部表示定义它的装配过程
 ```java
 public final class Hero {
 
@@ -424,7 +424,7 @@ public final class Hero {
 }
 ```
 
-Director（指挥者）:它负责安排复杂对象的建造次序，指挥者与抽象建造者之间存在关联关系，可以调用建造者对象部件构造与装配方法，完成复杂对象的建造，客户端一般只需要与指挥者交互，确定具体的建造者的类型
+- Director（指挥者）:它负责安排复杂对象的建造次序，指挥者与抽象建造者之间存在关联关系，可以调用建造者对象部件构造与装配方法，完成复杂对象的建造，客户端一般只需要与指挥者交互，确定具体的建造者的类型
 
 ```java
 public class App {
@@ -462,10 +462,106 @@ public class App {
 * [Apache Camel builders](https://github.com/apache/camel/tree/0e195428ee04531be27a0b659005e3aa8d159d23/camel-core/src/main/java/org/apache/camel/builder)
 
 ## 原型模式（Prototype）
-* 意图：用原型实例指定创建对象的种类，并且通过拷贝这些原型创建新的对象。
-* 适用性：①当要实例化的类是在运行时刻指定时，例如，通过动态装载；或者为了避免创建一个与产品类层次平行的工厂类层次时；或者当一个类的实例只能有几个不同状态组合中的一种时。建立相应数目的原型并克隆它们可能比每次用合适的状态手工实例化该类更方便一些。
+使用原型实例指定创建对象的种类，并且通过拷贝这些原型创建新的对象。原型模式是一种对象创建型模式
+
+原型模式的工作原理：将一个原型对象传给那个要发动创建的对象，这个要发动创建的对象通过请求原型对象拷贝自己来实现创建过程。
+- Prototype（抽象原型类）：它是声明克隆方法的接口，是所有具体原型类的公共父类，可以是抽象类也可是接口，甚至还可以是具体实现类
+```java
+public abstract class Prototype implements Cloneable {
+    public abstract Object copy() throws CloneNotSupportedException;
+}
+```
+
+- ConcretePrototype（具体原型类）：它实现在抽象原型类中声明的克隆方法，在克隆方法中返回自己的一个克隆对象
+
+```java
+public abstract class Beast extends Prototype {
+
+  @Override
+  public abstract Beast copy() throws CloneNotSupportedException;
+
+}
+```
+```java
+public class ElfBeast extends Beast {
+  
+  private String helpType;
+
+  public ElfBeast(String helpType) {
+    this.helpType = helpType;
+  }
+
+  public ElfBeast(ElfBeast elfBeast) {
+    this.helpType = elfBeast.helpType;
+  }
+
+  @Override
+  public Beast copy() throws CloneNotSupportedException {
+    return new ElfBeast(this);
+  }
+
+  @Override
+  public String toString() {
+    return "Elven eagle helps in " + helpType;
+  }
+
+}
+```
+
+```java
+public class OrcBeast extends Beast {
+  
+  private String weapon;
+
+  public OrcBeast(String weapon) {
+    this.weapon = weapon;
+  }
+  
+  public OrcBeast(OrcBeast orcBeast) {
+    this.weapon = orcBeast.weapon;
+  }
+
+  @Override
+  public Beast copy() throws CloneNotSupportedException {
+    return new OrcBeast(this);
+  }
+
+  @Override
+  public String toString() {
+    return "Orcish wolf attacks with " + weapon;
+  }
+}
+
+```
+
+- Client（客户端）：让一个原型对象克隆自身从而创造一个新的对象，在客户类中只需要直接实例化或通过工厂方法等方式创建一个原型对象，再通过调用该对象的克隆方法即可得到多个相同的对象
+
+```java
+Prototype obj1  = new OrcBeast("laser");
+Prototype obj2 = obj.copy();
+```
+
+## 总结
+原型模式作为一种快速创建大量相同或者相似对象的方式，在软件开发中应用较为广泛，很多软件提供的复制(Ctrl + C)和粘贴(Ctrl + V)操作就是原型模式的典型应用，下面对该模式的使用效果和适用情况进行简单的总结。
+
+### 优点
+- 当创建新的对象实例较为复杂时，使用原型模式可以简化的创建过程，通过复制一个已有实例可以提高新实例的创建效率
+- 扩展性较好，由于在原型模式中提供了抽象原型类，在客户端可以针对抽象原型类进行编程，而将具体原型类写在配置文件中，增加或减少产品类对原有系统都没有任何影响
+- 原型模式提供了简化的创建结构，工厂方法模式常常需要有一个与产品类等级结构相同的工厂等级结构，而原型模式就不需要这样，原型模式中产品的复制是通过封装在原型类中的克隆方法实现的，无须专门的工厂类来创建产品
+- 可以使用深克隆的方式保存对象的状态，使用原型模式将对象复制一份并将其状态保存起来，以便在需要的时候使用，可辅助实现撤销操作
+
+### 缺点
+- 需要为每一个类配备一个克隆方法，而且该克隆方法位于一个类的内部，当对已有的类进行改造时，需要修改源代码，违背了“开闭原则”
+- 在实现深克隆时需要编写较为复杂的代码，而且当对象之间存在多重的嵌套引用时，为了实现深克隆，每一层对象对应的类都必须支持深克隆，实现起来可能会比较麻烦
+
+### 适用场景
+- 创建新对象成本较大，新的对象可以通过原型模式对已有对象进行复制来获得，如果是相似对象，则可以对其成员变量稍作修改
+- 如果系统要保存对象的状态，而对象的状态变化很小，或者对象本身占用内存较少时，可以使用原型模式配合备忘录模式来实现。
+-  需要避免使用分层次的工厂类来创建分层次的对象，并且类的实例对象只有一个或很少的几个组合状态，通过复制原型对象得到新实例可能比使用构造函数创建一个新实例更加方便
 
 ## 单例模式（Singleton）
+
+
 * 意图：保证一个类仅有一个实例，并提供一个访问它的全局访问点。
 * 适用性：
     1. 当类只能有一个实例而且客户可以从一个众所周知的访问点访问它时。
