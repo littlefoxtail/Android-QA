@@ -37,14 +37,14 @@ LiveData为界面代码(Observer)的监视对象(Observable)。当LiveData所持
 如果你熟悉可使用可观察回调的其他库，则可能意识到我们不必重写`Fragment`的`onStop()`方法以停止观察数据。这对LiveData来说不是必需的，因为它可以感知生命周期，这意味着它不会回调，除非`Fragment`处于活动状态(收到onStart()但未收到onStop())。当`Fragment`收到`onDestory`时，LiveData也会自动删除观察者。
 
 ## 获取数据
-已将ViewModel连接到Fragment，但ViewModel如何获取用户数据。例子中将使用REtrofit库来访问后端。
+已将ViewModel连接到Fragment，但ViewModel如何获取用户数据。例子中将使用Retrofit库来访问后端。
 ```java
 public interface WebServise {
     @Get("/users/{user}")
     Call<User> getUser(@Path('user') String userId);
 }
 ```
-ViewModel一个简单的实现可以直接使用WebService来获取数据并将其分配给User对象。但它给ViewModel类带来了太多的责任，违背了关注点分离。此外VieModel的范围与Activity/Fragment生命周期相关联，生命周期完成时丢失所有数据是不好的用户体验。所以数据获取将委托给REpository模块
+ViewModel一个简单的实现可以直接使用WebService来获取数据并将其分配给User对象。但它给ViewModel类带来了太多的责任，违背了关注点分离。此外VieModel的范围与Activity/Fragment生命周期相关联，生命周期完成时丢失所有数据是不好的用户体验。所以数据获取将委托给Repository模块
 
 # Repository 
 存储库类负责处理数据操作，它们为程序提供了一个干净的API，它们知道从何处获取数据以及更新数据时调用API。它们是不同数据源之间的中介。
@@ -222,8 +222,19 @@ public class Resource<T> {
 2. 可用从本地磁盘加载
 3. 不可用从网络加载，网络更新的时候可能显示缓存数据
 
-# Lifecycles
-生命周期管理(Lifecycles)帮助开发者创建“可感知生命周期的”组件，让其自己管理自己的生命周期，从而减少内存泄露和崩溃的可能性。
+# Lifecycle
+Lifecycle是一个保存关于组件声明周期状态（activity或者fragment）信息的类，并允许其他对象观察此状态。
+Lifecycle使用两个主要枚举来跟踪有关联组件的生命周期状态
+## Event
+从framework和Lifecycle类派发的生命周期事件。 这些事件映射到activity和fragment的回调事件。
+
+## State
+由Lifecycle对象跟踪的组件的当前状态
+![lifycycle](../img/lifecycle-states.png)
+
+
+
+生命周期管理(Lifecycle)帮助开发者创建“可感知生命周期的”组件，让其自己管理自己的生命周期，从而减少内存泄露和崩溃的可能性。
 生命周期库是其他架构组件的基础
 - `ProcessLifecycleOwnerInitializer`初始化Lifecycle框架
 - `LifecycleDispatcher` 通过ActivityLifecycleCallbacks与LifecycleDispatcher配合监听当前进程中Activitys的生命周期变化并在必要时产生相应lifecycle事件
