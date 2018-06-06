@@ -432,8 +432,8 @@ Activity持有一个Window，而Window持有一个DecorView。而事件是至上
 4. 返回true，通常表示处理或消费了事件，不再传递。
 
 # 给个图
-![图裂](../img/function_touch.png)
-![图裂](../img/motionEvent_activity.png)
+![图裂](../..//img/function_touch.png)
+![图裂](../../img/motionEvent_activity.png)
 
 
 

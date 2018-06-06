@@ -36,7 +36,7 @@ ViewRootImpl，他是链接WindowManager和DecoreView的纽带。更广阔可以
 向DecoreView分发收到的用户发起的event事件，如按键，触屏等事件
 
 Window是一个抽象概念，每一个Window都对应一个View和一个ViewRootImple,Window又通过ViewRootImpl与View建立联系
-![image](../img/hierarchy.png)
+![image](../../img/hierarchy.png)
 
 
 ## 开始
@@ -552,8 +552,8 @@ View的布局流程就已经全部分析完了。可以看出，布局流程的�
 
 ## draw流程
 所有View进行自上而下绘图的调用过程：
-![draw_hierarchy](../img/draw_hierarchy.png)
-![Draw](../img/draw.png)
+![draw_hierarchy](../../img/draw_hierarchy.png)
+![Draw](../../img/draw.png)
 绘制流程将决定View的样子，一个View该显示什么由绘制流程完成。
 ### ViewRootImpl@performDraw
 
@@ -1047,7 +1047,7 @@ final class ViewRootHandler extends Handler {
 
 # 下面是真正的流程图
 
-![img](../img/view_measure_layout_draw.jpg)
+![img](../../img/view_measure_layout_draw.jpg)
 
 
 

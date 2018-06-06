@@ -1,20 +1,18 @@
 
+- **[View相关](view/README.md)**
 - **[Android窗口管理](window_manager.md)**
 - **[Fragment](fragment.md)**
 - **[ClassLoader](classloader.md)**
 - **[Interpolator](Interpolator.md)**
 
-- **[Touch事件](TouchEvent.md)**
+
 - **[WebView遇到的一些问题和总结](webView.md)**
 - **[Handler](handler.md)**
 - **[Choreographer控制同步处理输入、动画、绘制](choreographer.md)**
 - **[进程与AMS的关系](ams.md)**
 - **[应用中的Context](context.md)**
 - **[LayoutInflater如何加载布局的](layoutinflater.md)**
-- **[测量定位绘制流程](measure_layout_draw.md)**
 - **[动画](animation.md)**
-- **[RecyclerView](recyclerview.md)**
-- **[RemoteViews](remoteviews.md)**
 - **[图片缓存处理](image.md)**
 - **[Android性能调优](performance.md)**
 - **[Android中的线程所有知识点](android_thread.md)**

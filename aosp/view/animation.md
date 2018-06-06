@@ -10,7 +10,7 @@
 
 # 属性动画
 在XML中定义的动画，可在一段时间内修改目标对象的属性值，如背景颜色或alpha值
-![image](../img/objectAnimator.png)
+![image](../../img/objectAnimator.png)
 
 属性动画功能非常强大，也是最常用的动画方法。可自定义如下属性：
 - 动画时间(Duration)，指定动画总共完成所需要的时间，默认为300ms
