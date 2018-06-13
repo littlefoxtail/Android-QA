@@ -81,7 +81,7 @@ performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
 
 ## measure测量流程
 所有View自上而下量算的过程：
-![measure_hierarchy.png](../img/measure_hierarchy.png)
+![measure_hierarchy.png](../../img/measure_hierarchy.png)
 
 如果要进行量算过程的View是ViewGroup类型，那么ViewGroup会在onMeasure方法内部遍历子View依次进行量算。
 
