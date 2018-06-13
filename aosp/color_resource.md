@@ -53,6 +53,6 @@ Android提供三个材料主题风格：
 ```
 
 - 在AndroidManifest.xml，使用自定义主题配置应用程序
-    - <application>节点
-    - <activity>节点
+    - `<application>`节点
+    - `<activity>`节点
 
