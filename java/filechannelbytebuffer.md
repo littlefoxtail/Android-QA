@@ -1,0 +1,7 @@
+# FileChannel和ByteBuffer
+JDK 1.4以后就提供了java.nio包，nio主要提供字节与字符的映射。内存映射文件和文件加锁机制其中内存映射文件在读取大文件时可能会用上，因为内存映射不是直接把文件加载到JVM内存空间而是借用操作系统对文件的读取，这经历了由当前Java态进入到操作系统内核态，再由操作系统读取文件，并返回数据到当前Java态的过程。
+
+1. FileChannel表示文件通道，可以从FileInputStream、FileOutputStrream以及RandomAccessFile对象获取文件通道，可以从文件通道直接读取文件，也可以使用“内存映射”即使用通道，将文件内存映射到ByteBuffer，可以映射一部分内容，也可以映射全部内容，使用内存映射能大幅度提高我们操作大文件的速度
+
+
+2. ByteBuffer

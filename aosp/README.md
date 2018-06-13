@@ -1,11 +1,7 @@
 
 - **[View相关](view/README.md)**
 - **[Android窗口管理](window_manager.md)**
-- **[Fragment](fragment.md)**
 - **[ClassLoader](classloader.md)**
-- **[Interpolator](Interpolator.md)**
-
-
 - **[WebView遇到的一些问题和总结](webView.md)**
 - **[Handler](handler.md)**
 - **[Choreographer控制同步处理输入、动画、绘制](choreographer.md)**
@@ -13,11 +9,26 @@
 - **[应用中的Context](context.md)**
 - **[LayoutInflater如何加载布局的](layoutinflater.md)**
 - **[动画](animation.md)**
-- **[图片缓存处理](image.md)**
-- **[Android性能调优](performance.md)**
 - **[Android中的线程所有知识点](android_thread.md)**
 - **[Material Style](color_resource.md)**
+- **[Android在编码的时候经常使用到位运算](androidbit.md)**
+- **[AsyncTask](asynctask.md)**
+- **[ExecutorService中的关闭](executorservice.md)**
+- **[内存泄露中的强弱引用](memory.md)**
 
+- TODO
+    - **[ActivityManagerService](ams.md)**
+    - **[Application not responding](applicationnotresponding.md)**
+    - **[Choreographer启动流程](choreographer.md)**
+    - **[Fragment](fragment.md)**
+    - **[futuretask](futuretask.md)**
+    - **[图片缓存处理](image.md)**
+    - **[Interpolator](Interpolator.md)**
+    - **[Android性能调优](performance.md)**
+    - **[自定义View的步骤](customView.md)**
+    - **[对话框的源码分析](dialog.md)**
+    - **[PriotiryBlockingQueue队列源码分析](priotiryblockingqueue.md)**
+    - **[Window的源码](window.md)**
 
 
 # Android系统
