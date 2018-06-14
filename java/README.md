@@ -1,13 +1,15 @@
+# java相关
 
 - **[java中的基本类型字节](byte.md)**
 - **[exception的处理](exception.md)**
 - **[Effective Java for Android (cheatsheet)](Effective.md)**
+
 - TODO
-    - **[同步的理解](synchronized_lock.md)**
-    - **[java中的同步](concurrency.md)**
-    - **[java中的集合](collection.md)**
-    - **[java中的死锁](deadlock.md)**
-    - **[FileChannel和ByteBuffer](filechannelbytebuffer.md)**
-    - **[红黑树的理解](redblacktree.md)**
-    - **[java基础](javabasic.md)**
-    - **[volatile关键字的作用](volatile.md)**
+  - **[同步的理解](synchronized_lock.md)**
+  - **[java中的同步](concurrency.md)**
+  - **[java中的集合](collection.md)**
+  - **[java中的死锁](deadlock.md)**
+  - **[FileChannel和ByteBuffer](filechannelbytebuffer.md)**
+  - **[红黑树的理解](redblacktree.md)**
+  - **[java基础](javabasic.md)**
+  - **[volatile关键字的作用](volatile.md)**

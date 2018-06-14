@@ -1,4 +1,5 @@
 # 插件化原因
+
 1. 减少升级成本
 2. 解决app 65536问题(Multidex方案之前，现在该问题并不是插件化原因)
 3. 减少app包大小
@@ -15,22 +16,24 @@
 |ContentProvider|通过一个代理的Provider进行分发|
 
 - ActivityThread：管理着一个主线程的执行应用程序进程，调度和执行活动，广播和其他操作作为活动管理请求
-- Instrumentation: 该类会在应用的任何代码执行前被实例化，用来监控系统与应用的交互。可以以应用的AndroidManifest.xml中<instrumentation>标签来注册一个Instrumentation的实现
+- Instrumentation: 该类会在应用的任何代码执行前被实例化，用来监控系统与应用的交互。可以以应用的AndroidManifest.xml中`<instrumentation>`标签来注册一个Instrumentation的实现
 - ActivityManager: 这个类提供有关信息，并进行交互activities、services、和包含的process。这个类中的一些方法是用于调试或信息的目的，他们应该不能影响任何运行时的行为。大多数应用程序开发人员不应该需要使用这个类，其中大多数的方法是专门用例。
 
 - DexClassLoader：能够加载自定义的jar/apk/dex
 - PathClassLoader：只能加载系统中已经安装过的apk
-所以Android系统默认的类加载器为PathClassLoader，而DexClassLoader可以像JVM的ClassLoader一样提供动态加载。
+  所以Android系统默认的类加载器为PathClassLoader，而DexClassLoader可以像JVM的ClassLoader一样提供动态加载。
 
 - ActivityManagerService简称AMS，是android内核三大功能之一(另外两个是WindowManagerService和View)
-AMS主要提供主要功能
-![image](../img/ams.jpg)
-  1. 统一调试应用的Activity。应用程序要运行Activity，首先会报告给AMS，然后由AMS决定该Activity是否启动
-  2. 内存管理。Activity退出后，其所有的进程并不会被立即杀死，从而在下次启动的时候，提高Activity的启动速度。这些Activity只有在内存吃紧的时候，才会被自动杀死
-  3. 进程管理。AMS向外提供了查询系统正在运行的进程API
+  AMS主要提供主要功能
+  ![image](../img/ams.jpg)
+    1. 统一调试应用的Activity。应用程序要运行Activity，首先会报告给AMS，然后由AMS决定该Activity是否启动
+    2. 内存管理。Activity退出后，其所有的进程并不会被立即杀死，从而在下次启动的时候，提高Activity的启动速度。这些Activity只有在内存吃紧的时候，才会被自动杀死
+    3. 进程管理。AMS向外提供了查询系统正在运行的进程API
 
-# Activity支持
-## 启动插件Activity 
+## Activity支持
+
+### 启动插件Activity
+
 ```java
 //优先根据包名判断该插件是否已经加载，
 public class MainActivity extends AppCompatActivity {
@@ -47,12 +50,14 @@ public void onButtonClick(View v) {
 }
 ```
 
-## 初始化插件加载构建
+### 初始化插件加载构建
+
 1. 调用`PackageParser.parsePackage`解析apk里面各种信息，parsePackage中调用了系统的PackageParser去解析各种信息，并做了不同版本的兼容处理
 2. 区分是否是Constants.COMBINE_RESOURCES模式，构造不同的Resources
 3. 创建每个插件apk的DexClassLoader，区分是否是Constants.COMBINE_CLASSLOADER，并合并插件的dex到宿主APK的dex文件中。false，不合并。并且无论合并还是不合并，LoadedPlugin中都保存了插件APK对应的DexClassLoader。
 4. 获取四大组件信息
 5. 动态注册所有静态Receiver
+
 ```java
 public class PluginManger {
   public void loadPlugin(File apk) throws Exception {
@@ -73,6 +78,7 @@ public class PluginManger {
   }
 }
 ```
+
 ```java
 public class LoadedPlugin {
   public static LoadedPlugin create(PluginManager pluginManager, Context host, File apk) {
@@ -107,7 +113,6 @@ public final class LoadedPlugin {
     this.mActivityInfos = Collections.unmodifiableMap(activityInfos);
     this.mPackageInfo.activities = activityInfos.value()
     .toArray(new ActivityInfo[activityInfos.size()]);
-    
     //缓存住services
     Map<ComponentName, ServiceInfo> serviceInfos = new Hash<ComponentName, ServiceInfo>();
     for (PackageParser.Service service : this.mPackage.services) {
@@ -150,6 +155,7 @@ public final class LoadedPlugin {
 ```
 
 ### 读取Manifest信息
+
 ```java
 public final class PackageParserCompat {
   public static final PackageParser.Package parsePackage(final Context context, final File apk, final int flags) throws PackageParser.PackageParserException {
@@ -163,6 +169,7 @@ public final class PackageParserCompat {
   }
 }
 ```
+
 ```java
 public class PackageParser {
   public Package parsePackage(File packageFile, int flags, boolean useCaches) throws PackageParserException {
@@ -182,7 +189,9 @@ public class PackageParser {
   }
 }
 ```
-### 创建Resource
+
+#### 创建Resource
+
 两种方式
 [VirtualAPK 资源篇](vritual_resource.md)
 
@@ -205,7 +214,8 @@ public final class LoadedPlugin {
 }
 ```
 
-### 创建ClassLoader
+#### 创建ClassLoader
+
 ```java
 public final class LoadedPlugin {
   public static ClassLoader createClassLoader(Context context, File apk, File libsDir, ClassLoader parent) {
@@ -239,8 +249,7 @@ public class DexUtil {
 }
 ```
 
-
-# 替换Activity
+## 替换Activity
 
 startActivity->Instrumentation.execStartActivity()
 Activity是否存在的校验是发生在AMS端，所以在AMS交互前面

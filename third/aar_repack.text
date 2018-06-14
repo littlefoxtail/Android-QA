@@ -1,0 +1,39 @@
+mkdir -p ~/tmp/sonar-0.0.1
+cp ~/.gradle/caches/modules-2/files-2.1/com.facebook.sonar/de84b64d6ab7a9b71e80875f5fb6cabf040eb06/sonar-0.0.1.aar ~/tmp/sonar-0.0.1/
+cd ~/tmp/sonar-0.0.1
+unzip sonar-0.0.1.aar -d aar-0.0.1
+cp aar-0.0.1/classes.jar .
+unzip classes.jar -d classes-0.0.1
+
+# Now delete all the unwanted packaged class files, e.g.
+rm -rf classes-0.0.1/android classes-0.0.1/javax classes-0.0.1/jsr-305
+
+# Repackage classes file
+jar cvf classes.jar -C classes-0.0.1/ .
+
+# Repackage aar file
+cp classes.jar aar-0.0.1/
+jar cvf sonar-0.0.1-LOCAL.aar -C aar-0.0.1/ .
+
+# Now use the new aar file directly:
+
+cp sonar-0.0.1-LOCAL.aar ~/path/to/android-project/app/libs
+
+# build.gradle
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+
+# app/build.gradle
+
+dependencies {
+    // ...
+    debugImplementation(name: 'sonar-0.0.1-LOCAL', ext: 'aar')
+}

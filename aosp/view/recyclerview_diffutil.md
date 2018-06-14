@@ -10,7 +10,8 @@ diffResult.dispatchUpdatesTo(mAdapter);
 ```
 
 它会自动计算新老数据集的差异，并根据差异情况，自动调用以下四个方法
-```
+
+```java
 adapter.notifyItemRangeInserted(position, count);
 adapter.nofityItemRangeRemoved(position, count);
 adapter.nofityItemMoved(fromPosition, toPosition);
