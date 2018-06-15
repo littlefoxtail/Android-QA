@@ -9,6 +9,7 @@ public ViewRootImple(Context context, Display display) {
 ```
 
 ## 创建Choreographer
+
 ```java
 private Choreographer(Looper looper) {
     mLooper = looper;
@@ -25,10 +26,12 @@ private Choreographer(Looper looper) {
     }
 }
 ```
+
 * mLastFrameTimeNanos:指的上一次帧绘制时间点
 * mFrameIntervalNanos：帧间时长，一般等于16.7ms
 
 ## FrameHandler
+
 ```java
 private final class FrameHandler extends Handler {
     public FrameHandler() {
@@ -50,4 +53,4 @@ private final class FrameHandler extends Handler {
     }
 }
 ```
-## 
+

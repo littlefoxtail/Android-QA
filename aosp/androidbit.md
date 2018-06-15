@@ -17,7 +17,8 @@ public static final int FLAG_ACTIVITY_MULTIPLE_TASK = 0x08000000;
 
 特性：他们通过“或运算”可以组成1~15的数，并且不会出现两种或两种以上的相同的情况。
 
-## 通过Intent Flags对应的值，可以将多种标志通过“或运算”来进行组合，
+## 通过Intent Flags对应的值，可以将多种标志通过“或运算”来进行组合
+
 ```java
 mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK 
 | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
@@ -29,6 +30,7 @@ event.mFlags |= FLAG_CANCELED | FLAG_CANCELED_LONG_PRESS;
 ```
 
 ## 判断Intent Flags是否包含某个标志，通过“与运算”
+
 ```java
 if ((intent.getFlags & intent.FLAG_ACTIVITY_NEW_TASK) == 0) {
     // intent.getFlags 不包含NEW_TASK
@@ -49,15 +51,15 @@ if ((viewFlags & ENABLED_MASK) == DISABLED) {
 ```
 
 ## 清除某个值
+
 ```java
 mFlag &= ~FLAG_START_TRACKING; //清除mFlags中FLAG_START_TRACKING
 ```
 
 位运算主要是直接操控二进制时使用，主要目的节约内存
 移位运算：
+
 1. 它们都是双目运算符，两个运算分量都是整形，结果也是整形
 2. "<<"左移：右边空出的位上补0，左边的位将从字头挤掉，其值相当于乘2
 3. ">>"右移：右边的位被挤掉。对于左边移出的空位，如果是正数则空位补0，若为负数，可能补0或补1，这取决于所用的计算机系统
 4. ">>>"运算符，右边的位被挤掉，对于左边移出的空位一概补上0
-
-

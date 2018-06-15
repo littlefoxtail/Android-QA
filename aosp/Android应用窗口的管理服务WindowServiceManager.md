@@ -1,5 +1,7 @@
 # WindowManagerService
+
 WindowManagerService，是一个窗口管理系统服务，主要功能如下：
+
 * 窗口管理，绘制
 * 转场动画--Activity切换动画
 * Z-ordered的维护，Activity窗口显示前后顺序
@@ -18,6 +20,7 @@ Surface实例的显示区域。例如Dialog、Activity的界面、壁纸、状�
 ![window_manager_service_class](../img/WindowManagerService_class.png)
 
 主要角色：
+
 * WindowManager：应用于窗口管理服务WindowManagerService交互的接口
 * WindowManagerService：窗口管理服务，继承于IWindowManager.Stub交互接口，是Binder的服务端，该服务运行在一个单独的进程中，因此WindowManager与WindowManagerService的交互也是一个IPC的过程
 * SurfaceFlinger：SurfaceFlinger服务运行在Android系统的System进程中，它负责管理Android系统的帧缓冲区(Frame Buffer)，Android设备的显示屏被抽象为一个帧缓冲区，而Android系统中的SurfaceFlinger服务就是向这个帧缓冲区写入内容来绘制应用程序的用户界面
@@ -32,16 +35,18 @@ Surface实例的显示区域。例如Dialog、Activity的界面、壁纸、状�
 ![window_mansger_service_structure](../img/window_mansger_service_structure.png)
 
 Activity持有一个Window对象，负责UI的展示与交互
-- mWindow：PhoneWindow对象，继承与Window，是窗口对象
-- mWindowManager：WindowManagerImpl对象，实现WindowManager
-- mMainThread：ActivityThread对象，并非真正的线程，是运行在主线程里的对象
-- mUIThread：Thread对象，主线程
-- mHandler：Handler对象，主线程Handler
-- mDecor：View对象，用来展示Activity里的视图
+
+* mWindow：PhoneWindow对象，继承与Window，是窗口对象
+* mWindowManager：WindowManagerImpl对象，实现WindowManager
+* mMainThread：ActivityThread对象，并非真正的线程，是运行在主线程里的对象
+* mUIThread：Thread对象，主线程
+* mHandler：Handler对象，主线程Handler
+* mDecor：View对象，用来展示Activity里的视图
 
 ViewRootImpl负责管理DecorView与WindowManagerService的交互，每次调用WindowManager.addView()添加窗口时，都会创建一个ViewRootImpl对象，它内部也保存了一些重要信息：
-- mWindowSession：IWindowSession对象，Session的对象代理，用来和Session进行通信，同一进程里的所有ViewRootImpl对象只对应同一个Session代理对象
-- mWindow：IWindow.Stub对象，每个窗口对应一个对象
+
+* mWindowSession：IWindowSession对象，Session的对象代理，用来和Session进行通信，同一进程里的所有ViewRootImpl对象只对应同一个Session代理对象
+* mWindow：IWindow.Stub对象，每个窗口对应一个对象
 
 ## 一 Window的添加流程
 
@@ -78,6 +83,7 @@ public final class WindowManagerGlobal {
 
 ViewRootImpl就是一个封装类，封装了View与WindowManager的交互方式，它是View与WindowManagerService通信的桥梁
 最后也是调用ViewRootImpl.setView()方法来完成Window的添加并完成Window的添加并完成更新界面
+
 ```java
 public final class ViewRootImpl implements ViewParent {
     public void setView(View view, WindowManager.LayoutParams attrs, View panelParentView) {
@@ -100,6 +106,7 @@ public final class ViewRootImpl implements ViewParent {
     }
 }
 ```
+
 1. requestLayout()完成界面异步绘制的请求
 2. 创建WindowSession并通过WindowSession请求WindowManagerService来完成Window添加的过程这个是一个IPC过程，WindowManagerService作为实际的窗口管理者，窗口的创建、删除和更新都是由它来完成的，它同时还负责了窗口的层叠排序和大小计算
 
@@ -233,6 +240,7 @@ public void dispatchDetachedFromWindow() {
 ```
 
 ## 三 Window的更新数据
+
 ```java
 public final class WindowManagerGloba {
     public void updateViewLayout(View view, ViewGroup.LayoutParams params) {
@@ -270,4 +278,3 @@ public final class ViewRootImpl implements ViewParents {
 
 > 事实上Window是一个抽象的概念，也就是说它并不是实际存在的，它以View的形式存在，每个Window都对应着一个View和一个ViewRootImpl，Window与View通过ViewRootImpl来建立联系。
 WindowManagerService实际管理的也不是Window，而是View，管理当前状态下那个View应该在最上层显示，SurfaceFlinger绘制也同样是View
-

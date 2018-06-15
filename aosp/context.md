@@ -1,7 +1,8 @@
 # 什么是Android Context
+
 一个Context意味着一个场景，一个场景就是我们和软件进行交互的一个过程
 
-# 一个应用程序中应该有多少个Context对象
+## 一个应用程序中应该有多少个Context对象
 
 ![Image](../img/extend.gif)
 ![context_uml](../img/context_uml.png)
@@ -15,9 +16,11 @@ ContextThemeWrapper内部包含了与主题相关的接口。这里的主题就�
 
 ContextImpl类真正实现了Context中所有的函数。
 
-# 什么时候创建的Context
+## 什么时候创建的Context
+
 每一个应用程序在客户端都是ActivityThread类开始的，创建Context对象也是在该类中完成，
 具体创建ContextImpl类的地方6处：
+
 * PackageInfo.makeApplication()
 * performLaunchActivity()
 * handleCreateBackupAgent()
@@ -27,8 +30,10 @@ ContextImpl类真正实现了Context中所有的函数。
 
 其中attach()方法仅在Framework进程启动时调用，应用程序运行时不会调用该方法。
 
-## Context与四大组件的关系
-### Activity的创建流程
+### Context与四大组件的关系
+
+#### Activity的创建流程
+
 ```java
 public final class ActivityThread {
     private Activity performLaunchActivity(ActivityClientRecord r, Intent customIntent) {
@@ -179,7 +184,8 @@ public final class ActivityThread {
     }
 }
 ```
-### Service的创建流程
+
+#### Service的创建流程
 
 ```java
 public final class ActivityThread {
@@ -232,7 +238,9 @@ public final class ActivityThread {
     }
 }
 ```
-### 静态广播的创建流程
+
+#### 静态广播的创建流程
+
 ```java
 public final class ActivityThread {
     private void handleReceiver(ReceiverData data) {
@@ -262,8 +270,7 @@ public final class ActivityThread {
             receiver = (BroadcastReceiver)cl.loadClass(component).newInstance();
         } catch (Exception e) {
 
-        } 
-
+        }
         try {
             sCurrentBroadcastIntent.set(data.intent);
             receiver.setPendingResult(data);
@@ -284,7 +291,8 @@ public final class ActivityThread {
 }
 ```
 
-### Content Provider的创建流程
+#### Content Provider的创建流程
+
 ```java
 public final class ActivityThread {
     private ContentProvideerHolder installProvider(Context context, ContextProviderHolder holder, ProviderInfo info,
@@ -330,8 +338,11 @@ public final class ActivityThread {
     }
 }
 ```
+
 ### Application的创建流程
+
 对于四大组件，Application的创建和获取方式也是不尽相同的：
+
 - Activity：通过LoadApk的makeApplication()方法创建
 - Service：通过LoadApk的makeApplication()方法创建
 - 静态广播：通过其回调方法onReceiver()方法的第一个参数指向Application
@@ -378,6 +389,7 @@ public final class LoadApk {
 > Application只会创建一次，如果Application对象已经存在则不再创建，一个APK对应一个LoadedApk对象，；一个LoadedApk对象对应一个Application对象
 
 Application对象构建时候通过Instrumentation的newApplication()方法完成的
+
 ```java
 public class Instrumentation {
     static public Application newApplication(Class<?> clazz, Context context)
@@ -389,5 +401,3 @@ public class Instrumentation {
         }
 }
 ```
-
-
