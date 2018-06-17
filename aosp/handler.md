@@ -1,8 +1,11 @@
+# Handler机制
 
-# looper循环处理消息队列
+## looper循环处理消息队列
+
 主线程默认调用如下两个方法。如果在子线程使用handler就要在前后加入这两个方法，这样就会在子线程中轮询MessageQueue了
 
-## looper.prepare()
+### looper.prepare()
+
 创建Looper对象，创建MessageQueue，并且Looper持有MessageQueue的引用，当前线程持有Looper对象引用
 
 ```java
@@ -22,7 +25,8 @@ private Looper(boolean quitAllowed) {
 }
 ```
 
-## looper.loop()
+### looper.loop()
+
 遍历MessageQueue，调用handler的dispatchMessage()处理Message
 
 ```java
@@ -46,7 +50,9 @@ public static void loop() {
     }
 }
 ```
-# Handler的创建
+
+## Handler的创建
+
 ```java
 public Handler(Callback callback, boolean async) {
     if (FIND_POTENTIAL_LEAKS) {
@@ -66,10 +72,13 @@ public Handler(Callback callback, boolean async) {
     mAsynchronous = async;
 }
 ```
+
 在Handler构造中，主要初始化了一下变量，并判断Handler对象的初始化不应在内部类，静态类，匿名类中，并且保存了当前线程中的Looper对象。
 
-# handler#sendMessage()将消息加入message队列
+## handler#sendMessage()将消息加入message队列
+
 跟进源代码，其最后会调用：
+
 ```java
 //将msg 加入到MessageQueue
 private boolean enqueueMessage(MessageQueue queue, Message msg, long uptimeMillis) {
@@ -83,6 +92,7 @@ private boolean enqueueMessage(MessageQueue queue, Message msg, long uptimeMilli
 ```
 
 MessageQueue#enqueueMessage()
+
 ```java
 boolean enqueueMessage(Message msg, long when) {
     ...
@@ -119,7 +129,8 @@ boolean enqueueMessage(Message msg, long when) {
 }
 ```
 
-## handler处理Message
+### handler处理Message
+
 如果msg 有callback则先执行msg的callback；
 否则执行handler的callback的handleMessage;
 否则执行handler子类的handleMessage;
@@ -166,8 +177,10 @@ Looper.prepareMainLooper();
 }
 ```
 
-## Handle.obtainMessage
+### Handle.obtainMessage
+
 Handler@obtainMessage
+
 ```java
 public final Message obtainMessage() {
     return Message.obtain(this);
@@ -175,6 +188,7 @@ public final Message obtainMessage() {
 ```
 
 Message@obtain
+
 ```java
 public static Message obtain(Handler h) {
     Message m = obtain();
@@ -184,6 +198,7 @@ public static Message obtain(Handler h) {
 ```
 
 Message@obtain
+
 ```java
 public static Message obtain() {
     synchronized (sPoolSync) {
@@ -204,6 +219,7 @@ public static Message obtain() {
 3. **sPoolSize**：单链表的链表长度，即存储Message对象的个数
 
 obtain对链表操作，具体逻辑：
+
 1. 加锁
 2. 判断是否是空链表
 3. 链表操作，链表头结点移除作为重用Message对象，第二个节点作为头节点
@@ -224,6 +240,4 @@ mHandler = new Handler(workerThread.getLooper());
 
 ![allhandler](../img/all_handler.jpg)
 
-# [你知道android的MessageQueue.idleHandler吗？](https://mp.weixin.qq.com/s/KpeBqIEYeOzt_frANoGuSg)
-
-
+## [你知道android的MessageQueue.idleHandler吗？](https://mp.weixin.qq.com/s/KpeBqIEYeOzt_frANoGuSg)

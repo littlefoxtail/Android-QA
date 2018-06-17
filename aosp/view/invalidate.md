@@ -1,3 +1,5 @@
+# Invalidate
+
 ```java
 public void invalidate() {
     invalidate(true);
@@ -37,8 +39,5 @@ public void validateInternal(int l, int t, int r, int b, boolean invalidateCache
 
 
     }
-            
-
-
 }
 ```

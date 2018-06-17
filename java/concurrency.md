@@ -1,6 +1,10 @@
-# synchronized
+# 同步
+
+## synchronized
+
 *synchronized可以保证方法或者代码块在运行时，同一时刻只有一个方法可以进入临界区，同时它还可以保证共享变量的内存可见性*
 Java中每一个对象都可以作为锁，这是synchronized实现同步的基础：
+
 1. 普通同步方法，锁是当前实例对象
 2. 静态同步方法，锁是当前类的class对象
 3. 同步方法块，锁是括号里面的对象
@@ -21,8 +25,7 @@ public class SynchronizedTest {
 }
 ```
 
-
-```
+```text
 Classfile /Users/yetu/iwrotecode/learnleetcode/java/src/SynchronizedTest.class
   Last modified May 1, 2018; size 412 bytes
   MD5 checksum afee2856bc50b730b543fe6392b3ba31
@@ -109,26 +112,24 @@ Constant pool:
 SourceFile: "SynchronizedTest.java"
 
 ```
+
 同步代码块是使用`monitorenter`和`monitorexit`指令实现的，同步方法依靠的是方法修饰符上的ACC_SYNCHRONIZED实现
 同步代码块：monitorenter指令插入到同步代码块的开始位置，monitorexit指令插入到同步代码块的结束位置，JVM需要保证每一个monitorenter都有一个monitorexit与之相对应。任何对象都有一个monitor与之相关联，当且一个monitor被持有之后，他将处于锁定状态。线程执行到monitorenter指令时，将会尝试获取对象所对应的monitor所有权，即尝试获取对象的锁；
 
 同步方法：synchronized方法则会被翻译成普通的方法调用和返回指令如:invokevirtual、areturn指令，在VM字节码层面并没有任何特别的指令来实现被synchronized修饰的方法，而是在Class文件的方法表中将该方法的access_flags字段中的synchronized标志位置1，表示该方法是同步方法并使用调用该方法的对象或该方法所属的Class在JVM的内部对象表示Klass做为锁对象
 
+## AtomicInteger源码分析
 
+## Thread
 
-
-# AtomicInteger源码分析
-
-
-
-
-# Thread
 Thread的生命周期
+
 1. 新建状态 NEW，此时由于JVM为其分配内存，并初始化其成员变量的值
 2. 就绪状态，当线程对象调用了start()方法之后，该线程处于就绪状态。java虚拟机会为其创建方法调用栈和程序计数器，等待调度运行
 3. 运行状态，处于就绪状态的线程获得了CPU，开始执行run()方法的线程执行体，则该线程处于运行状态
 4. 阻塞状态，当运行状态线程失去所占资源之后，便进行了阻塞状态
 5. 死亡状态
+
 ```java
 public ennm State {
     /**
@@ -174,11 +175,13 @@ CPU是时分复用的，也即是CPU的时间片，分配给不同的thread/proc
 所以就有了乐观锁的概念，核心思想，每次不加锁而是假设没有冲突去完成某项操作，如果因为冲突失败就重试，直到成功为止。在上面的例子中，某个线程可以不让出CPU，而是一直while循环，如果失败就重试，直到成功为止。所以，当数据争用不严时，乐观锁效果更好。比如CAS就是一种乐观思想的应用。
 
 ## java中的CAS的实现
+
 CAS就是Compare and Swap的意思，比较并操作。很多的cpu直接支持CAS指令。CAS是项乐观锁技术，当多个线程尝试使用CAS同时更新同一个变量时，只有其中一个线程能更新变量
 的值，而其它线程都失败，失败的线程并不会被挂起，而是被告知这次竞争中失败，并可以再次尝试。CAS有三个操作数，内存值V，旧的预期值A，要修改的新值B。并且仅当预期值A和内存值
 V相同时，将内存值V修改为B，否则什么都不做
 
 ## AtomicInteger实现
+
 AtomicInteger是一个支持原子操作的Integer类，就是保证AtomicInteger类型的变量的增加和减少操作是原子性的，
 不会出现多个线程下的数据不一致问题。如果不使用AtomicInteger，要实现一个按顺序获取的ID，就必须在每次获取时进行锁操作，以避免出现并发时获取到同样的ID的现象、
 

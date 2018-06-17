@@ -1,6 +1,7 @@
 # 通信过程
 
 ## IActivityManager：
+
 ```java
 @Override 
 public android.content.ComponentName startService(android.app.IApplicationThread caller, android.content.Intent service, java.lang.String resolvedType, boolean requireForeground, java.lang.String callingPackage, int userId) throws android.os.RemoteException {
@@ -41,7 +42,9 @@ public android.content.ComponentName startService(android.app.IApplicationThread
     return _result;
 }
 ```
+
 主要功能：
+
 - 获取或创建两个Parcel对象，data用于发送数据，reply用于接收应答数据
 - 将startService相关数据都封装到Parcel对象data，其中descritor="android.app.IActivityManager"
 - 通过Binder传递数据，并将应答消息写入reply
@@ -66,10 +69,12 @@ public static Parcel obtain() {
     return new Parcel(0);
 }
 ```
+
 1. 先尝试从缓存池sOwnedPool中查询是否存在缓存Parcel对象，当存在则直接返回该对象
 2. 如果没有可用的Parcel对象，则直接创建Parcel对象
 
 ## new Parcel
+
 ```java
 private Parcel(long nativePtr) {
     init(nativePtr);
@@ -96,6 +101,7 @@ static jlong android_os_Parcel_create(JNIEnv* env, jclass clazz) {
 ```
 
 ## Parcel.recycle
+
 ```java
 public final void recycle() {
     // 释放native parcel对象
@@ -120,12 +126,16 @@ public final void recycle() {
     }
 }
 ```
+
 将不再使用的Parcel对象放入缓存池，可回收重复利用，当缓存池已满则不再加入缓存池。这里有两个Parcel线程池：
+
 - mOwnsNativeParcelObject=true，即调用不带参数obtain()方法获取的对象，回收时会放入sOwnedPool对象池;
 - mOwnsNativeParcelObject=false, 即调用带nativePtr参数的obtain(long)方法获取的对象, 回收时会放入sHolderPool对象池;
 
 ## Parcel.writeString
+
 Parcel.java:
+
 ```java
 public final void writeString(String val) {
      mReadWriteHelper.writeString(this, val);
@@ -133,6 +143,7 @@ public final void writeString(String val) {
 ```
 
 Parcel.java:
+
 ```java
 public void writeString(Parcel p, String s) {
     nativeWriteString(p.mNativePtr, s);
@@ -140,6 +151,7 @@ public void writeString(Parcel p, String s) {
 ```
 
 android_os_Parcel.cpp:
+
 ```c++
 static void android_os_Parcel_writeString(JNIEnv* env, jclass clazz, jlong nativePtr, jstring val)
 {
@@ -165,6 +177,7 @@ static void android_os_Parcel_writeString(JNIEnv* env, jclass clazz, jlong nativ
 ```
 
 Parcel.cpp:
+
 ```c++
 status_t Parcel::writeString16(const char16_t* str, size_t len)
 {
@@ -184,11 +197,14 @@ status_t Parcel::writeString16(const char16_t* str, size_t len)
     return err;
 }
 ```
+
 除了writeString(),在Parcel.java中大量的native方法, 都是调用android_os_Parcel.cpp相对应的方法, 该方法再调用Parcel.cpp中对应的方法. 
 调用流程: Parcel.java –> android_os_Parcel.cpp –> Parcel.cpp.
 
 ## mRemote
+
 ServiceManager:
+
 ```java
 public static IActivityManager getService() {
     return IActivityManagerSingleton.get();
@@ -196,6 +212,7 @@ public static IActivityManager getService() {
 ```
 
 ServiceManager:
+
 ```java
 private static final Singleton<IActivityManager> IActivityManagerSingleton = 
     new Singleton<IActivityManager>() {
@@ -211,6 +228,7 @@ private static final Singleton<IActivityManager> IActivityManagerSingleton =
 ServiceManager.getService(“activity”)返回的是指向目标服务AMS的代理对象BinderProxy对象，由该代理对象可以找到目标服务AMS所在进程
 
 ActivityManagerNative:
+
 ```java
 static public IActivityManager asInterface(IBinder obj) {
     return IActivityManager.Stub.asInterface(obj);
@@ -218,6 +236,7 @@ static public IActivityManager asInterface(IBinder obj) {
 ```
 
 IActivityManager:
+
 ```java
 public static IActivityManager asInterface(IBinder obj) {
     if (obj == null) {
@@ -232,7 +251,9 @@ public static IActivityManager asInterface(IBinder obj) {
     return new IActivityManager.Stub.Proxy(obj);
 }
 ```
+
 Binder.java:
+
 ```java
 public class Binder implements IBinder {
     public IInterface queryLocalInterface(String descriptor) {
@@ -250,9 +271,11 @@ final class BinderProxy implements IBinder {
     }
 }
 ```
+
 对于Binder IPC的过程中, 同一个进程的调用则会是asInterface()方法返回的便是本地的Binder对象;对于不同进程的调用则会是远程代理对象BinderProxy
 
 ## 创建IActivityManager.Proxy
+
 IActivityManager.java:
 ```java
 private static class Proxy implements IActivityManager {
@@ -265,7 +288,9 @@ private static class Proxy implements IActivityManager {
 ```
 
 ## mRemote.transact
+
 Binder.java::BinderProxy
+
 ```java
 public boolean transact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
     Binder.checkParcel(this, code, data, "Unreasonably large binder buffer");
@@ -274,8 +299,10 @@ public boolean transact(int code, Parcel data, Parcel reply, int flags) throws R
 ```
 
 ## Binder.execTransact
+
 经过很多native代码，从C++回到了Java代码
 Binder.java:
+
 ```java
 private boolean execTransact(int code, long dataObj, long replyObj, int flags) {
     Parcel data = Parcel.obtain(dataObj);
@@ -307,6 +334,7 @@ private boolean execTransact(int code, long dataObj, long replyObj, int flags) {
 ```
 
 ## IActivityManager.onTransact
+
 ```java
 public boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
     switch(code) {
@@ -353,11 +381,9 @@ requireForeground, callingPackage, userId);
     }
 }
 ```
+
 历经千山万水，总算进入了AMS.startService。当system_service收到BR_TRANSACTION的过程后，通信并没有完全结束，还需将服务启动完成的回应消息，告诉给发起端进程
 
-
-# 总结
+## 总结
 Binder一步步调用进入到system_server进程的AMS.startSevice，整个过程涉及Java Framework，native，kernel driver各个层面知识
 ![binder_ipc_process](../img/binder_ipc_process.jpg)
-
-

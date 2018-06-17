@@ -17,7 +17,9 @@ RecyclerView继承于ViewGroup，实现ScrollingView与NestedScrollingChild接�
 |ListView|需要手动添加ViewHolder|只支持具体某一种|将这些特殊UI作为ItemView的一部分|无|
 
 ![recyclerview_structure](../../img/recyclerview_structure.png)
+
 # 创建流程
+
 ## 构造
 
 ```java
@@ -46,11 +48,14 @@ public RecyclerView(Contex context, AttributeSet attrs, int defStyle) {
 
 }
 ```
+
 RecyclerView初始化了两个重要的工具类
+
 - AdapterHelper：用来对Adapter里的操作进行排队和处理
 - ChildHelper：用来向RecyclerView移除
 
 ## setLayoutManager()
+
 ```java
 public class RecyclerView extends ViewGroup {
     public void setLayoutManager(LayoutManager layout) {
@@ -105,6 +110,7 @@ public class RecyclerView extends ViewGroup {
 LayoutManager只负责对View进行布局，而承担管理View责任的是Recycler，RecyclerView实现了View复用的功能
 
 - removeAndRecycleAllViews(Recycler recycler)：移除当前LayoutManager里的View，并稍后再mRecycler里复用
+
 ```java
 public void removeAndReccyleAllViews(Recycler recycler) {
     for(int i = getChildCount() - 1; i >= 0; i--) {
@@ -115,7 +121,9 @@ public void removeAndReccyleAllViews(Recycler recycler) {
     }
 }
 ```
+
 - removeAndRecycleScrapInt(Recycler recycler)：移除Scrap View，Scrap View指的是那些暂时处理分离状态的View后面可能还会重新使用
+
 ```java
 void removeAndRecycleScrapInt(Recycler recycler) {
     finalt int scapCount = recycler.getScrapCount();
@@ -145,6 +153,7 @@ void removeAndRecycleScrapInt(Recycler recycler) {
 ```
 
 ## setAdapter()
+
 ```java
 public void setAdapter(Adapter adapter) {
     //停止当前的布局和滑动
@@ -187,18 +196,12 @@ private void setAdapterInternal(Adapter adapter, boolean compatibleWithPrevious,
 - 对以前的Adapter做一些清空操作，停止滑动和动画，准备好重新设置Adapter
 - 重新设置Adapter，重新注册AdapterDataObserver以及关联到RecyclerView，并触发Recycler的onAdapterChanged()方法。通知Adapter已经发生改变，最终触发重新布局的操作
 
+## RecyclerView布局策略管理器LayoutManager
 
-
-
-
-
-
-
-
-# RecyclerView布局策略管理器LayoutManager
 >LayoutManager是一个抽象类。它主要用来测量和布局子View，滚动子View以及决定何时回收用户不可见的子View
 
 关键方法：
+
 - onLayoutChildren(Recycler recycler, State state)：对子View进行布局
 - scrollHorizontallyBy(int dx, Recycler recycler, State state)：处理水平方向的滑动
 - scrollVerticallyBy(int dy, Recycler recycler, State state)：处理竖直方向的滑动
@@ -206,6 +209,7 @@ private void setAdapterInternal(Adapter adapter, boolean compatibleWithPrevious,
 RecyclerView已经处理了和触摸相关的事件，当RecyclerView上下滑动的时候，滑动的偏移量会传入这两个方法，dx/dy
 
 LayoutManager的子类完成以下三件事：
+
 - 将子View移动到适当的位置
 - 处理子View移动后的添加/删除逻辑
 - 返回移动后的实际距离，RecyclerView会根据这个距离判断是否触屏到边界
@@ -224,9 +228,9 @@ public void onLayoutChild(RecyclerView.Recycler recycler, RecyclerView.State sta
 ```
 
 ### scrollHorizontallyBy/scrollVerticallyBy
+
 - 旧View的回收与新View的添加
 - 其他View重新布局，偏移到合适的位置。
-
 
 |||
 |:---:|:---:|
@@ -241,9 +245,6 @@ public void onLayoutChild(RecyclerView.Recycler recycler, RecyclerView.State sta
 |ItemAnimator|Item动画|
 |ViewFlinger|快速滑动管理|
 |NestedScrollingChildHelper|管理子View嵌套滑动|
-
-
-
 
 RecyclerView的Measure过程
 
@@ -264,6 +265,7 @@ protected void onMeasure(int widthSpec, int heightSpec) {
 ```
 
 RecyclerView的自动测绘过程
+
 ```java
 protected void onMeasure(int widthSpec, int heightSpec) {
     if (mLayout.mAutoMeasure) {
@@ -304,6 +306,7 @@ protected void onMeasure(int widthSpec, int heightSpec) {
 ```
 
 RecyclerView的非自动测绘流程
+
 ```java
 if (mHasFixedSize) {
     // 如果RecyclerView已经设置Size固定，则执行LayoutManager onMeasure
@@ -342,17 +345,16 @@ if (mHasFixedSize) {
 
 ```
 
-
-
-
 Android默认提供的RecyclerView支持线性布局、网格布局、瀑布流布局三种，同时能够控制横向还是纵向滚动。
 
-* ViewHolder的编写规范
-* RecyclerView复用Item的工作已经完成
-* RecyclerView需要多出一步LayoutManager的设置工作
+- ViewHolder的编写规范
+- RecyclerView复用Item的工作已经完成
+- RecyclerView需要多出一步LayoutManager的设置工作
 
-# 缓存机制对比
+## 缓存机制对比
+
 1. 层级不同
+
 RecyclerView比ListView多两级缓存，支持多个ItemView缓存，支持开发者自定义缓存处理逻辑，支持所有RecyclerView共用同一个RecyclerViewPool
 
 具体来说：
@@ -375,15 +377,17 @@ RecyclerView(四级缓存)
 |    mRecyclerPool    |        否         |       是        |           与自身生命周期一致，不再被引用时即被释放           | 默认上限为5，技术上可以实现所有RecyclerViewPool共用同一个 |
 
 基本上一致
-1. mActiveViews和mAttachedScrap功能类似，意义在于快速重用屏幕上可见的列表项目itemView，而不需要重新
-createView和bindView
+
+1. mActiveViews和mAttachedScrap功能类似，意义在于快速重用屏幕上可见的列表项目itemView，而不需要重新createView和bindView
 2. mScrapView和mCachedViews + mRecyclerViewPool功能相似，意义在于缓存离开屏幕的ItemView,目的是让即将进入屏幕的ItemView重用.
-3. RecyclerView的优势在于
-    * mCacheViews的使用，可以做到屏幕外的列表项ItemView进入屏幕内时也无须bindView快速重用；
-    * mRecyclerPool可以供多个RecyclerView共同使用，在特定场景下，如viewpager+多个列表页下有优势。
-    
+3. RecyclerView的优势在于：
+    - mCacheViews的使用，可以做到屏幕外的列表项ItemView进入屏幕内时也无须bindView快速重用；
+    - mRecyclerPool可以供多个RecyclerView共同使用，在特定场景下，如viewpager+多个列表页下有优势。
+
 ## RecyclerView条目缓存机制
+
 RecyclerView缓存基本上是通过三个内部类管理的，Recycler、RecycledViewPool和ViewCacheExtension
+
 - Recycler:一个Recycler是负责管理称为碎片的视图或者已经detached的视图，从而实现View的复用。
 - RecycledViewPool:可以让你在多个RecyclerView之间分享视图
 
@@ -397,21 +401,24 @@ RecyclerView缓存基本上是通过三个内部类管理的，Recycler、Recycl
 |mRecyclerPool|ViewHolder缓存池|
 
 ### RecycledViewPool
+
 RecycledViewPool类是用来缓存Item用的，是一个ViewHolder的缓存池，如果多个RecyclerView之间用
 `setRecycledViewPool(RecycleViewPool)`设置同一个RecycledViewPool,他们就可以共享Item。其实
 RecyclerViewPool的内部维护了一个Map，里面以不同的viewType为key存储了各自对应的ViewHolder集合，可以通过
 提供的方法来修改内部缓存的viewHolder。
 
 ### ViewCacheExtension
+
 这是一个需要开发者重写的类。在`Recycler.getScrapOrHiddenOrCachedHolderForPosition`方法获取View
 Recycler先检查自己内部的`attached scrap`和一级缓存，再检查
 `ViewCacheExtensien`最后检查`RecyclerViewPool`，从上面三个任何一个只要拿到View就不会调用下一个方法。
 
 # LayoutManager
+
 LayoutManager是RecyclerView用来管理子View布局的一个组件
+
 1. 布局子视图
 2. 在滚动过程中根据子视图在布局中所处位置，决定何时添加子视图和回收视图
 3. 滚动子视图
 
 其中，只有滚动子视图，才会需要对子视图回收或者添加，而添加
-
