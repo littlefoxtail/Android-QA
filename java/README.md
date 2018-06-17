@@ -3,6 +3,7 @@
 - **[java中的基本类型字节](byte.md)**
 - **[exception的处理](exception.md)**
 - **[Effective Java for Android (cheatsheet)](Effective.md)**
+- **[java中的动态代理](proxy.md)**
 
 - TODO
   - **[同步的理解](synchronized_lock.md)**
