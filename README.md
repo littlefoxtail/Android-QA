@@ -253,15 +253,14 @@ Handler先进先出原则。Looper类用来管理线程内对象之间的消息�
   2. annotationProcessor
     annotationProcessor是APT工具的一种，它是google开发的内置框架，不需要引入，可以直接在build.gradle文件中使用。
     ```text
-    dependencies {
-      annotationProcessor project(':xx')
-      annotationProcessor 'com.jakenharton:butterkinfe-compiler:8.4.0'
-    }
+      dependencies {
+        annotationProcessor project(':xx')
+        annotationProcessor 'com.jakenharton:butterkinfe-compiler:8.4.0'
+      }
     ```
-
+  
   3. Provided和annotationProcessor区别
-
-  - annotationProcessor:
-    只在编译的时候执行依赖的库，但是库最终不打包到apk中，编译库中的代码没有直接使用的意义，也没有提供开发的api调用，最终的目的是得到编译库中生成的文件供我们调用
-  - Provided
-    Provided虽然也是编译时运行，最终不会打包到apk中,Provided是间接的得到了依赖的Library，运行的时候必须要保证这个Library的存在，否则就会崩溃，起到了避免依赖重复资源的作用。
+     - annotationProcessor:
+      只在编译的时候执行依赖的库，但是库最终不打包到apk中，编译库中的代码没有直接使用的意义，也没有提供开发的api调用，最终的目的是得到编译库中生成的文件供我们调用
+     - Provided
+      Provided虽然也是编译时运行，最终不会打包到apk中,Provided是间接的得到了依赖的Library，运行的时候必须要保证这个Library的存在，否则就会崩溃，起到了避免依赖重复资源的作用。
