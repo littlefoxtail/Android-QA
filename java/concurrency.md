@@ -14,12 +14,12 @@ Java中每一个对象都可以作为锁，这是synchronized实现同步的基�
 ```java
 public class SynchronizedTest {
     public synchronized void test1(){
- 
+      //
     }
- 
+
     public void test2(){
         synchronized (this){
- 
+          //
         }
     }
 }
@@ -143,8 +143,8 @@ public ennm State {
     RUNNABLE,
 
     /**
-     * 线程阻塞的线程状态，等待监视器锁定，                                                        
-     * 当线程调用Object.wait()方法进入一个synchronized块/方法或重进入一个synchronized锁/方法时等待获取monitor锁
+     * 线程阻塞的线程状态，等待监视器锁定,
+     * 当线程调用Object.wait()方法进入一个synchronized块/方法或重进入一 * 个synchronized锁/方法时等待获取monitor锁
      */
     BLOCKED,
 
@@ -184,4 +184,3 @@ V相同时，将内存值V修改为B，否则什么都不做
 
 AtomicInteger是一个支持原子操作的Integer类，就是保证AtomicInteger类型的变量的增加和减少操作是原子性的，
 不会出现多个线程下的数据不一致问题。如果不使用AtomicInteger，要实现一个按顺序获取的ID，就必须在每次获取时进行锁操作，以避免出现并发时获取到同样的ID的现象、
-

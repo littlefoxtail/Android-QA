@@ -1,12 +1,12 @@
 在匿名内部类中外部方法中的局部变量，我们必须手动对将这个局部变量用final关键字修饰（在JDK1.8之后不再需要显示的声明为final，因为这种情况下这个局部变量默认是final的，这是编译器为我们做的，这是JDK1.8的新特性，所以前面的结论仍然成立）
 
 ## 四种内部类
+
 * 静态内部类（static inner class）
 * 成员内部类（Method inner class）
 * 局部内部类（Local inner class）
 * 匿名内部类（Anonymous inner class）
 
-### 
 ```java
 public void start(int interval, final boolean beep)
 {
