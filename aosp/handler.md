@@ -1,5 +1,7 @@
 # Handler机制
 
+![handler_code](../img/handler_code.png)
+
 ## looper循环处理消息队列
 
 主线程默认调用如下两个方法。如果在子线程使用handler就要在前后加入这两个方法，这样就会在子线程中轮询MessageQueue了
@@ -226,6 +228,7 @@ obtain对链表操作，具体逻辑：
 4. 链表长度减1
 
 ## HandlerThread
+
 主要作用是很简单的创建一个带looper的线程，方便的使用handler的机制做异步处理。
 但是他只有一个线程，适合串行任务，不适合做并行任务。比如网络IO阻塞时间比较长，推荐
 使用线程池或者asyncTask+线程池来处理。
