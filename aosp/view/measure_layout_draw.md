@@ -1,4 +1,7 @@
+
 # 测量、定位和绘制
+
+![img](../../img/view_measure_layout_draw.png)
 
 任何一控件其实都是直接或间接继承自View实现的，所以说View应该具有相同的绘制流程与机制才能显示到屏幕上
 每一个View的绘制过程都必须经历三个最主要的过程，也就是measure、layout和draw。
@@ -1088,7 +1091,3 @@ final class ViewRootHandler extends Handler {
 ```
 
 一般来说，如果View确定自身不再适合当前区域，比如说它的LayoutParams发生了改变，需要父布局对其进行重新测量、布局、绘制这三个流程，往往使用requestLayout。而invalidate则是刷新当前View，使当前View进行重绘，不会进行测量、布局流程，因此如果View只需要重绘而不需要测量，布局的时候，使用invalidate方法往往比requestLayout方法更高效
-
-## 下面是真正的流程图
-
-![img](../../img/view_measure_layout_draw.jpg)
