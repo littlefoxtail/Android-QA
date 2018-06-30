@@ -548,13 +548,13 @@ public final class Hero {
 
     ```java
     public class OrcBeast extends Beast {
-    
+
     private String weapon;
 
     public OrcBeast(String weapon) {
         this.weapon = weapon;
     }
-    
+
     public OrcBeast(OrcBeast orcBeast) {
         this.weapon = orcBeast.weapon;
     }
@@ -598,7 +598,7 @@ public final class Hero {
 
 - 创建新对象成本较大，新的对象可以通过原型模式对已有对象进行复制来获得，如果是相似对象，则可以对其成员变量稍作修改
 - 如果系统要保存对象的状态，而对象的状态变化很小，或者对象本身占用内存较少时，可以使用原型模式配合备忘录模式来实现。
--  需要避免使用分层次的工厂类来创建分层次的对象，并且类的实例对象只有一个或很少的几个组合状态，通过复制原型对象得到新实例可能比使用构造函数创建一个新实例更加方便
+- 需要避免使用分层次的工厂类来创建分层次的对象，并且类的实例对象只有一个或很少的几个组合状态，通过复制原型对象得到新实例可能比使用构造函数创建一个新实例更加方便
 
 ### （原型模式）Real world example
 
@@ -850,7 +850,7 @@ public final class Hero {
 
 使用桥接模式时，首先应该识别出一个类所具有的两个独立变化的维度，将它们设计为两个独立的继承等级结构，为两个维度都提供抽象层，为两个维度都提供抽象层，并建立抽象耦合
 
-* 意图：将抽象部分与它的实现部分分离，使它们都可以独立地变化。
+- 意图：将抽象部分与它的实现部分分离，使它们都可以独立地变化。
  (其实就是，子类有两个维度的排列组合 用桥接模式)
   脱耦：脱耦就是将抽象化和实现化之间的耦合解脱开，或者说是将它们之间的强关联换成弱关联，将两个角色之间的继承关系
   改为关联关系。桥接模式中所谓的脱耦，就是指一个软件系统的抽象化和实现化之间使用关联关系而不是继承关系。
@@ -954,7 +954,6 @@ public final class Hero {
 ### （组合模式）总结
 
 组合模式的关键是定义了一个抽象构件类，它既可以代表叶子，又可以代表容器，而客户端对该抽象构件类进行编程
-
 组合模式使用面向对象的思想来实现树形结构的构建与处理，描述了如何将容器对象和叶子对象进行递归组合，实现简单，灵活性好
 
 #### （组合模式）优点
@@ -978,24 +977,6 @@ public final class Hero {
 
 - [java.awt.Container](http://docs.oracle.com/javase/8/docs/api/java/awt/Container.html) and [java.awt.Component](http://docs.oracle.com/javase/8/docs/api/java/awt/Component.html)
 - [Apache Wicket](https://github.com/apache/wicket) component tree, see [Component](https://github.com/apache/wicket/blob/91e154702ab1ff3481ef6cbb04c6044814b7e130/wicket-core/src/main/java/org/apache/wicket/Component.java) and [MarkupContainer](https://github.com/apache/wicket/blob/b60ec64d0b50a611a9549809c9ab216f0ffa3ae3/wicket-core/src/main/java/org/apache/wicket/MarkupContainer.java)
-
-## Facade(外观模式)
-
-* 意图：为子系统中的一组接口提供一个一致的界面，Facad模式定义了一个高层接口，这个接口使得这一子系统更加容易使用。
-* 适用性：①当你要为一个复杂子系统提供一个简单接口时。子系统往往因为不断演化而变得越来越复杂。大多数模式使用时都会产生更多更小的类。
-这使得子系统更具可重用性，也更容易对子系统进行定制，但这也给那些不需要定制的子系统的用户带来一些使用上的困难。facad可以提供一个简单的缺省视图，
-这一视图对大多数用户来说已经足够，而那些需要更多的可定制性的用户可以越过facade层。
-②客户程序与抽象类的实现部分之间存在着很大的依赖性。引入facade将这个子系统与客户以及其他子系统分离，可以提高子系统的独立性和可移植性。
-③当你需要构建一个层次结构的子系统时，使用facade模式定义子系统中每层的入口点。如果子系统之间是相互依赖的，你可以让它们仅通过facade进行通讯，从而简化了它们之间的依赖关系。
-
-## Flyweight(享元模式)
-
-* 意图：运用共享技术有效地支持大量细粒度的对象。
-* 适用性：①一个应用程序使用了大量的对象。
-②完全由于使用大量的对象，造成很大的存储开销。
-③对象的大多数状态都可变为外部状态。
-④如果删除对象的外部状体，那么可以用相对较少的共享对象取代很多组对象。
-⑤应用程序不依赖于对象标识。由于Flyweight对象可以被共享，对于概念上明显有别的对象，标识测试将返回真值。
 
 ## Decorator(装饰模式)
 
@@ -1082,8 +1063,8 @@ public final class Hero {
 
 #### （装饰模式）缺点
 
-* 使用装饰模式进行系统设计时将产生很多小对象，这些对象的区别在于它们之间相互连接的方式有所不同
-* 装饰模式比继承有更加的灵活性，但同时也意味着比继承更加容易出错，排错也很困难
+- 使用装饰模式进行系统设计时将产生很多小对象，这些对象的区别在于它们之间相互连接的方式有所不同
+- 装饰模式比继承有更加的灵活性，但同时也意味着比继承更加容易出错，排错也很困难
 
 #### （装饰模式）适用场景
 
@@ -1092,13 +1073,32 @@ public final class Hero {
 
 ### （装饰模式）Real world examples
 
- * [java.io.InputStream](http://docs.oracle.com/javase/8/docs/api/java/io/InputStream.html), [java.io.OutputStream](http://docs.oracle.com/javase/8/docs/api/java/io/OutputStream.html),
- [java.io.Reader](http://docs.oracle.com/javase/8/docs/api/java/io/Reader.html) and [java.io.Writer](http://docs.oracle.com/javase/8/docs/api/java/io/Writer.html)
- * [java.util.Collections#synchronizedXXX()](http://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#synchronizedCollection-java.util.Collection-)
- * [java.util.Collections#unmodifiableXXX()](http://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#unmodifiableCollection-java.util.Collection-)
- * [java.util.Collections#checkedXXX()](http://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#checkedCollection-java.util.Collection-java.lang.Class-)
+- [java.io.InputStream](http://docs.oracle.com/javase/8/docs/api/java/io/InputStream.html),
+    [java.io.OutputStream](http://docs.oracle.com/javase/8/docs/api/java/io/OutputStream.html),
+    [java.io.Reader](http://docs.oracle.com/javase/8/docs/api/java/io/Reader.html) and [java.io.Writer](http://docs.oracle.com/javase/8/docs/api/java/io/Writer.html)
+- [java.util.Collections#synchronizedXXX()](http://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#synchronizedCollection-java.util.Collection-)
+- [java.util.Collections#unmodifiableXXX()](http://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#unmodifiableCollection-java.util.Collection-)
+- [java.util.Collections#checkedXXX()](http://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#checkedCollection-java.util.Collection-java.lang.Class-)
 
-### Proxy(代理模式)
+## Facade(外观模式)
+
+- 意图：为子系统中的一组接口提供一个一致的界面，Facad模式定义了一个高层接口，这个接口使得这一子系统更加容易使用。
+- 适用性：①当你要为一个复杂子系统提供一个简单接口时。子系统往往因为不断演化而变得越来越复杂。大多数模式使用时都会产生更多更小的类。
+这使得子系统更具可重用性，也更容易对子系统进行定制，但这也给那些不需要定制的子系统的用户带来一些使用上的困难。facad可以提供一个简单的缺省视图，
+这一视图对大多数用户来说已经足够，而那些需要更多的可定制性的用户可以越过facade层。
+②客户程序与抽象类的实现部分之间存在着很大的依赖性。引入facade将这个子系统与客户以及其他子系统分离，可以提高子系统的独立性和可移植性。
+③当你需要构建一个层次结构的子系统时，使用facade模式定义子系统中每层的入口点。如果子系统之间是相互依赖的，你可以让它们仅通过facade进行通讯，从而简化了它们之间的依赖关系。
+
+## Flyweight(享元模式)
+
+* 意图：运用共享技术有效地支持大量细粒度的对象。
+* 适用性：①一个应用程序使用了大量的对象。
+②完全由于使用大量的对象，造成很大的存储开销。
+③对象的大多数状态都可变为外部状态。
+④如果删除对象的外部状体，那么可以用相对较少的共享对象取代很多组对象。
+⑤应用程序不依赖于对象标识。由于Flyweight对象可以被共享，对于概念上明显有别的对象，标识测试将返回真值。
+
+## Proxy(代理模式)
 
 代理设计模式是常用的结构型设计模式之一，当无法直接访问某个对象或者访问某个对象存在困难时候可以通过一个代理对象来间接访问。为了保证客户端使用的透明性，所访问的真实对象与代理对象需要实现相同的接口。
 定义：代理模式：给某一个对象提供一个代理或占位符，并由代理对象来控制对原对象的访问。
@@ -1314,7 +1314,7 @@ public final class Hero {
 命令模式(Command Pattern)：将一个请求封装为一个对象，从而让我们可用不同的请求对客户进行参数化，对请求排队或者记录请求日志，以及支持可撤销的操作，命令模式是一种对象行为型模式，其别名为动作(Action)或事务(Transaction)模式
 命令模式包含的角色：
 
-- Command(抽象命令类)
+- Command(抽象命令类)：抽象命令类一般是一个抽象类或接口。在其中声明了用于执行请求的execute()等方法，通过这些方法可以调用请求接收者的相关操作
     ```java
     public abstract class Command {
         public abstract void execute(Target target);
@@ -1328,7 +1328,7 @@ public final class Hero {
     }
     ```
 
-- ConcreteCommand(具体命令类)
+- ConcreteCommand(具体命令类)：具体命令类是抽象命令类的子类，实现了在抽象命令类中声明的方法，它对应具体的接受者对象，将接收者对象的动作绑定其中。在实现execute()方法时，将调用接收者对象的相关操作。
     ```java
     public class InvisibilitySpell extends Command {
         private Target target;
@@ -1394,7 +1394,7 @@ public final class Hero {
     }
     ```
 
-- Invoker(调用者)
+- Invoker(调用者)：调用者即请求发送者，它通过命令对象来执行请求。一个调用者并不需要在设计时候确定其接收者，因此它只与抽象命令类之间存在关联关系。在程序运行时可以将一个具体命令对象注入其中，在调用具体命令对象的execute()方法，从而实现间接调用请求接收者的相关操作。
     ```java
     public class Wizard {
         private Deque<Command> undoStack =  new LinkedList<>();
@@ -1439,7 +1439,7 @@ public final class Hero {
     }
     ```
 
-- Receiver(接收者)
+- Receiver(接收者)：接收者执行与请求相关的操作，它具体实现对请求的业务处理。
     ```java
     public abstract class Target {
         private Size size;
@@ -1495,25 +1495,27 @@ Client
     goblin.printStatus();
     ```
 
-命令队列可以将请求发送者和接受者解耦，请求发送者通过命令对象来间接引用请求接收者，使得系统具有更好的灵活性和可扩展性
+### 命令模式总结
 
+命令模式是一种使用频率非常高的设计模式，它可以将请求发送者与接收者解耦，请求发送者通过命令对象来间接引用请求接收者，使得系统具有更好的灵活性和可扩展性。
 
-* 意图：将一个请求封装为一个对象，从而使你可用不同的请求对客户进行参数化；对请求排队或记录请求日志，以及支持可撤销的操作。
-* 适用性：
-    - 抽象出待执行的动作以参数化某对象，你可用过程语言中的回调函数表达这种参数化机制。回调函数指函数在某处注册，而它将在稍后某个需要的时候被调用。command模式是回调机制的一个面向对象的替代品。
-    - 在不同的时刻指定、排列和执行请求。一个Command对象可以有一个初始请求无关的生存期。如果一个请求的接受者可用一种与地址空间无关的方式表达，那么就将负责该请求的命令对象传送给另一个不同的进程并在那儿实现该请求。
-    - 支持取消操作。command的Excute操作可在实施操作前将状态存储起来，在取消操作时这个状态用来消除该操作的影响，执行的命令将被存储在一个历史列表中。可通过向后和向前遍历这一列表并分别调用unExcute和Excute来实现重数不限的“取消”和“重做”。
-    - 支持修改日志，这样当系统崩溃时，这些修改可以被重做一遍。在Command接口中添加装载操作和存储操作，可以用来保持变动的一个一致的修改日志。在崩溃中恢复的过程包括从磁盘中重新读入记录下来的命令并用excute操作重新执行它们。
-    - 在构建的原语操作上的高层操作构造一组变动。command模式提供了对事务进行建模的方法。command有一个公共接口，使得你可以用同一种方式调用所有的事务。同时使用该模式也易于添加新事务以扩展系统。
+#### 命令模式优点
 
-### 优点
 - 降低耦合度。由于请求者与接收者之间不存在直接引用，因此请求者与接收者完全解耦
 - 新的命令可以很容易地加入到系统中，符合开闭原则
 - 可以比较容易设计一个命令队列或组合命令
 - 为请求的撤销和恢复操作提供了一种设计和实现方案
 
-### 缺点
+#### 命令模式缺点
+
 导致某些系统有过多的具体命令类
+
+#### 命令模式适用场景
+
+- 系统需要将请求和调用者和请求接收者解耦，使得调用者不直接交互。请求调用者无须知道接收者的存在，也无须知道接收者是谁，接收者也无须关心何时被调用
+- 系统需要在不同的时间制定请求、将请求排队和执行请求。一个命令对象和请求的初始调用者可以有不同的生命周期，换言之，最初的请求发出者可能已经不存在了，而命令对象本身仍然活动的，可以通过该命令对象去调用请求接收者，而无须关心请求调用者的存在性，可以通过请求日志文件等机制来具体实现
+- 系统需要支持命令的撤销和恢复
+- 系统需要将一组操作组在一起形成宏命令
 
 ## Interpreter(解释器模式)
 * 意图：给定一个语言，定义它的文法的一种表示，并定义一个解释器，这个解释器使用该表示来解释语言中的句子。
