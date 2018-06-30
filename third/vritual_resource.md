@@ -66,7 +66,7 @@ private ResourcesImpl createResourcesImpl(ResourcesKey key) {
 
 ```java
 public class ResourcesManager {
-    private Resource getOrCreateResourcesForActivityLocked(IBinder activityToke, 
+    private Resource getOrCreateResourcesForActivityLocked(IBinder activityToke,
     ClassLoader classLoader, ResourceImpl impl, CompatibilityInfo compatInfo) {
         Resources resources = compatInfo.needsCompatResources() ? new CompatResources(classLoader)
         : new Resources(classLoader);
@@ -252,4 +252,34 @@ mResources指向的是一个ResTable对象，如果它的值不等于NULL，那�
         }
         return hostResources;
 }
+```
+
+## Activity启动过程中对资源的处理
+
+```java
+public class VAInstrumenttation {
+    @Override
+    public Activity newActivity(...) {
+        try {
+            cl.loadClass(className);
+        } catch(Exception e) {
+            ComponetName component = PluginUtil.getComponent(intent);
+            LoadedPlugin plugin = this.mPluginManager.getLoadedPlugin(component);
+            String targeClassName = component.getClassName();
+
+            if (plugin != null) {
+                Activity activity = mBase.newActivity(plugin.getClassLoader(), targetClassName, intent);
+                activity.setIntent(intent);
+
+                try {
+                    ReflectUtil.setField(ContextThemeWrapper.class, activity, "mResources", plugin.getResources());
+                } catch(Exception ignored) {
+                    // ignored
+                }
+                return activity;
+            }
+        }
+        ...
+
+    }
 ```

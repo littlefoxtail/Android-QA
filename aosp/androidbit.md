@@ -20,7 +20,7 @@ public static final int FLAG_ACTIVITY_MULTIPLE_TASK = 0x08000000;
 ## 通过Intent Flags对应的值，可以将多种标志通过“或运算”来进行组合
 
 ```java
-mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK 
+mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
 | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
 | Intent.FLAG_ACTIVITY_SINGLE_TOP)
 ```
@@ -46,7 +46,7 @@ if ((viewFlags & ENABLED_MASK) == DISABLED) {
 
 ```java
 // 返回是否可点击  
-     return (((viewFlags & CLICKABLE) == CLICKABLE || 
+     return (((viewFlags & CLICKABLE) == CLICKABLE ||
                     (viewFlags & LONG_CLICKABLE) == LONG_CLICKABLE));
 ```
 

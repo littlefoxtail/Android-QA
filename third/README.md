@@ -1,7 +1,6 @@
 - **[mvp和mvvp的差异化](MVX.md)**
 - TODO
-    - **[retrofit的源码](retrofit.md)**
-    - **[virtualApk](virtualAPK.md)**
-    - **[eventbus](eventbus.md)**
-    - **[dagger](dagger.md)**
-    - **[Android Architecture Components](architecturecomponents.md)**
+  - **[retrofit的源码](retrofit.md)**
+  - **[virtualApk](virtualAPK.md)**
+  - **[eventbus](eventbus.md)**
+  - **[dagger](dagger.md)**
