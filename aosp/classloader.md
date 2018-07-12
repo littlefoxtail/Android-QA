@@ -1,311 +1,124 @@
-# ClassLoader核心
+# ClassLoader
 
-## 类加载
+ClassLoader的基本职责就是根据一个指定的类的名称，找到或者生成对应的字节码，然后从这些字节代码中定义出一个Java类，即java.lang.Class类的一个实例。除此之外，ClassLoader还负责加载Java应用所需的资源，如图像文件和配置文件等
 
-对于Android的应用程序，本质虽然也是用Java开发，并且使用标准的Java编译器编译出Class文件，但最终的APK中包含的却是dex类型。dex文件是将所需的所有Class文件重新打包，打包的规则不是简单的压缩，而是完全对Class文件内部的各种函数表、变量表等进行优化，并产生一个新的文件，这就是dex文件。由于dex文件是一种经过优化的Class文件，因此要加载这样特殊的Class文件就需要特殊的类装载器，这就是DexClassLoader
+|方法|说明|
+|getParent()|返回该类加载器的父类加载器|
+|loadClass(String name)|加载名称为name的类，返回的结果是Class类的实例|
+|findClass(String name)|查找名称为name的类，返回的结果是Class的实例|
+|defineClass(String name, byte[] b, int off, int len)|把字节数组b中的内容转换成Java类，返回的结果是Class类的实例。这个方法被声明为final|
+|resolveClass|链接指定的Java类|
 
-## 双亲委托
+Java语言自带三个类加载器：
 
-为了更好的保证JAVA平台的安全。在此模型下，当一个装载器被请求加载某个类时，先委托自己的parent去装载，如果parent能装载，则返回这个类对应的Class对象，否则递归委托给父类的父装载。当所有父类装载器都装载失败时，才由当前装载器装载。在此模型下，用户自定义的类装载器，不可能装载应由父类装载的可靠类，从而防止不可靠甚至恶意的代码代替本应该由父亲装载器装载的可靠代码。
+- Bootstrap ClassLoader（引导类加载器）：最顶层的加载类，主要加载核心类库
+- Extension ClassLoader（扩展类加载器）：负责加载Java的扩展类库，默认加载JAVA_HOME/jre/lib/ext/目下的所有jar。
+- App CladdLoader（称为系统类加载器），负责加载应用程序classpath目录下的所有的jar和class文件。
 
-ClassLoader#loadClass：
+> 除了Java默认提供的三个ClassLoader之外，用户还可以根据需要定义自己的ClassLoader，而这些自定义的ClassLoader都必须继承自java.lang.ClassLoader类，也包括Java提供的另外两个ClassLoader（Extension ClassLoader和App ClassLoader）,但是Bootstrap ClassLoader不继承自ClassLoader，因为它不是一个普通的Java类，底层由于C++编写，已嵌入到了JVM内核当中，当JVM启动后，Bootstrap ClassLoader也随着启动，负责加载完核心类库后，并构造Extension ClassLoader和App ClassLoader类加载器。
+
+## ClassLoader加载类的原理
+
+每一个ClassLoader实例都有一个父类加载器的引用（非继承关系，关联关系），虚拟机内置的类加载器（Bootstrap ClassLoader）本身没有父类加载器，但可以用作其他ClassLoader实例的父类加载。当一个ClassLoader实例需要加载某个类，它会视图亲自搜索某个类之前，先把这个任务委托给它的父类加载器，这个过程是由上至下依次检查的
+
+![parents_delegation_model](../img/parents_delegation_model.png)
+
+双亲委托模型主要避免重复加载
 
 ```java
-protected Class<?> loadClass(String className, boolean resolve) throw ClassNotFoundException {
-    Class<?> clazz = findLoadedClass(className);//从已装载过的类中找
-    if (c == null) {
-        try {
-            if (parent != null) {
-                c = parent.loadClass(name, false); //由父类装载
-            } else {
-                c = findBootstrapClassOrNull(name);
+public class ClassLoader {
+    protected Class<?> loadClass(String name, boolean resolve) {
+        synchronized (getClassLoadingLock(name)) {
+            // 检查是否已经加载类
+            Class<?> c = findLoadedClass(name);
+            if (c == null) {
+                long t0 = System.nanoTime();
+                try {
+                    if (parent != null) {
+                        // 在父类加载器上调用loadClass
+                        c = parent.loadClass(name, false);
+                    } else {
+                        // 使用虚拟机内置类加载器
+                        c = findBootstrapClassOrNull(name);
+                    }
+                } catch (ClassNotFoundException e) {
+
+                }
+                if (c == null) {
+                    // 还找不到就调用findClass
+                    long t1 = System.nanoTime();
+                    c = findClass(name);
+                }
             }
-        } catch(ClassNotFoundException e) {
-
-        }
-        if (c == null) {
-            c = findClass(name); //由子类装载
-        }
-    }
-    return c;
-}
-```
-
-ClassLoder#findLoadedClass：
-
-```java
-protected final Class<?> findLoadedClass(String name) {
-    ClassLoader loader;
-    if (this == BootClassLoader.getInstance())
-        loader = null;
-    else
-        loader = this;
-    return VMClassLoader.findLoadedClass(loader, name);
-}
-```
-
-## ClassLoader概述
-
-Dalvik虚拟机如同其他Java虚拟机一样，在运行程序时首先需要将对应的类加载到内存中。而在Java标准的虚拟机中，类加载可以从class文件中读取，也可以
-是其他形式的二进制流。因此，常常利用这一点手动加载Class，从而达到动态加载执行的目的。
-只不过Android平台上虚拟机运行的是Dex字节码，一种对class文件优化的产物，传统Class文件是一个Java源码文件会产生一个.class文件，而Android
-是把所有Class文件进行合并，优化，然后生成一个最终的class.dex，目的是把不同class文件重复的东西只需保留一份，如果我们的Android不进行分dex处理，
-最后一个应用的apk只会有一个dex文件。
-
-## Android平台的ClassLoader
-
-![classloader_tree](../img/classloader_tree.png)
-
-Android中类加载器有BootClassLoader,URLClassLoader,PathClassLoader,DexClassLoader,BaseDexClassLoader，等都是继承自java.lang.ClassLoader
-
-### ClassLoader
-
-java.lang.ClassLoader是所有ClassLoader的最终父类。
-主要构造方法：
-
-```java
-protected ClassLoader(ClassLoader parent) {
-    this(checkCreateClassLoader(), parent);
-}
-```
-
-```java
-protected ClassLoader() {
-    this(checkCreateClassLoader()， getSystemClassLoader());
-}
-```
-
-ClassLoader主要传入一个父构造器，而且一般父构造器不能为空。Android中默认无父构造器为空，默认父构造器为一个PathClassLoader且此PathClassLoader父构造器为BootClassLoader。
-ClassLoader中重要的方法是loadClass(String name)，其他的子类都继承了此方法且没有进行复写。
-
-### BootClassLoader
-
-和java虚拟机中不同的是BootClassLoader是ClassLoader内部类，由java代码实现而不是c++实现。是Android平台所有ClassLoader的最终parent
-
-### URLClassLoader
-
-只能用于加载jar文件，但是由于dalvik不能直接识别jar，所以在Android中无法使用这个加载器
-
-### BaseDexClassLoader概述
-
-PathClassLoader和DexClassLoader都继承自BaseDexClassLoader，其中的主要逻辑都是在BaseDexClassLoader完成的
-
-```java
-public BaseDexClassLoader(String dexPath, File optimizedDirectory,
-        String librarySearchPath, ClassLoader parent) {
-            super(parent);
-            this.pathList = new DexPathList(this, dexPath, librarySearchPath, null);
-            if (reporter != null) {
-                reportClassLoaderChain();
+            if (resolve) {
+                resolveClass(c);
             }
         }
-```
-
-BaseDexClassLoader的构造函数包含四个参数，分别为：
-
-1. dexPath，指目标类所在的APK或jar文件的路径，类装载器将从该路径中寻找指定的目标类，该类必须是APK或jar的全路径。如果要包含多个路径，路径之间必须先使用特定的分隔符分隔，特定的分隔符可以使用`System.getProperty("path.separtor")`获得。最终做的是将dexPath路径上的文件ODEX优化到内部位置optimizedDirectory，然后在进行加载。
-2. File optimizedDirectory，由于dex文件被包含在APK或者Jar文件中，因此在装载目标类之前需要先从APK或Jar文件中解压出dex文件，该参数就是制定解压出的dex文件存在的路径。这也是对apk中dex根据平台进行ODEX优化的过程。其中APK是一个程序压缩包。里面包含dex文件，ODEX优化就是把包里面的执行程序提取出来，就变成ODEX文件，因为你提取出来了，系统第一次启动的时候就不用去解压程序压缩包的程序，少了一个解压的过程。这样的话系统启动就加快了。
-
-    > 为啥第一次？？Because DEX版本也只有第一次会解压执行到/data/dalvik-cache(针对PathClassLoader)或者optimizedDirectory(针对DexClassLoader)目录，之后也是直接读取目录下的dex文件，所以第二次启动就和正常的差不多了。实际上生成的ODEX还有一定优化作用。ClassLoader只能加载内部存储路径的dex文件，所以这个路径必须为内部路径。
-3. libPath，指目标类中所使用的C/C++库存放的路径
-4. parent，是指该装载器的父装载器，一般为当前执行类的装载器，例如Android中以context.getClassLoader()作为父装载器
-
-### DexClassLoader
-
-```java
-public class DexClassLoader extends BaseDexClassLoader {
-    public DexClassLoader(String dexPath, String optimizedDirectory, 
-    String librarySearchPath, ClassLoader parent) {
-        super(dexPath, null, librarySearchPath, parent);
     }
 }
 ```
 
-DexClassLoader支持加载APK、DEX和JAR，也可以从SD卡进行加载。
-dalvik不能直接识别jar,DexClassLoader却可以加载jar文件，其实在BaseDexClassLoader里对".jar"，".zip"，".apk",".dex"后缀的文件最后都会生成一个对应的dex文件，所以最终处理的还是dex文件，所以最终处理的还是dex文件
+## JVM搜索类
 
-### PathClassLoader
+JVM判定两个class是否相同：
 
-```java
-public class PathClassLoader extends BaseDexClassLoader {
-    public PathClassLoader(String dexPath, ClassLoader parent) {
-        super(dexPath, null, null, parent);
-    }
+- 判断两个类名是否相同
+- 判断是否由同一个类加载器实例加载。
 
-    public PathClassLoader(String dexPath, String librarySearchPath, ClassLoader parent) {
-        super(dexPath, null, librarySearchPath, parent);
-    }
-}
-```
+## 自定义ClassLoader
 
-PathClassLoader将optimizedDirectory置为Null，也就是没设置优化的存放路径。
-optimizedDirectory为null时的默认路径是/data/dalvik-cache目录。
-PathClassLoader是用来加载Android系统类和应用的类
+动态加载一个class文件，默认的ClassLoader不能满足需求
 
-### ClassLoader加载class的过程
+步骤：
 
-#### BaseDexClassLoader详情
+- 继承java.lang.ClassLoader
+- 重写父类的findClass方法
+
+## 加载类的过程
+
+类加载器会首先代理其他类加载器来尝试加载这个类。这就意味着真正完成类的加载工作的类加载器和启动这个加载过程的类加载器，有可能不是同一个。
 
 ```java
-构造函数：
-public BaseDexClassLoader {
-    private final DexPathList pathList;
-    public BaseDexClassLoader(String dexPath, File optimizedDirectory, String librarySearchPath, ClassLoader parent) {
-        super(parent);
-        this.pathList = new DexPathList(this, dexPath, librarySearchPath, null);
+public class FileSystemClassLoader extends ClassLoader {
+    private String rootDir;
+
+    public FileSystemClassLoader(String rootDir) {
+        this.rootDir = rootDir;
     }
-}
-```
 
-- dexPath：包含目标类或资源的apk/jar列表，当多个路径则采用`:`分割
-- optimizedDirectory：优化后的dex文件存在的目录，可以为null
-- libraryPath：native库所在路径列表，当有多个路径则采用`:`分割
-- parent：父类的加载器
+    @override
+    protected Class<?> findClass(String name) throws ClasNotFoundException {
+        byte[] classData = getClassData(name);
 
-加载Class：
-
-```java
-public BaseDexClassLoader {
-    @Override
-    protected Class<?> findClass(String name) throws ClassNotFoundException {
-        List<Throwable> suppressedExceptions = new ArrayList();
-        Class c = pathList.findClass(name, supressedExceptions);
-        return c;
-    }
-}
-```
-
-### DexPathList
-
-构造函数：
-
-```java
-public DexPathList {
-    public DexPathList(ClassLoader definingContext, String dexPath, String librarySearchPath, File optimizedDirectory) {
-        this.definingContext = definingContext;
-        // 记录所有的dexFile文件 是一个数组
-        this.dexElements = makeDexElements(spliteDexPath(dexPath), optimizedDirectory, suppressedExceptions, definingContext);
-        // app目录的native库
-        this.nativeLibraryDirectories = splitPaths(librarySearchPath, false);
-        // 系统目录的native库
-        this.systemNativeLibraryDirectories = splitPaths(System.getProperty("java.library.path"), true);
-        List<File> allNativeLibraryDirectories = new ArrayList<>(nativeLibraryDirectories);
-        allNativeLibraryDirectories.addAll(systemNativeLibraryDirectories);
-        // 记录所有Native动态库
-        this.nativeLibraryPathElements = makePathElements(allNativeLibraryDirectories);
-    }
-}
-```
-
-DexPathList@findClass()：
-
-```java
-public DexPathList {
-    public Class<?> findClass(String name, List<Throwable> suppressed) {
-        for (Element element : dexElements) {
-            Class<?> clazz = element.findClass(name, definingContext, suppressed);
-            if (clazz != null) {
-                return clazz;
-            }
+        if (classData == null) {
+            throw new ClassNotFoundException();
+        } else {
+            // 由defineClass方法来把这些字节代码转换成java.lang.Class类的实例
+            return defineClass(name, classData, 0)
         }
-        if (dexElementsSuppressedExceptions != null) {
-            suppressed.addAll(Arrays.asList(dexElementsSuppressedExceptions));
-        }
-        return null;
+    }
 
+    private byte[] getClassData(String className) {
+       String path = classNameToPath(className);
+       try {
+           InputStream ins = new FileInputStream(path);
+           ByteArrayOutputStream baos = new ByteArrayOutputStream();
+           int bufferSize = 4096;
+           byte[] buffer = new byte[bufferSize];
+           int bytesNumRead = 0;
+           while ((bytesNumRead = ins.read(buffer)) != -1) {
+               baos.write(buffer, 0, bytesNumRead);
+           }
+           return baos.toByteArray();
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
+       return null;
+   }
+
+    private String classNameToPath(String className) {
+        return rootDir + File.separatorChar
+               + className.replace('.', File.separatorChar) + ".class";
     }
 }
 ```
-
-Element@findClass()：
-
-```java
-final class DexPathList {
-    static class Element {
-        public Class<?> findClass(String name, ClassLoader definingContext,
-            List<Throwable> suppressed) {
-                return dexFile != null ? dexFile.loadClassBinaryName(name, definingContext, suppressed): null;
-        }
-    } 
-}
-```
-
-## DexFile
-
-```java
-public final class DexFile {
-    public class loadClassBinaryName(String name, ClassLoader loader, List<Throwable> suppressed) {
-        return defineClass(name, loader, mCookie, this, suppressed);
-    }
-}
-```
-
-```java
-public final class DexFile {
-    private static Class defineClass(String name, ClassLoader loader, Object cookie, DexFile dexFile, List<Throwable> suppressed) {
-        Class result = null;
-        try {
-            result = defineClassNative(name, loader, cookie, dexFile);
-        } catch (NoClassDefFoundError e) {
-            if (suppressed != null) {
-                suppressed.add(e);
-            }
-        } catch (ClassNotFoundException e) {
-            if (suppressed != null) {
-                suppressed.add(e);
-            }
-        }
-        return result;
-    }
-}
-```
-
-## defineClassNative
-
-```c++
-static jclass DexFile_defineClassNative(JNIEnv* env, jclass, jstring javaName, jobject javaLoader,
-                                        jint cookie) {
-  ScopedObjectAccess soa(env);
-  const DexFile* dex_file = toDexFile(cookie);
-  if (dex_file == NULL) {
-    VLOG(class_linker) << "Failed to find dex_file";
-    return NULL; 
-    // dex文件为空，则直接返回
-  }
-  ScopedUtfChars class_name(env, javaName);
-  if (class_name.c_str() == NULL) {
-    VLOG(class_linker) << "Failed to find class_name";
-    return NULL;
-    // 类名为空，则直接返回
-  }
-  const std::string descriptor(DotToDescriptor(class_name.c_str()));
-  const DexFile::ClassDef* dex_class_def = dex_file->FindClassDef(descriptor.c_str());
-  if (dex_class_def == NULL) {
-    VLOG(class_linker) << "Failed to find dex_class_def";
-    return NULL;
-  }
-  ClassLinker* class_linker = Runtime::Current()->GetClassLinker();
-  class_linker->RegisterDexFile(*dex_file);
-  mirror::ClassLoader* class_loader = soa.Decode<mirror::ClassLoader*>(javaLoader);
-//   获取目标类
-  mirror::Class* result = class_linker->DefineClass(descriptor.c_str(), class_loader, *dex_file,
-                                                    *dex_class_def);
-  VLOG(class_linker) << "DexFile_defineClassNative returning " << result;
-//   找到目标类
-  return soa.AddLocalReference<jclass>(result);
-}
-```
-
-BaseDexClassLoader中有个pathList成员变量，pathList包含了一个DexFile的数组dexElements，dexPath传入的原始dex(.apk，.zip，.jar等)文件在optimizedDirectory文件夹中生成相应的优化的odex文件，dexElements数组就是这些odex文件的集合，如果不分包一般这个数组只有一个Element元素，也就只有一个DexFile文件，而对于类加载呢，就是遍历这个集合，通过DexFile去寻找。最终调用native方法的defineClass。
-
-## 总结
-
-- PathClassLoader: 主要用于系统和app的类加载器,其中optimizedDirectory为null, 采用默认目录/data/dalvik-cache/
-- DexClassLoader: 可以从包含classes.dex的jar或者apk中，加载类的类加载器, 可用于执行动态加载,但必须是app私有可写目录来缓存odex文件. 能够加载系统没有安装的apk或者jar文件， 因此很多插件化方案都是采用DexClassLoader;
-- BaseDexClassLoader: 比较基础的类加载器, PathClassLoader和DexClassLoader都只是在构造函数上对其简单封装而已.
-- BootClassLoader: 作为父类的类构造器.
-
-## ART虚拟机的兼容性问题
-
-Android Runtime，在Android5.0及后续Android版本中作为正式的运行时库取代了以往的Dalvik虚拟机。ART能够把应用程序的字节码转换为机器码，是Android所使用的一种新的虚拟机。它与Dalvik的主要不同在于：Dalvik采用的是JIT技术，字节码都需要通过即时编译器转换为机器码，这会拖慢应用的运行效率，而ART采用Ahead-of-time技术，应用在第一次安装的时候，字节码就会预先编译成机器码，这个过程叫做预编译。ART同时也改善了性能、垃圾回收、应用程序除错以及性能分析。
-ART模式相比原来的Dalvik，会在安装APK的时候，使用Android系统自带的dex2oat工具把APK里面的.dex文件优化成OAT文件，OAT文件是一种Android私有ELF文件格式，它不仅包含有从DEX文件翻译而来的文件机器指令，还包含有原来的DEX文件内容。这使得我们无需重新编译原有的APK就可以让它正常在ART里面。
