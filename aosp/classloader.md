@@ -3,6 +3,7 @@
 ClassLoader的基本职责就是根据一个指定的类的名称，找到或者生成对应的字节码，然后从这些字节代码中定义出一个Java类，即java.lang.Class类的一个实例。除此之外，ClassLoader还负责加载Java应用所需的资源，如图像文件和配置文件等
 
 |方法|说明|
+|:--:|:--:|
 |getParent()|返回该类加载器的父类加载器|
 |loadClass(String name)|加载名称为name的类，返回的结果是Class类的实例|
 |findClass(String name)|查找名称为name的类，返回的结果是Class的实例|
