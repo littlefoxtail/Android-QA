@@ -6,10 +6,8 @@
 - **[java中的动态代理](proxy.md)**
 
 - TODO
-  - **[同步的理解](synchronized_lock.md)**
-  - **[java中的同步](concurrency.md)**
+  - **[java中的同步](同步/README.md)**
   - **[java中的集合](collection.md)**
-  - **[java中的死锁](deadlock.md)**
   - **[FileChannel和ByteBuffer](filechannelbytebuffer.md)**
   - **[红黑树的理解](redblacktree.md)**
   - **[java基础](javabasic.md)**

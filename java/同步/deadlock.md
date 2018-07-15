@@ -7,8 +7,15 @@
 
 如果系统中只有一个进程，当然不会产生死锁。如果每个进程仅需要一种系统资源，也不会产生死锁。
 死锁的四个条件：
-禁止抢占：no preemption
-持有和等待: hold and wait
-互斥:mutual exclustion
-循环等待:circular waiting
-预防死锁就是至少破坏四个条件其中一项。
+
+- 禁止抢占：no preemption
+- 持有和等待: hold and wait
+- 互斥:mutual exclustion
+- 循环等待:circular waiting
+- 预防死锁就是至少破坏四个条件其中一项。
+
+解决方案：
+
+- 尽量一个线程只获取一个锁
+- 一个线程只占用一个资源
+- 尝试使用定时锁，至少能保证锁最终被释放

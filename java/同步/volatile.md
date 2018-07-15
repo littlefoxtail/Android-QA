@@ -21,4 +21,42 @@ volatile关键字就提示JVM：对于这个成员变量不能保存它的私有
 ## 正确使用
 
 Java语言包含两种内在的同步机制：同步块或方法和volatile变量。这两种机制的提出都是为了实现代码线程的安全性。其中volatile变量的同步性较差，而且其使用也更容易出错。
+
 volatile变量可以看作一种“程度较轻的synchronized”；与synchronized块相比，volatile变量所需的编码较少，并且运行时开销也较少，但是它所能实现的功能也仅是synchronized的一部分。
+
+synchroniz原理与valatile不一样，释放锁之前其余线程是访问不到这个共享变量的。
+
+## volatile的应用
+
+双重检查锁的单例模式
+可以用`volatile`实现一个双重检查锁的单例模式：
+
+```java
+public class Singleton {
+    private static volatile Singleton singleton;
+    private Singleton() {}
+    public static Singleton getInstance() {
+        if (singleton == null) {
+            synchronized(Singleton.class) {
+                if (singleton == null) {
+                    singleton = new Singleton();
+                }
+            }
+        }
+        return singleton;
+    }
+
+}ma
+```
+
+这里的`volatile`关键字主要是为了防止指令重排。如果不用`volatile`，`singleton = new Singleton()；`，这段代码其实分为三步：
+
+- 分配内存空间。
+- 初始化对象
+- 将`singleton`对象指向分配的内存地址
+
+加上`volatile`是为了让以上三步操作顺序执行，反之可能；有第二步在第三步值钱被执行就有可能某个线程拿到的单例对象是还没有初始化的
+
+## 总结
+
+`volatile`关键字只能保证可见性，顺序性，不能保证原子性
