@@ -1,3 +1,116 @@
+
+
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [创建型模式（六种)](#创建型模式六种)
+	- [简单工厂(Simple Factory)](#简单工厂simple-factory)
+		- [（简单工厂）总结](#简单工厂总结)
+			- [（简单工厂）优点](#简单工厂优点)
+			- [（简单工厂）缺点](#简单工厂缺点)
+			- [（简单工厂）使用场景](#简单工厂使用场景)
+	- [工厂方法模式(Factory Method)](#工厂方法模式factory-method)
+		- [（工厂方法）总结](#工厂方法总结)
+			- [（工厂方法）优点](#工厂方法优点)
+			- [（工厂方法）缺点](#工厂方法缺点)
+			- [（工厂方法）适用场景](#工厂方法适用场景)
+		- [（工厂方法）Known uses](#工厂方法known-uses)
+	- [抽象工厂模式(Abstract Factory)](#抽象工厂模式abstract-factory)
+		- [（抽象工厂）总结](#抽象工厂总结)
+			- [(抽象工厂）优点](#抽象工厂优点)
+			- [(抽象工厂）缺点](#抽象工厂缺点)
+			- [(抽象工厂）适用场景](#抽象工厂适用场景)
+		- [(抽象工厂）Real world examples](#抽象工厂real-world-examples)
+	- [建造者模式（Builder）](#建造者模式builder)
+		- [（建造者）总结](#建造者总结)
+			- [（建造者）优点](#建造者优点)
+			- [（建造者）缺点](#建造者缺点)
+			- [（建造者）适用场景](#建造者适用场景)
+		- [（建造者）Real world examples](#建造者real-world-examples)
+	- [原型模式（Prototype）](#原型模式prototype)
+	- [（原型模式）总结](#原型模式总结)
+		- [（原型模式）优点](#原型模式优点)
+		- [（原型模式）缺点](#原型模式缺点)
+		- [（原型模式）适用场景](#原型模式适用场景)
+		- [（原型模式）Real world example](#原型模式real-world-example)
+	- [单例模式（Singleton）](#单例模式singleton)
+		- [（单例模式）优点](#单例模式优点)
+		- [（单例模式）缺点](#单例模式缺点)
+- [结构型模式（七种）](#结构型模式七种)
+	- [Adapter(适配器模式)](#adapter适配器模式)
+		- [（适配器模式）总结](#适配器模式总结)
+			- [（适配器）优点](#适配器优点)
+			- [（适配器）缺点](#适配器缺点)
+		- [（适配器）Real world examples](#适配器real-world-examples)
+	- [Bridge(桥接模式)](#bridge桥接模式)
+		- [（桥接模式）总结](#桥接模式总结)
+			- [（桥接模式）优点](#桥接模式优点)
+			- [（桥接模式）缺点](#桥接模式缺点)
+			- [（桥接模式）适用场景](#桥接模式适用场景)
+	- [Composite(组合模式)](#composite组合模式)
+		- [（组合模式）总结](#组合模式总结)
+			- [（组合模式）优点](#组合模式优点)
+			- [（组合模式）缺点](#组合模式缺点)
+			- [（组合模式）场景](#组合模式场景)
+		- [（组合模式）Real world examples](#组合模式real-world-examples)
+	- [Decorator(装饰模式)](#decorator装饰模式)
+		- [（装饰模式）总结](#装饰模式总结)
+			- [（装饰模式）优点](#装饰模式优点)
+			- [（装饰模式）缺点](#装饰模式缺点)
+			- [（装饰模式）适用场景](#装饰模式适用场景)
+		- [（装饰模式）Real world examples](#装饰模式real-world-examples)
+	- [Facade(外观模式)](#facade外观模式)
+	- [Flyweight(享元模式)](#flyweight享元模式)
+	- [Proxy(代理模式)](#proxy代理模式)
+		- [代理模式总结](#代理模式总结)
+			- [代理模式优点](#代理模式优点)
+			- [代理模式缺点](#代理模式缺点)
+			- [代理模式适用场景](#代理模式适用场景)
+			- [Real world examples(Proxy)](#real-world-examplesproxy)
+- [行为型模式(十一种)](#行为型模式十一种)
+	- [Chain of Responsibility Pattern(责任链模式)](#chain-of-responsibility-pattern责任链模式)
+		- [职责链总结](#职责链总结)
+			- [职责链优点](#职责链优点)
+			- [职责链缺点](#职责链缺点)
+			- [职责链使用场景](#职责链使用场景)
+	- [Command(命令模式)](#command命令模式)
+		- [命令模式总结](#命令模式总结)
+			- [命令模式优点](#命令模式优点)
+			- [命令模式缺点](#命令模式缺点)
+			- [命令模式适用场景](#命令模式适用场景)
+	- [Interpreter(解释器模式)](#interpreter解释器模式)
+	- [Iterator(迭代器模式)](#iterator迭代器模式)
+		- [优点](#优点)
+		- [缺点](#缺点)
+		- [适应场景](#适应场景)
+	- [Mediator(中介者模式)](#mediator中介者模式)
+	- [Memento(备忘录模式)](#memento备忘录模式)
+	- [Observer(观察者模式)](#observer观察者模式)
+		- [模式动机](#模式动机)
+		- [模式定义](#模式定义)
+		- [优点](#优点-1)
+		- [缺点](#缺点-1)
+	- [State(状态模式)](#state状态模式)
+		- [总结](#总结)
+			- [优点](#优点-2)
+			- [缺点](#缺点-2)
+			- [适用场景](#适用场景)
+	- [Strategy(策略模式)](#strategy策略模式)
+		- [优点](#优点-3)
+		- [缺点](#缺点-3)
+	- [Template Method(模板方法模式)](#template-method模板方法模式)
+		- [总结](#总结-1)
+			- [优点](#优点-4)
+			- [缺点](#缺点-4)
+			- [适用场景](#适用场景-1)
+	- [Visitor(访问者模式)](#visitor访问者模式)
+- [附](#附)
+	- [Delegation(委托模式)](#delegation委托模式)
+
+<!-- /code_chunk_output -->
+
+
 [设计模式百科](http://www.baike.com/wiki/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F)
 在面向对象软件系统的设计而言，在支持可维护性的同时，提高系统的可复用性是一个至关重要的问题
 
@@ -482,7 +595,7 @@ public final class Hero {
 - 建造者模式所创建的产品一般具有较多的共同点，其组成部分相似，如果产品之间的差异性很大，则不适合使用建造者模式，因此其使用范围受到一定的限制。
 - 如果产品的内部变化复杂，可能会导致需要定义很多具体建造者类来实现这种变化，导致系统变得很庞大。
 
-### （建造者）适用场景
+#### （建造者）适用场景
 
 - 需要生成的对产品对象有复杂的内部结构，这些产品对象包含多个成员属性
 - 需要生成的产品对象的属性相互依赖，需要执行其生成顺序
@@ -689,7 +802,7 @@ public final class Hero {
 
 对象适配器模式置换时适配者的方法不容易
 
-#### （适配器）Real world examples
+### （适配器）Real world examples
 
 - [java.util.Arrays#asList()](http://docs.oracle.com/javase/8/docs/api/java/util/Arrays.html#asList%28T...%29)
 - [java.util.Collections#list()](https://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#list-java.util.Enumeration-)
@@ -1091,8 +1204,8 @@ public final class Hero {
 
 ## Flyweight(享元模式)
 
-* 意图：运用共享技术有效地支持大量细粒度的对象。
-* 适用性：①一个应用程序使用了大量的对象。
+- 意图：运用共享技术有效地支持大量细粒度的对象。
+- 适用性：①一个应用程序使用了大量的对象。
 ②完全由于使用大量的对象，造成很大的存储开销。
 ③对象的大多数状态都可变为外部状态。
 ④如果删除对象的外部状体，那么可以用相对较少的共享对象取代很多组对象。
@@ -1518,102 +1631,104 @@ Client
 - 系统需要将一组操作组在一起形成宏命令
 
 ## Interpreter(解释器模式)
-* 意图：给定一个语言，定义它的文法的一种表示，并定义一个解释器，这个解释器使用该表示来解释语言中的句子。
-* 适用性：当有一个语言需要解释执行，并且你可将该语言中的句子表示一个抽象语法树时，可使用解释器模式。而当存在以下情况时该模式效果最好。
+
+- 意图：给定一个语言，定义它的文法的一种表示，并定义一个解释器，这个解释器使用该表示来解释语言中的句子。
+- 适用性：当有一个语言需要解释执行，并且你可将该语言中的句子表示一个抽象语法树时，可使用解释器模式。而当存在以下情况时该模式效果最好。
 该文法简单对于复杂的文法，文法的类层次变得庞大而无法管理。此时语法分析程序生成器这样的工具是更好的选择。它们无需构建语言树即可解释表达式，这样可以节省空间而且可能节省时间。
 效率不是一个关键问题最高效的解释器通常不是通过直接解释语法分析树实现的，而是首先将它们转换成另一种形式。
 
 ## Iterator(迭代器模式)
+
 提供一种方法顺序访问一个聚合对象中各个元素，而又不需要暴露该对象的内部表示。
 
 迭代器模式的角色：
-- Iterator（抽象迭代器）：它定义了访问和遍历元素的接口，声明了用于遍历数据元素的方法
-```java
-public interface ItemIterator {
-    boolean hasNext();
 
-    Item next();
-}
-```
+- Iterator（抽象迭代器）：它定义了访问和遍历元素的接口，声明了用于遍历数据元素的方法
+    ```java
+    public interface ItemIterator {
+        boolean hasNext();
+
+        Item next();
+    }
+    ```
 
 - ConcreteIterator（具体迭代器）：它实现了抽象迭代器接口，完成了对聚合对象的遍历。同时在具体迭代器中通过游标来记录在聚合对象中的位置，在具体实现时，游标通常是一个表示位置的非负整数
-```java
-public class TreasureChestItemIterator implements ItemIterator {
-    private TreasureChest chest;
-    private int idx;
-    private ItemType type;
+    ```java
+    public class TreasureChestItemIterator implements ItemIterator {
+        private TreasureChest chest;
+        private int idx;
+        private ItemType type;
 
-    public TreasureChestItemIterator(TreasureChest chest, ItemType type) {
-        this.chest = chest;
-        this.type = type;
-        this.ldx = -1;
-    }
-
-    @Override
-    public boolean hasNext() {
-        return findNextIdx() != 1;
-    }
-
-    @Override
-    public Item next() {
-        ldx = findNextIdx();
-        if (ldx != -1) {
-            return chest.getItems().get(ldx);
+        public TreasureChestItemIterator(TreasureChest chest, ItemType type) {
+            this.chest = chest;
+            this.type = type;
+            this.ldx = -1;
         }
-        return null;
-    }
 
-    private int findNextIdx() {
-        List<Item> items = chest.getItems();
-        boolean found = false;
-        int tempIdx = idx;
-        while(!found) {
-            tempIdx++;
-            if (tempIdx >= item.size()) {
-                tempIdx = -1;
-                break;
-            }
-            if (type.equals(ItemType.ANY) || items.get(tempIdx).getType.equals(type)) {
-                break;
-            }
+        @Override
+        public boolean hasNext() {
+            return findNextIdx() != 1;
         }
-        return tempIdx;
+
+        @Override
+        public Item next() {
+            ldx = findNextIdx();
+            if (ldx != -1) {
+                return chest.getItems().get(ldx);
+            }
+            return null;
+        }
+
+        private int findNextIdx() {
+            List<Item> items = chest.getItems();
+            boolean found = false;
+            int tempIdx = idx;
+            while(!found) {
+                tempIdx++;
+                if (tempIdx >= item.size()) {
+                    tempIdx = -1;
+                    break;
+                }
+                if (type.equals(ItemType.ANY) || items.get(tempIdx).getType.equals(type)) {
+                    break;
+                }
+            }
+            return tempIdx;
+        }
     }
-}
-```
-Aggregate(抽象聚合类)：它用于存储和管理元素对象，声明一个creteIterator()方法用来创建一个迭代器对象，充当抽象迭代器工厂角色
+    ```
+- Aggregate(抽象聚合类)：它用于存储和管理元素对象，声明一个creteIterator()方法用来创建一个迭代器对象，充当抽象迭代器工厂角色
 
+- ConcreteAggregate（具体聚合类）：它实现了在抽象聚合类中声明的createIterator()方法，该方法返回一个与该具体聚合类对应的具体迭代器ConcreteIterator实例
+    ```java
+    public class TreasureChest {
+        private List<Item> items;
 
-ConcreteAggregate（具体聚合类）：它实现了在抽象聚合类中声明的createIterator()方法，该方法返回一个与该具体聚合类对应的具体迭代器ConcreteIterator实例
-```java
-public class TreasureChest {
-    private List<Item> items;
+        public TreasureChest() {
+            items = new ArrayList<>();
+            items.add(new Item(ItemType.POTION, "Potion of courage"));
+            items.add(new Item(ItemType.RING, "Ring of shadows"));
+            items.add(new Item(ItemType.POTION, "Potion of wisdom"));
+            items.add(new Item(ItemType.POTION, "Potion of blood"));
+            items.add(new Item(ItemType.WEAPON, "Sword of silver +1"));
+            items.add(new Item(ItemType.POTION, "Potion of rust"));
+            items.add(new Item(ItemType.POTION, "Potion of healing"));
+            items.add(new Item(ItemType.RING, "Ring of armor"));
+            items.add(new Item(ItemType.WEAPON, "Steel halberd"));
+            items.add(new Item(ItemType.WEAPON, "Dagger of poison"));
+        }
 
-    public TreasureChest() {
-        items = new ArrayList<>();
-        items.add(new Item(ItemType.POTION, "Potion of courage"));
-        items.add(new Item(ItemType.RING, "Ring of shadows"));
-        items.add(new Item(ItemType.POTION, "Potion of wisdom"));
-        items.add(new Item(ItemType.POTION, "Potion of blood"));
-        items.add(new Item(ItemType.WEAPON, "Sword of silver +1"));
-        items.add(new Item(ItemType.POTION, "Potion of rust"));
-        items.add(new Item(ItemType.POTION, "Potion of healing"));
-        items.add(new Item(ItemType.RING, "Ring of armor"));
-        items.add(new Item(ItemType.WEAPON, "Steel halberd"));
-        items.add(new Item(ItemType.WEAPON, "Dagger of poison"));
+        ItemIterator iterator(ItemType itemType) {
+            return new TreasureChestItemIterator(this, itemType);
+        }
+
+        public List<Item> getItems() {
+            List<Item> list = new ArrayList<>();
+            list.addAll(items);
+            return list;
+        }
     }
-
-    ItemIterator iterator(ItemType itemType) {
-        return new TreasureChestItemIterator(this, itemType);
-    }
-
-    public List<Item> getItems() {
-        List<Item> list = new ArrayList<>();
-        list.addAll(items);
-        return list;
-    }
-}
-```
+    ```
 迭代器模式是一种使用频率非常高的设计模式，通过引入迭代器可以将数据遍历功能从聚合对象中分离出来，聚合对象只负责存储数据，而遍历数据由迭代器来完成
 
 ### 优点
@@ -1631,14 +1746,14 @@ public class TreasureChest {
 3. 为遍历不同的聚合结构提供一个统一的接口(即支持多态迭代)
 
 ## Mediator(中介者模式)
-* 意图: 用一个中介对象来封装一系列的对象交互。中介者使各对象不需要显示地相互引用，从而使耦合松散，而且可以独立地改变它们之间的交互。
-* 适用性：①一组对象以定义良好但是复杂的方式进行通信。产生的相互依赖关系结构混乱且难以理解。
+- 意图: 用一个中介对象来封装一系列的对象交互。中介者使各对象不需要显示地相互引用，从而使耦合松散，而且可以独立地改变它们之间的交互。
+- 适用性：①一组对象以定义良好但是复杂的方式进行通信。产生的相互依赖关系结构混乱且难以理解。
 ②一个对象引用其他很多对象并且直接与这些对象通信，导致难以复用该对象。
 ③想定制一个分布在对个类中的行为，而又不想生成太多的子类。
 
 ## Memento(备忘录模式)
-* 意图 在不破坏封装性的前提下，捕获一个对象的内部状态，并在该对象之外保存这个状态，这样以后就可将该对象恢复到原先保存的状态。
-* 适用性 必须保存一个对象在某一个时刻状态，这样以后需要时它才能恢复到先前的状态。
+- 意图 在不破坏封装性的前提下，捕获一个对象的内部状态，并在该对象之外保存这个状态，这样以后就可将该对象恢复到原先保存的状态。
+- 适用性 必须保存一个对象在某一个时刻状态，这样以后需要时它才能恢复到先前的状态。
 如果一个用接口来让其它对象直接得到这些状态，将会暴露对象的实现细节并破坏对象的封装性。
 
 ## Observer(观察者模式)
@@ -1713,7 +1828,7 @@ public class Orcs implements WeatherObserver {
 - 如果观察者和观察目标之间有循环依赖的话，观察目标会触发它们之间进行循环调用，可能导致系统崩溃
 - 观察者模式没有相应的机制让观察者知道所观察的目标对象是怎么发生变化的，而仅仅只是知道观察目标发生了变化
 
-* 适用性 
+- 适用性 
     1. 当一个抽象模型有两个方面，其中一个方面依赖于另一个方面。将两者封装在独立的对象中以使它们可以各自独立地改变和复用
     2. 当对一个对象的改变需要同时改变其它对象，而不知道具体有多少对象有待改变。
     3. 当一个对象必须通知其它对象，而它又不能假定其它对象是谁。换言之，你不希望这些对象是紧密耦合的。
@@ -1877,18 +1992,18 @@ public class DragonSlayer {
 ```
 
 ### 优点
-* 策略模式提供了对“开闭原则”的完美支持，用户可以在不修改原有系统的基础选择算法或行为，也可以灵活地增加新的算法或行为
-* 策略模式提供了管理相关的算法族的办法。策略类的结构等级结定义了一个算法或行为族，恰当使用继承可以把公共的代码移到抽象策略类中
-* 策略模式提供了一种可以替换继承关系的办法
-* 使用策略模式可以避免多重条件选择语句。多重条件语句不易维护，它把采取哪一种算法或行为的逻辑与算法或者行为本身的实现逻辑混合在一起，将它们全部硬编码(Hard Coding)在一个庞大的多重条件选择语句中，比直接继承环境类的办法还要原始和落后
-* 策略模式提供了一种算法的复用机制，由于将算法单独提取出来封装在策略中，因此不同的环境类可以方便地复用这些策略类
+- 策略模式提供了对“开闭原则”的完美支持，用户可以在不修改原有系统的基础选择算法或行为，也可以灵活地增加新的算法或行为
+- 策略模式提供了管理相关的算法族的办法。策略类的结构等级结定义了一个算法或行为族，恰当使用继承可以把公共的代码移到抽象策略类中
+- 策略模式提供了一种可以替换继承关系的办法
+- 使用策略模式可以避免多重条件选择语句。多重条件语句不易维护，它把采取哪一种算法或行为的逻辑与算法或者行为本身的实现逻辑混合在一起，将它们全部硬编码(Hard Coding)在一个庞大的多重条件选择语句中，比直接继承环境类的办法还要原始和落后
+- 策略模式提供了一种算法的复用机制，由于将算法单独提取出来封装在策略中，因此不同的环境类可以方便地复用这些策略类
 
 ### 缺点
 - 客户端必须知道所有的策略类，并自行决定使用哪一个策略类
 - 策略模式将造成系统产生很多具体策略类
 - 无法同时在客户端使用多个策略类
 
-* 适用性 
+- 适用性 
 1. 系统需要动态地在几种算法中选择一种，那么可以将这些算法封装到一个个的具体算法类中，而这些具体算法类都是一个抽象算法类的子类。
 2. 一个对象有很多的行为，如果不用恰当的模式，这些行为就只好使用多重条件选择语句来实现。此时，使用策略设计模式，把这些行为转移到相应的具体策略类，就可以避免使用难以维护的多重条件选择语句
 3. 不希望客户端知道复杂的、与算法相关的数据结构，可以提高算法的保密性与安全性
@@ -1958,16 +2073,19 @@ public class SubtleMethod extends StealingMethod {
 ```
 
 ### 总结
+
 模板方法模式是基于继承的代码复用技术，它体现了面向对象的诸多重要思想，是一种使用频繁的模式。模板方法模式广泛应用于框架设计中，
 以确保通过父类来控制处理流程的逻辑顺序
 
 #### 优点
+
 - 在父类形式化地定义一个算法，而由它的子类来实现细节的处理，在子类实现详细的处理算法时并不会改变算法中步骤的执行次序
 - 模板方法模式是一种代码复用技术，它在类库设计中尤为重要，它提取了类库中的公共行为，将公共行为放在父类中，而通过其子类来实现不同的行为，它鼓励我们恰当使用继承来实现代码复用
 - 可实现一种反向控制结果，通过子类覆盖父类的钩子方法来决定某一特定步骤是否需要执行
 - 在模板方法模式中可以通过子类来覆盖父类的基本方法，不同的子类可以提供基本方法的不同实现，更换和增加新的子类很方便，符合单一职责原则和开闭原则
 
 #### 缺点
+
 - 需要为每一个基本方法的不同实现提供一个子类，如果父类中可变的基本方法太多，将会导致类的个数增加，系统庞大，此时可结合桥接模式来进行设计
 
 #### 适用场景
@@ -1978,9 +2096,9 @@ public class SubtleMethod extends StealingMethod {
 
 ## Visitor(访问者模式)
 
-* 意图 表示一个作用于某对象结构中的各元素的操作。它使你可以在不改变各元素的前提下定义作用于这些元素的新操作。
+- 意图 表示一个作用于某对象结构中的各元素的操作。它使你可以在不改变各元素的前提下定义作用于这些元素的新操作。
 
-* 适用性 一个对象结构包含很多类对象，它们由不同的接口，而你想对这些对象实施一些依赖于某具体类的操作。
+- 适用性 一个对象结构包含很多类对象，它们由不同的接口，而你想对这些对象实施一些依赖于某具体类的操作。
 
 需要对一个对象结构中的对象进行很多不同的并且不想关的操作，而你想避免让这些操作“污染”这些对象的类。
 
