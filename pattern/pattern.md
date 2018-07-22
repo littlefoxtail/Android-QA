@@ -42,6 +42,7 @@
 		* [适配器模式总结](#适配器模式总结)
 			* [适配器优点](#适配器优点)
 			* [适配器缺点](#适配器缺点)
+			* [适配器模式适用场景](#适配器模式适用场景)
 		* [适配器实例](#适配器实例)
 	* [Bridge(桥接模式)](#bridge桥接模式)
 		* [桥接模式总结](#桥接模式总结)
@@ -90,21 +91,27 @@
 	* [Observer(观察者模式)](#observer观察者模式)
 		* [模式动机](#模式动机)
 		* [模式定义](#模式定义)
-		* [优点](#优点)
-		* [缺点](#缺点)
+		* [观察者模式总结](#观察者模式总结)
+			* [观察者模式优点](#观察者模式优点)
+			* [观察者模式缺点](#观察者模式缺点)
+			* [观察者模式使用场景](#观察者模式使用场景)
+		* [观察者模式实例](#观察者模式实例)
 	* [State(状态模式)](#state状态模式)
-		* [总结](#总结)
-			* [优点](#优点-1)
-			* [缺点](#缺点-1)
-			* [适用场景](#适用场景)
+		* [状态模式总结](#状态模式总结)
+			* [状态模式优点](#状态模式优点)
+			* [状态模式缺点](#状态模式缺点)
+			* [状态模式适用场景](#状态模式适用场景)
+		* [状态模式实例](#状态模式实例)
 	* [Strategy(策略模式)](#strategy策略模式)
-		* [优点](#优点-2)
-		* [缺点](#缺点-2)
+		* [策略模式总结](#策略模式总结)
+			* [策略模式优点](#策略模式优点)
+			* [策略模式缺点](#策略模式缺点)
+			* [策略模式适用场景](#策略模式适用场景)
 	* [Template Method(模板方法模式)](#template-method模板方法模式)
-		* [总结](#总结-1)
-			* [优点](#优点-3)
-			* [缺点](#缺点-3)
-			* [适用场景](#适用场景-1)
+		* [总结](#总结)
+			* [优点](#优点)
+			* [缺点](#缺点)
+			* [适用场景](#适用场景)
 	* [Visitor(访问者模式)](#visitor访问者模式)
 * [附](#附)
 	* [Delegation(委托模式)](#delegation委托模式)
@@ -801,6 +808,11 @@ public final class Hero {
 类适配器对于不支持多重继承的语言，一次最多只能适配一个适配者类，而且目标抽象类只能为抽象，不能为具体类，其使用有一定的局限性，不能讲一个适配者类和它的子类都适配到目标接口
 
 对象适配器模式置换时适配者的方法不容易
+
+#### 适配器模式适用场景
+
+- 系统需要使用一些现有的类，这些类的接口不符合系统的需要，甚至没有这些类的源代码
+- 想创建一个可以重复使用的类，用于与一些彼此之间没有太大关联的一些类，包括一些可能在将来引进的类一起工作
 
 ### 适配器实例
 
@@ -1767,73 +1779,81 @@ public final class Hero {
 如果一个用接口来让其它对象直接得到这些状态，将会暴露对象的实现细节并破坏对象的封装性。
 
 ## Observer(观察者模式)
+
 ### 模式动机
+
  定义对象间的一宗一对多的依赖关系，观察者模式描述了如何建立对象与对象之间的关系，当一个对象的状态发生改变时，所有依赖于它的对象都得到通知并被自动更新。发生改变的对象称为观察目标，而被通知的对象称为观察者，一个观察目标可以对应多个观察者，而且这些观察者之间没有相互联系，可以根据需要增加和删除观察者。
+
 ### 模式定义
+
 观察者模式(Observer Pattern):观察者模式又叫做发布-订阅(Publish/Subscribe)模式、模型-视图(Model/View)模式、源-监听器(Source/Listener)模式
 
-Subject(目标):目标指被观察者。在目标中定义了一个观察者集合，一个观察目标可以接受任意数量的观察者来观察，它提供了一系列方法来增加和删除观察者对象，同时它定义了nofity()。
-目标类可以是抽象类或者具体类
-```java
-public class Weather {
-    private WeatherType currentWeather;
-    private List<WeatherObserver> observers;
+- Subject(目标):目标指被观察者。在目标中定义了一个观察者集合，一个观察目标可以接受任意数量的观察者来观察，它提供了一系列方法来增加和删除观察者对象，同时它定义了nofity()。目标类可以是抽象类或者具体类
+    ```java
+    public class Weather {
+        private WeatherType currentWeather;
+        private List<WeatherObserver> observers;
 
-    public Weather() {
-        observers = new ArrayList<>();
-        currentWeather = WeatherType.SUNNY;
-    }
+        public Weather() {
+            observers = new ArrayList<>();
+            currentWeather = WeatherType.SUNNY;
+        }
 
-    public void addObserver(WeatherObserver obs) {
-        observers.add(obs);
-    }
+        public void addObserver(WeatherObserver obs) {
+            observers.add(obs);
+        }
 
-    public void removeObserver(WeatherObserver obs) {
-        observers.remove(obs);
-    }
+        public void removeObserver(WeatherObserver obs) {
+            observers.remove(obs);
+        }
 
-    public void timePasses() {
-        WeatherType[] enumValues = WeatherType.values();
-        currentWeather = enumValues[(currentWeather.ordinal() + 1) % enumValues.length];
-        notifyObservers();
-    }
+        public void timePasses() {
+            WeatherType[] enumValues = WeatherType.values();
+            currentWeather = enumValues[(currentWeather.ordinal() + 1) % enumValues.length];
+            notifyObservers();
+        }
 
-    private void notifyObservers() {
-        for (WeatherObserver obs : observers) {
-            obs.update(currentWeather);
+        private void notifyObservers() {
+            for (WeatherObserver obs : observers) {
+                obs.update(currentWeather);
+            }
         }
     }
-}
-```
+    ```
 
-Observer（观察者）:观察者将堆观察目标的改变作出反应，观察者一般定义为接口，该接口声明了更新数据的`update`，因此称为抽象观察者
-```java
-public interface WeatherObserver {
-    void update(WeatherType currentWeather);
-}
-```
+- ConcreteSubject（具体目标）：具体目标是目标类的子类，通常包含有经常发生改变的数据，当它的状态发生改变时，向它的各个观察者发出通知；同时它还实现了在目标类中定义的抽象业务逻辑方法。如果无须扩展目标类，则具体目标类可以省略
 
-ConcreteObserver（具体观察者）：
-
-```java
-public class Orcs implements WeatherObserver {
-
-    public void update(WeatherType currentWeather) {
-        
+- Observer（观察者）:观察者将堆观察目标的改变作出反应，观察者一般定义为接口，该接口声明了更新数据的`update`，因此称为抽象观察者
+    ```java
+    public interface WeatherObserver {
+        void update(WeatherType currentWeather);
     }
-}
-```
+    ```
 
+- ConcreteObserver（具体观察者）：在具体观察者中维护一个指向具体目标对象的引用，它存储具体观察者的有关状态，这些状态需要和具体目标的状态保持一致；它实现了抽象观察者Observer中定义的update方法。通常实现时，可以调用具体目标类的attach将自己添加到目标类的集合/detach将自己从目标类的集合中删除
 
+    ```java
+    public class Orcs implements WeatherObserver {
 
-### 优点
-观察者模式的优点
+        public void update(WeatherType currentWeather) {
+            Log.i("update weather update")
+        }
+    }
+    ```
+
+### 观察者模式总结
+
+观察者模式实现对象之间的联动提供了一套完整的解决方案，凡是涉及到一对一或者一对多的对象交互场景都可以使用观察者模式
+
+#### 观察者模式优点
+
 * 观察者模式可以实现表示层和数据逻辑层的分离，并定义了稳定的消息更新传递机制，抽象了更新接口，使得可以有各种各样不同的表示层作为具体观察者角色。
 * 观察者模式在观察目标和观察者之间建立了一个抽象的耦合。
 * 观察者模式支持广播通信。
 * 观察者模式符合"开闭原则"的要求
 
-### 缺点
+#### 观察者模式缺点
+
 * 如果一个观察目标对象有很多直接和间接的观察者的话，将所有的观察者都通知会花费很多时间
 * 如果观察者和观察目标之间有循环依赖的话，观察目标会触发它们之间进行循环调用，可能导致系统崩溃
 * 观察者模式没有相应的机制让观察者知道所观察的目标对象是怎么发生变化的，而仅仅只是知道观察目标发生了变化
@@ -1843,182 +1863,216 @@ public class Orcs implements WeatherObserver {
     2. 当对一个对象的改变需要同时改变其它对象，而不知道具体有多少对象有待改变。
     3. 当一个对象必须通知其它对象，而它又不能假定其它对象是谁。换言之，你不希望这些对象是紧密耦合的。
 
+#### 观察者模式使用场景
+
+- 一个抽象模型有两个方面，其中一个方面依赖于另一个方面，将两个方面封装在独立的对象中使他们可以各自独立地改变和复用
+- 一个对象的改变将导致一个或多个对象也发生改变，而并不知道具体有多少对象将发生改变，也不知道这些对象是谁
+- 需要在系统中创建一个触发链，A对象的行为将影响B对象，B对象的行为将影响C对象，可以使用观察者模式创建一种链式触发机制
+
+### 观察者模式实例
+
+* [java.util.Observer](http://docs.oracle.com/javase/8/docs/api/java/util/Observer.html)
+* [java.util.EventListener](http://docs.oracle.com/javase/8/docs/api/java/util/EventListener.html)
+* [javax.servlet.http.HttpSessionBindingListener](http://docs.oracle.com/javaee/7/api/javax/servlet/http/HttpSessionBindingListener.html)
+* [RxJava](https://github.com/ReactiveX/RxJava)
+
 ## State(状态模式)
+
 允许一个对象在其内部状态改变时改变它的行为，对象看起来似乎修改了它的类。状态模式是一种对象行为型模式。
 
 * Context(环境类)：环境类又称为上下文类，它是拥有多种状态的对象。由于环境类的状态存在多样性且在不同状态下对象的行为有所不同，因此将状态独立出去形成单独的状态类。在环境类中维护了一个抽象状态State的实例。
-```java
-public class Mammoth {
-   private State state;
+    ```java
+    public class Mammoth {
+    private State state;
 
-   public Mammoth() {
-       state = new PeaceFulState(this);
-   }
+    public Mammoth() {
+        state = new PeaceFulState(this);
+    }
 
-   public void timePasses() {
-       if (state.getClass().equals(PeacefulState.class)) {
-           changeStateTo(new AngryState(this));
-       } else {
-           changeStateTo(new PeaceFulState(this));
-       }
-   }
+    public void timePasses() {
+        if (state.getClass().equals(PeacefulState.class)) {
+            changeStateTo(new AngryState(this));
+        } else {
+            changeStateTo(new PeaceFulState(this));
+        }
+    }
 
-   private void changeStateTo(State newState) {
-       this.state = newState;
-       this.state.onEnterState();
-   }
+    private void changeStateTo(State newState) {
+        this.state = newState;
+        this.state.onEnterState();
+    }
 
-   public String toString() {
-       return "The mammoth";
-   }
+    public String toString() {
+        return "The mammoth";
+    }
 
-   public void observer() {
-       this.state.observe();
-   }
-}
-```
+    public void observer() {
+        this.state.observe();
+    }
+    }
+    ```
 
 * State（抽象状态类）：它用于定义一个接口以封装与环境类的一个特定状态相关的行为，在抽象状态类中声明了各种不同状态对应的方法，而在其子类中实现类这些方法，由于不同状态下的对象的行为可能不同，因此在不同子类中方法的实现可能存在不同，相同方法可以写在抽象状态类中
-```java
-public interface State {
-    void onEnterState();
+    ```java
+    public interface State {
+        void onEnterState();
 
-    void observe();
-}
-```
+        void observe();
+    }
+    ```
+
 * ConcreteState(具体状态类)：它是抽象状态类的子类，每一个子类实现一个与环境类的一个状态相关的行为，每一个具体状态类对应环境的一个具体状态，不同具体状态类其行为有所不同。
-```java
-public class AngryState implements State {
-    private Mammoth mammoth;
+    ```java
+    public class AngryState implements State {
+        private Mammoth mammoth;
 
-    public AngryState(Mammonth mammoth) {
-        this.mammoth = mammoth;
+        public AngryState(Mammonth mammoth) {
+            this.mammoth = mammoth;
+        }
+
+        @Override
+        public void observe() {
+
+        }
+
+        @Overide
+        public void onEnterState() {
+
+        }
     }
+    ```
 
-    @Override
-    public void observe() {
+    ```java
+    public class PeacefulState implements State {
+        private Mammoth mammoth;
 
+        public PeacefulState(Mammoth mammoth) {
+            this.mammoth = mammoth;
+        }
+
+        @Override
+        public void observe() {
+
+        }
+
+        @Override
+        public void onEnterState() {
+
+        }
     }
+    ```
 
-    @Overide
-    public void onEnterState() {
+### 状态模式总结
 
-    }
-}
-```
-
-```java
-public class PeacefulState implements State {
-    private Mammoth mammoth;
-
-    public PeacefulState(Mammoth mammoth) {
-        this.mammoth = mammoth;
-    }
-
-    @Override
-    public void observe() {
-
-    }
-
-    @Override
-    public void onEnterState() {
-
-    }
-}
-```
-
-### 总结
 状态模式将一个对象在不同状态下的不同行为封装在一个个状态类中，通过设置不同的状态对象可以让环境对象拥有不同的行为，而状态转换的细节对于客户端而言是透明的，方便了客户端的使用。
 
-#### 优点
+#### 状态模式优点
+
 * 封装了状态的转换原则，在状态模式中可以将状态转换代码封装在环境类或者具体状态类中，可以对状态转换代码进行集中管理，而不是分散在一个业务方法中
 * 将所有与某个状态有关的行为放到一个类中，只需要注入一个不同的状态对象即可使环境对象拥有不同行为
 * 允许状态转换逻辑与状态对象合成一体，而不是提供一个巨大的条件语句块，状态模式可以避免用庞大的条件语句来将业务方法和状态转换代码交织在一起
 * 可以让多个环境对象共享一个状态对象，从而减少系统中对象的个数
 
-#### 缺点
+#### 状态模式缺点
+
 * 增加系统中类和对象的个数，导致系统运行开销增大
 * 状态模式的结构和实现都较为复杂，如果使用不当将导致程序结构和代码混乱，增加系统设计难度
 * 状态模式对“开闭原则”的支持并不太好，增加新的状态类需要修改那些负责状态转换的源代码
 
-#### 适用场景
+#### 状态模式适用场景
+
 * 对象的行为依赖于它的状态，状态的改变将导致行为的变化
 * 一个操作中含有庞大的多分支的条件语句，且这些分支依赖于该对象的状态。这状态通常用一个或多个枚举常量表示。通常，有多个操作包含这一相同的条件结构。
-State模式将每一个条件分支放入一个独立的类中。这使得你可以根据对象自身的情况将对象的状态作为一个对象，这一对象可以不依赖于其他对象独立变化。
+    State模式将每一个条件分支放入一个独立的类中。这使得你可以根据对象自身的情况将对象的状态作为一个对象，这一对象可以不依赖于其他对象独立变化。
+
+### 状态模式实例
+
+* [javax.faces.lifecycle.Lifecycle#execute()](http://docs.oracle.com/javaee/7/api/javax/faces/lifecycle/Lifecycle.html#execute-javax.faces.context.FacesContext-) controlled by [FacesServlet](http://docs.oracle.com/javaee/7/api/javax/faces/webapp/FacesServlet.html), the behavior is dependent on current phase of lifecycle.
+* [JDiameter - Diameter State Machine](https://github.com/npathai/jdiameter/blob/master/core/jdiameter/api/src/main/java/org/jdiameter/api/app/State.java)
 
 ## Strategy(策略模式)
+
 定义了一系列算法类，将每一个算法封装起来，并让他们可以相互替换，策略模式让算法独立于使用它的客户而变化，也称为政策模式(Policy)。
 
 策略模式的主要目的是将算法的定义和使用分开，也就是将算法的行为和环境分开，将算法的定义放在专门的策略类中。
 每一个策略类封装了一种实现算法，使用算法的环境类针对抽象策略类进行编程，符合“依赖倒转原则”
 
-Strategy(抽象策略类)：它为所支持的算法声明了抽象方法，是所有策略类的父类，它可以是抽象类或具体类，也可以是接口。环境类通过抽象策略类中声明的方法在运行时调用具体策略类中实现的算法。
-```java
-public interface DragonSlayingStrategy {
-    void execute();
-}
-```
-ConcreteStrategy(具体策略类)：
-```java
-public class MeleeStrategy implements DragonSlayingStrategy {
-    public void execute() {
+- Context（环境类）；
+    环境类是使用算法的角色，它在解决某个问题时可以采取多种策略或者具体类。在环境类中维持一个对抽象策略的引用实例，用于定义所采用的策略
 
+    ```java
+    public class DragonSlayer {
+        private DragonSlayingStrategy strategy;
+
+        public DragonSlayer(DragonSlayingStrategy strategy) {
+            this.strategy = strategy;
+        }
+
+        public void changeStrategy(DragonSlayingStrategy strategy) {
+            this.strategy = strategy;
+        }
+
+        public void goToBattle() {
+            strategy.execute();
+        }
     }
-}
-```
+    ```
 
-```java
-public class ProjectileStrategy implements DragonSlayingStrategy {
-    public void execute() {
-
+- Strategy(抽象策略类)：它为所支持的算法声明了抽象方法，是所有策略类的父类，它可以是抽象类或具体类，也可以是接口。环境类通过抽象策略类中声明的方法在运行时调用具体策略类中实现的算法。
+    ```java
+    public interface DragonSlayingStrategy {
+        void execute();
     }
-}
-```
+    ```
+- ConcreteStrategy(具体策略类)：它实现了在抽象策略类中声明的算法，在运行时，具体策略类将覆盖在环境类中定义的抽象策略类对象，使用一种具体的算法实现某个业务处理。
+    ```java
+    public class MeleeStrategy implements DragonSlayingStrategy {
+        public void execute() {
 
-```java
-public class SpellStrategy implements DragonSlayingStragegy {
-    public void execute() {
-
+        }
     }
-}
-```
-Context(环境类)：是需要使用算法的类。
-```java
-public class DragonSlayer {
-    private DragonSlayingStrategy strategy;
+    ```
 
-    public DragonSlayer(DragonSlayingStrategy strategy) {
-        this.strategy = strategy;
+    ```java
+    public class ProjectileStrategy implements DragonSlayingStrategy {
+        public void execute() {
+
+        }
     }
+    ```
 
-    public void changeStrategy(DragonSlayingStrategy strategy) {
-        this.strategy = strategy;
+    ```java
+    public class SpellStrategy implements DragonSlayingStragegy {
+        public void execute() {
+
+        }
     }
+    ```
 
-    public void goToBattle() {
-        strategy.execute();
-    }
-}
-```
+### 策略模式总结
 
-### 优点
+#### 策略模式优点
+
 * 策略模式提供了对“开闭原则”的完美支持，用户可以在不修改原有系统的基础选择算法或行为，也可以灵活地增加新的算法或行为
 * 策略模式提供了管理相关的算法族的办法。策略类的结构等级结定义了一个算法或行为族，恰当使用继承可以把公共的代码移到抽象策略类中
 * 策略模式提供了一种可以替换继承关系的办法
 * 使用策略模式可以避免多重条件选择语句。多重条件语句不易维护，它把采取哪一种算法或行为的逻辑与算法或者行为本身的实现逻辑混合在一起，将它们全部硬编码(Hard Coding)在一个庞大的多重条件选择语句中，比直接继承环境类的办法还要原始和落后
 * 策略模式提供了一种算法的复用机制，由于将算法单独提取出来封装在策略中，因此不同的环境类可以方便地复用这些策略类
 
-### 缺点
+#### 策略模式缺点
+
 * 客户端必须知道所有的策略类，并自行决定使用哪一个策略类
 * 策略模式将造成系统产生很多具体策略类
 * 无法同时在客户端使用多个策略类
 
-* 适用性 
+#### 策略模式适用场景 
+
 1. 系统需要动态地在几种算法中选择一种，那么可以将这些算法封装到一个个的具体算法类中，而这些具体算法类都是一个抽象算法类的子类。
 2. 一个对象有很多的行为，如果不用恰当的模式，这些行为就只好使用多重条件选择语句来实现。此时，使用策略设计模式，把这些行为转移到相应的具体策略类，就可以避免使用难以维护的多重条件选择语句
 3. 不希望客户端知道复杂的、与算法相关的数据结构，可以提高算法的保密性与安全性
 
 ## Template Method(模板方法模式)
+
 定义一个操作中算法的框架，而将一些步骤延迟到子类中。模板方法模式使得子类可以不改变一个算法的结构即可重定义该算法的某些特定步骤
 
 
