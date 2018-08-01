@@ -1,6 +1,32 @@
 # Handler机制
 
-![handler_code](../img/handler_code.png)
+![handler_code](/img/handler_code.png)
+
+![handler_init](/img/handler_init.svg)
+
+![handler_send](/img/handler_send.svg)
+
+```sequence
+Title:分发消息prepare处理
+Note left of Looper: 静态sThreadLocal
+Looper->Looper:2.prepare
+Looper->Looper:3.new Looper
+Looper->Looper:4.new Looper:new MessageQueue
+Looper->ThreadLocal:4.set
+
+```
+
+```sequence
+Title:分发消息loop处理
+Looper->Looper:1.loop
+Looper->MessageQueue:2.next
+MessageQueue-->Looper:Message
+MessageQueue->Handler:3.dispatchMessage
+Handler->Handler:4.1.handlerCallback
+Handler->Handler.Callback:4.2.handleMessage
+Handler->Handler:4.3.handleMessage()
+```
+
 
 ## looper循环处理消息队列
 
