@@ -1,12 +1,9 @@
 # Handler机制
 
 ![handler_code](/img/handler_code.png)
-
 ![handler_init](/img/handler_init.svg)
-
 ![handler_send](/img/handler_send.svg)
-
-![dispatch_message](/img/dispatch_message.svg)
+![looper_prepare](/img/looper_prepare.svg)
 ![looper_loop](/img/looper_loop.svg)
 
 ## looper循环处理消息队列
