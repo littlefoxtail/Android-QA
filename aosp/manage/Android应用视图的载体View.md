@@ -109,7 +109,7 @@ public class View {
     }
 
     /**
-     * View被关联到窗口时调用
+     * View被关联到窗口时调用
      */
     protected void onAttachedToWindow() {
 
@@ -170,7 +170,7 @@ ViewGroup->ViewGroup:4.getChildMeasureSpec
 - View：View在onMesaure()中会计算出自己的尺寸然后保存
 - ViewGroup：ViewGroup在onMeasure()会调用所有子View的measure()让它们进行自我测量，并根据子View计算出的期望尺寸来计算出它们的实际尺寸和位置然后保存。同时，根据子View尺寸和位置来计算出自己的尺寸然后保存
 
-日常开发中接触最多的不是MeasureSpec而是LayoutParams，在View测量的时候，LayoutParams会和父View的MeasureSpec相结合被换算成View的MeasureSpec，进而决定View的大小
+日常开发中接触最多的不是MeasureSpec而是LayoutParams，在View测量的时候，LayoutParams会和父View的MeasureSpec相结合被换算成View的MeasureSpec，进而决定View的大小
 
 ```java
 public abstrct class ViewGroup extends View implments ViewParent, ViewManager {
