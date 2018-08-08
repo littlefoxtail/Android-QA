@@ -249,7 +249,6 @@ public class DexUtil {
 }
 ```
 
-## 替换Activity
+## 四大组件的启动
 
-startActivity->Instrumentation.execStartActivity()
-Activity是否存在的校验是发生在AMS端，所以在AMS交互前面
+[四大组件](virtual_componet.md)
