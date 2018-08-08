@@ -1,7 +1,7 @@
 
 # 测量、定位和绘制
 
-![img](../../img/view_measure_layout_draw.png)
+![img](/img/view_measure_layout_draw.png)
 
 任何一控件其实都是直接或间接继承自View实现的，所以说View应该具有相同的绘制流程与机制才能显示到屏幕上
 每一个View的绘制过程都必须经历三个最主要的过程，也就是measure、layout和draw。
@@ -90,7 +90,7 @@ performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
 ## measure测量流程
 
 所有View自上而下量算的过程：
-![measure_hierarchy.png](../../img/measure_hierarchy.png)
+![measure_hierarchy.png](/img/measure_hierarchy.png)
 
 如果要进行量算过程的View是ViewGroup类型，那么ViewGroup会在onMeasure方法内部遍历子View依次进行量算。
 
@@ -327,7 +327,7 @@ protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 ## layout流程
 
 所有View自上而下布局的调用过程：
-![layout_hierarchy](../img/layout_hierarchy.png)
+![layout_hierarchy](/img/layout_hierarchy.png)
 
 ### ViewGroup的布局流程
 
@@ -583,8 +583,8 @@ View的布局流程就已经全部分析完了。可以看出，布局流程的�
 ## draw流程
 
 所有View进行自上而下绘图的调用过程：
-![draw_hierarchy](../../img/draw_hierarchy.png)
-![Draw](../../img/draw.png)
+![draw_hierarchy](/img/draw_hierarchy.png)
+![Draw](/img/draw.png)
 绘制流程将决定View的样子，一个View该显示什么由绘制流程完成。
 
 ### ViewRootImpl@performDraw
@@ -664,6 +664,7 @@ try {
 
 由于ViewGroup没有重写draw方法，因此所有的View都是调用View#draw
 绘制流程的六个步骤：
+
 1. 对View的背景进行绘制
 2. 保存当前的图层信息
 3. 绘制View的内容
