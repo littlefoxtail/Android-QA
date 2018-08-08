@@ -1,4 +1,4 @@
-![概述](../img/android_ui_system.png)
+![概述](/img/android_ui_system.png)
 
 - UI框架层：负责管理窗口中View组件的布局与绘制以及响应用户输入事件
 - WindowManagerService层：负责管理窗口Surface的布局和文字

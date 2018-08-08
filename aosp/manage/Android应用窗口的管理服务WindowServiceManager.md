@@ -17,7 +17,7 @@ WindowManagerService是继ActivityManagerService与PackageManagerService之后�
 Android系统中的窗口是屏幕上的一块用于绘制各种UI元素并可以响应用户输入的一快矩形区域。从原理上来讲，窗口的概念是独自占有一个
 Surface实例的显示区域。例如Dialog、Activity的界面、壁纸、状态栏以及Toast等都是窗口。
 
-![window_manager_service_class](../img/WindowManagerService_class.png)
+![window_manager_service_class](/img/WindowManagerService_class.png)
 
 主要角色：
 
@@ -32,7 +32,7 @@ Surface实例的显示区域。例如Dialog、Activity的界面、壁纸、状�
 * WindowToken：窗口Token，用来做Binder通信
 * Session：通讯对象，App进程通过建立Session代理对象和Session对象通信，进而和WindowManagerService建立连接
 
-![window_mansger_service_structure](../img/window_mansger_service_structure.png)
+![window_mansger_service_structure](/img/window_mansger_service_structure.png)
 
 Activity持有一个Window对象，负责UI的展示与交互
 
