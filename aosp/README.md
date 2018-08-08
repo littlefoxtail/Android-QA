@@ -26,7 +26,7 @@
   - **[图片缓存处理](image.md)**
   - **[Interpolator](Interpolator.md)**
   - **[Android性能调优](performance.md)**
-  - **[自定义View的步骤](customView.md)**
+  - **[自定义View的步骤](customView.md)**
   - **[对话框的源码分析](dialog.md)**
   - **[PriotiryBlockingQueue队列源码分析](priotiryblockingqueue.md)**
   - **[Window的源码](window.md)**
