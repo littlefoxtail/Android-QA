@@ -1,5 +1,9 @@
 # ExecutorService
 
+![线程池时序图](/img/线程池时序图.png)
+
+## shutdown
+
 shutdown和awaitTermination为接口ExecutorService定义的两个方法，一般情况配合使用来关闭线程池
 
 1. shutdown方法：平滑的关闭ExecutorService，当此方法被调用时停止接收新的任务并且等待已经提交的任务（包含提交正在执行和提交未执行）执行完成。当所有提交任务执行完毕，线程池即被关闭。当线程池调用该方法时，线程池的状态立刻变成SHUTDOWN。此时不能再往线程池中添加任何任务，否则将会抛出RejectedExecutionException。但是，线程池不会立刻退出，直到添加到线程池中的任务都已经处理完成，才会退出。
