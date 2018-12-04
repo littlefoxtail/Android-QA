@@ -121,7 +121,7 @@ View层做的就是UI相关的工作，我们只在XML、Activity和Fragment写V
 
 ## ViewModel
 
-ViewModel层做的事情刚好和View层相反，ViewModel只做和业务逻辑和业务数据相关的事情，**不做任何和UI相关的事情**，ViewModel层不会持有任何控件的引用，更不会在ViewModel中通过UI控件的引用去做更新UI的事情。ViewModel就是专注于业务的逻辑处理，做的事情也都只是对数据的操作。同时DataBinding框架已经支持双向绑定，让我们可以通过双向绑定获取View层反馈给ViewModel层的数据，并对这些数据进行操作。
+ViewModel层做的事情刚好和View层相反，ViewModel只做和业务逻辑和业务数据相关的事情，**不做任何和UI相关的事情**，ViewModel层不会持有任何控件的引用，更不会在ViewModel中通过UI控件的引用去做更新UI的事情。ViewModel就是专注于业务的逻辑处理，做的事情也都只是对数据的操作。同时DataBinding框架已经支持双向绑定，让我们可以通过双向绑定获取View层反馈给ViewModel层的数据，并对这些数据进行操作。
 
 ## Model
 
