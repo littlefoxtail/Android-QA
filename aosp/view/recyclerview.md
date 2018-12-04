@@ -8,7 +8,7 @@
 - RecyclerView视图动画ItemAdapter
 - RecyclerView视图分隔条ItemDecoration
 
-RecyclerView继承于ViewGroup，实现ScrollingView与NestedScrollingChild接口
+RecyclerView继承于ViewGroup，实现ScrollingView与NestedScrollingChild接口
 
 对比ListView：
 ||Item复用方面|样式丰富方面|效果增强|代码内聚|
