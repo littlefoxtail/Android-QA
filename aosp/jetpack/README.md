@@ -20,7 +20,7 @@ Foundation组件提供核心系统功能，Kotlin扩展以及对multidex和自�
 
 架构组件的类有助于管理您的UI组件生命周期，处理数据持久性等。
 
-[Architecture](architecturecomponents.md)
+[Architecture](architecturecomponents.md)
 
 ## Behavior
 
