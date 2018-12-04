@@ -4,8 +4,8 @@
 整个应用分为Model、View和Controller三个部分，而这些组成部分其实也有着几乎相同的职责。
 
 * 视图：管理作为位图展示到屏幕上的图形和文字输出；
-* 控制器：翻译用户的输入并依照用户的输入操作模型和视图；
-* 模型：管理应用的行为和数据，响应时间请求（经常来自视图）和更新状态的指令（检查来自控制器）
+* 控制器：翻译用户的输入并依照用户的输入操作模型和视图；
+* 模型：管理应用的行为和数据，响应时间请求（经常来自视图）和更新状态的指令（检查来自控制器）
 
 ![mvc](../img/Standard-MVC.jpg)
 控制器负责对模型中的数据进行更新，而视图向模式中请求数据；当有用户的行为触发操作时候，会有控制器更新模型，并通知视图进行更新，在这时视图向模型请求新的数据。
@@ -117,11 +117,11 @@ MVVM模式中，数据是独立于UI的。
 
 ## View
 
-View层做的就是UI相关的工作，我们只在XML、Activity和Fragment写View层的代码，View层不做和业务相关的事，也就是我们在Activity不写业务逻辑和业务数据相关的代码，更新UI通过数据绑定实现，尽量在ViewModel里面做(更新绑定的数据源即可)，Activity要做的事就是初始化一些控件(如控件的颜色，添加RecyclerView的分割线)，View层可以提供更新UI的接口（但是我们更希望UI事件通过Command来绑定）。简单地说：View层不做任何业务逻辑、不涉及操作数据、不处理数据、UI和数据严格的分开。
+View层做的就是UI相关的工作，我们只在XML、Activity和Fragment写View层的代码，View层不做和业务相关的事，也就是我们在Activity不写业务逻辑和业务数据相关的代码，更新UI通过数据绑定实现，尽量在ViewModel里面做(更新绑定的数据源即可)，Activity要做的事就是初始化一些控件(如控件的颜色，添加RecyclerView的分割线)，View层可以提供更新UI的接口（但是我们更希望UI事件通过Command来绑定）。简单地说：View层不做任何业务逻辑、不涉及操作数据、不处理数据、UI和数据严格的分开。
 
 ## ViewModel
 
-ViewModel层做的事情刚好和View层相反，ViewModel只做和业务逻辑和业务数据相关的事情，**不做任何和UI相关的事情**，ViewModel层不会持有任何控件的引用，更不会在ViewModel中通过UI控件的引用去做更新UI的事情。ViewModel就是专注于业务的逻辑处理，做的事情也都只是对数据的操作。同时DataBinding框架已经支持双向绑定，让我们可以通过双向绑定获取View层反馈给ViewModel层的数据，并对这些数据进行操作。
+ViewModel层做的事情刚好和View层相反，ViewModel只做和业务逻辑和业务数据相关的事情，**不做任何和UI相关的事情**，ViewModel层不会持有任何控件的引用，更不会在ViewModel中通过UI控件的引用去做更新UI的事情。ViewModel就是专注于业务的逻辑处理，做的事情也都只是对数据的操作。同时DataBinding框架已经支持双向绑定，让我们可以通过双向绑定获取View层反馈给ViewModel层的数据，并对这些数据进行操作。
 
 ## Model
 
@@ -149,4 +149,4 @@ ViewModel大致上就是MVP的Presenter的MVC的Controller了，而View和ViewMo
 
 ## 对比MVP
 
-ViewModel大致就是MVP的Presenter和MVC的Controller，而View和ViewModel间没有MVP的界面接口，而是直接交互，用数据“绑定”的形式让数据更新事件，自动地双向同步。绑定可以认为是Observer模式或者Publish/Subscribe模式，原理都是为了用一种统一的集中的方式实现频繁需要被实现的数据更新问题。
+ViewModel大致就是MVP的Presenter和MVC的Controller，而View和ViewModel间没有MVP的界面接口，而是直接交互，用数据“绑定”的形式让数据更新事件，自动地双向同步。绑定可以认为是Observer模式或者Publish/Subscribe模式，原理都是为了用一种统一的集中的方式实现频繁需要被实现的数据更新问题。
