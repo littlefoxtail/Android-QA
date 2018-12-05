@@ -13,8 +13,8 @@ RecyclerView继承于ViewGroup，实现ScrollingView与NestedScrollingChild接�
 对比ListView：
 
 |Item复用方面|样式丰富方面|效果增强|代码内聚|
-|:---:|:---:|:---:|:---:|:--:|
-|RecyclerView|内置了RecyclerViewPool、多级缓存、ViewHolder|通过支持水平、垂直和表格列表及其他更复杂形势|内置ItemDecoration和ItemAnimator，可以自定义绘制ItemView之间的一些特殊UI或Item项数据变化时的动画效果|将功能密切相关的类写成内部类|
+|:---:|:---:|:---:|:---:|
+|RecyclerView|内置了RecyclerViewPool、多级缓存、ViewHolder|通过支持水平、垂直和表格列表及其他更复杂形势|内置ItemDecoration和ItemAnimator，可以自定义绘制ItemView之间的一些特殊UI或Item项数据变化时的动画效果|将功能密切相关的类写成内部类|
 |ListView|需要手动添加ViewHolder|只支持具体某一种|将这些特殊UI作为ItemView的一部分|无|
 
 ![recyclerview_structure](../../img/recyclerview_structure.png)
