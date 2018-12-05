@@ -245,12 +245,13 @@ public class ImageReaderFactory {
     }
     ```
 
-ConcreteFactory（具体工厂）：它是抽象工厂类的子类，实现了抽象工厂中定义的工厂方法，并可由客户端调用，返回一个具体产品类的实例
+* ConcreteFactory（具体工厂）：它是抽象工厂类的子类，实现了抽象工厂中定义的工厂方法，并可由客户端调用，返回一个具体产品类的实例
+
     ```java
     public class ElfBlacksmith implements Blacksmith {
-    public Weapon manufactureWeapon(WeaponType weaponType) {
-        return new ElfWeapon(weaponType);
-    }
+        public Weapon manufactureWeapon(WeaponType weaponType) {
+            return new ElfWeapon(weaponType);
+        }
     }
     ```
 
@@ -642,7 +643,7 @@ public final class Hero {
 
     ```java
     public class ElfBeast extends Beast {
-    
+
     private String helpType;
 
     public ElfBeast(String helpType) {
@@ -811,8 +812,8 @@ public final class Hero {
 
 #### 适配器模式适用场景
 
-- 系统需要使用一些现有的类，这些类的接口不符合系统的需要，甚至没有这些类的源代码
-- 想创建一个可以重复使用的类，用于与一些彼此之间没有太大关联的一些类，包括一些可能在将来引进的类一起工作
+* 系统需要使用一些现有的类，这些类的接口不符合系统的需要，甚至没有这些类的源代码
+* 想创建一个可以重复使用的类，用于与一些彼此之间没有太大关联的一些类，包括一些可能在将来引进的类一起工作
 
 ### 适配器实例
 
@@ -1788,7 +1789,7 @@ public final class Hero {
 
 观察者模式(Observer Pattern):观察者模式又叫做发布-订阅(Publish/Subscribe)模式、模型-视图(Model/View)模式、源-监听器(Source/Listener)模式
 
-- Subject(目标):目标指被观察者。在目标中定义了一个观察者集合，一个观察目标可以接受任意数量的观察者来观察，它提供了一系列方法来增加和删除观察者对象，同时它定义了nofity()。目标类可以是抽象类或者具体类
+* Subject(目标):目标指被观察者。在目标中定义了一个观察者集合，一个观察目标可以接受任意数量的观察者来观察，它提供了一系列方法来增加和删除观察者对象，同时它定义了nofity()。目标类可以是抽象类或者具体类
     ```java
     public class Weather {
         private WeatherType currentWeather;
@@ -1821,16 +1822,16 @@ public final class Hero {
     }
     ```
 
-- ConcreteSubject（具体目标）：具体目标是目标类的子类，通常包含有经常发生改变的数据，当它的状态发生改变时，向它的各个观察者发出通知；同时它还实现了在目标类中定义的抽象业务逻辑方法。如果无须扩展目标类，则具体目标类可以省略
+* ConcreteSubject（具体目标）：具体目标是目标类的子类，通常包含有经常发生改变的数据，当它的状态发生改变时，向它的各个观察者发出通知；同时它还实现了在目标类中定义的抽象业务逻辑方法。如果无须扩展目标类，则具体目标类可以省略
 
-- Observer（观察者）:观察者将堆观察目标的改变作出反应，观察者一般定义为接口，该接口声明了更新数据的`update`，因此称为抽象观察者
+* Observer（观察者）:观察者将堆观察目标的改变作出反应，观察者一般定义为接口，该接口声明了更新数据的`update`，因此称为抽象观察者
     ```java
     public interface WeatherObserver {
         void update(WeatherType currentWeather);
     }
     ```
 
-- ConcreteObserver（具体观察者）：在具体观察者中维护一个指向具体目标对象的引用，它存储具体观察者的有关状态，这些状态需要和具体目标的状态保持一致；它实现了抽象观察者Observer中定义的update方法。通常实现时，可以调用具体目标类的attach将自己添加到目标类的集合/detach将自己从目标类的集合中删除
+* ConcreteObserver（具体观察者）：在具体观察者中维护一个指向具体目标对象的引用，它存储具体观察者的有关状态，这些状态需要和具体目标的状态保持一致；它实现了抽象观察者Observer中定义的update方法。通常实现时，可以调用具体目标类的attach将自己添加到目标类的集合/detach将自己从目标类的集合中删除
 
     ```java
     public class Orcs implements WeatherObserver {
@@ -1858,16 +1859,16 @@ public final class Hero {
 * 如果观察者和观察目标之间有循环依赖的话，观察目标会触发它们之间进行循环调用，可能导致系统崩溃
 * 观察者模式没有相应的机制让观察者知道所观察的目标对象是怎么发生变化的，而仅仅只是知道观察目标发生了变化
 
-* 适用性 
+* 适用性
     1. 当一个抽象模型有两个方面，其中一个方面依赖于另一个方面。将两者封装在独立的对象中以使它们可以各自独立地改变和复用
     2. 当对一个对象的改变需要同时改变其它对象，而不知道具体有多少对象有待改变。
     3. 当一个对象必须通知其它对象，而它又不能假定其它对象是谁。换言之，你不希望这些对象是紧密耦合的。
 
 #### 观察者模式使用场景
 
-- 一个抽象模型有两个方面，其中一个方面依赖于另一个方面，将两个方面封装在独立的对象中使他们可以各自独立地改变和复用
-- 一个对象的改变将导致一个或多个对象也发生改变，而并不知道具体有多少对象将发生改变，也不知道这些对象是谁
-- 需要在系统中创建一个触发链，A对象的行为将影响B对象，B对象的行为将影响C对象，可以使用观察者模式创建一种链式触发机制
+* 一个抽象模型有两个方面，其中一个方面依赖于另一个方面，将两个方面封装在独立的对象中使他们可以各自独立地改变和复用
+* 一个对象的改变将导致一个或多个对象也发生改变，而并不知道具体有多少对象将发生改变，也不知道这些对象是谁
+* 需要在系统中创建一个触发链，A对象的行为将影响B对象，B对象的行为将影响C对象，可以使用观察者模式创建一种链式触发机制
 
 ### 观察者模式实例
 
@@ -1997,7 +1998,7 @@ public final class Hero {
 策略模式的主要目的是将算法的定义和使用分开，也就是将算法的行为和环境分开，将算法的定义放在专门的策略类中。
 每一个策略类封装了一种实现算法，使用算法的环境类针对抽象策略类进行编程，符合“依赖倒转原则”
 
-- Context（环境类）；
+* Context（环境类）；
     环境类是使用算法的角色，它在解决某个问题时可以采取多种策略或者具体类。在环境类中维持一个对抽象策略的引用实例，用于定义所采用的策略
 
     ```java
@@ -2018,13 +2019,13 @@ public final class Hero {
     }
     ```
 
-- Strategy(抽象策略类)：它为所支持的算法声明了抽象方法，是所有策略类的父类，它可以是抽象类或具体类，也可以是接口。环境类通过抽象策略类中声明的方法在运行时调用具体策略类中实现的算法。
+* Strategy(抽象策略类)：它为所支持的算法声明了抽象方法，是所有策略类的父类，它可以是抽象类或具体类，也可以是接口。环境类通过抽象策略类中声明的方法在运行时调用具体策略类中实现的算法。
     ```java
     public interface DragonSlayingStrategy {
         void execute();
     }
     ```
-- ConcreteStrategy(具体策略类)：它实现了在抽象策略类中声明的算法，在运行时，具体策略类将覆盖在环境类中定义的抽象策略类对象，使用一种具体的算法实现某个业务处理。
+* ConcreteStrategy(具体策略类)：它实现了在抽象策略类中声明的算法，在运行时，具体策略类将覆盖在环境类中定义的抽象策略类对象，使用一种具体的算法实现某个业务处理。
     ```java
     public class MeleeStrategy implements DragonSlayingStrategy {
         public void execute() {
@@ -2065,7 +2066,7 @@ public final class Hero {
 * 策略模式将造成系统产生很多具体策略类
 * 无法同时在客户端使用多个策略类
 
-#### 策略模式适用场景 
+#### 策略模式适用场景
 
 1. 系统需要动态地在几种算法中选择一种，那么可以将这些算法封装到一个个的具体算法类中，而这些具体算法类都是一个抽象算法类的子类。
 2. 一个对象有很多的行为，如果不用恰当的模式，这些行为就只好使用多重条件选择语句来实现。此时，使用策略设计模式，把这些行为转移到相应的具体策略类，就可以避免使用难以维护的多重条件选择语句
@@ -2075,9 +2076,9 @@ public final class Hero {
 
 定义一个操作中算法的框架，而将一些步骤延迟到子类中。模板方法模式使得子类可以不改变一个算法的结构即可重定义该算法的某些特定步骤
 
-
 AbstractClass（抽象类）：在抽象类中定义了一系列基本操作，这些基本操作可以是具体的，也可以是抽象，每一个基本操作对应算法的一个步骤，在其子类中可以重定义或实现这些步骤
 同时，在抽象类中实现了一个模板方法(Template Method)，用于定义一个算法的框架，模板方法不仅可以调用在抽象类中实现的基本方法
+
 ```java
 public abstract class StealingMethod {
     protected abstract String pickTarget();
@@ -2094,7 +2095,9 @@ public abstract class StealingMethod {
     }
 }
 ```
+
 ConcreteClass（具体类）：它是抽象类的子类，用于实现在父类中声明的抽象基本操作以完成子类特定算法步骤，也可以覆盖在父类中已经实现的具体基本操作
+
 ```java
 public class HitAndRunMethod extends StealingMethod {
     @Override
@@ -2170,9 +2173,10 @@ Visitor使得你可以将相关的操作集中起来定义在一个类中。当�
 
 定义的对象结构的类很少改变，但经常需要在此结构上定义新的操作。改变对象结构类需要重定义对所有访问者的接口，这可能需要很大的代价。如果对象结构类经常改变，那么可能还是在这些类中定义这些操作较好。
 
-
 # 附
+
 ## Delegation(委托模式)
+
 在委托模式中，有两个对象参与处理同一个请求，接受请求的对象将请求委托给另一个对象来处理，许多其他的模式，如状态模式、策略模式、访问者模式本质上是在更特殊的场合采用了委托模式。委托模式使得我们可以用聚合来替代继承
 
 ```java
@@ -2198,7 +2202,7 @@ public class CanonPrinter implements Printer {
     }
 }
 ```
-∏
+
 ```java
 public class EpsonPrinter implements Printer {
     @Override
@@ -2233,4 +2237,3 @@ canonPrinterController.printer("hello world!");
 epsonPrinterController.printer("hello world!");
 
 ```
-
