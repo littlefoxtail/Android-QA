@@ -16,6 +16,7 @@
 - **[AsyncTask](asynctask.md)**
 - **[ExecutorService中的关闭](executorservice.md)**
 - **[内存泄露中的强弱引用](memory.md)**
+- **[四大组件](component/README.md)**
 
 - TODO
   - **[ActivityManagerService](ams.md)**
