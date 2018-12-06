@@ -794,9 +794,13 @@ boolean draw(Canvas canvas, ViewGroup child, long drawingTime) {
 
 ### rquestLayout
 
+当View发生改变使得这个view的布局无效的时候，调用该方法，如果View正在请求布局的时候，View树正在进行布局，那么requestLayout会等到布局流程完成之后，或者绘制流程完成且下一次布局出现的时候执行
 当我们动态移动一个View的位置或者View的大小、形状发生了变换的时候，我们可以在View中调用这个方法。
 
 子View调用requestLayout方法，会标记当前View及父容器，同时逐层向上提交，直到ViewRootImpl处理该事件，ViewRootImpl会调用三大流程，从measure开始，对于每一个含有标记位的view及其子View都会进行测量、布局、绘制。
+
+时序图：
+![requestLayout](/img/requestlayout.png)
 
 ```java
 public void requestLayout() {
@@ -846,6 +850,9 @@ scheduleTraversals最终会调用performTraversals方法，
 ### invalidate
 
 该方法调用会引起View树的重绘，常用于内部调用或者需要刷新界面的时候，需要在主线程中调用该方法。当子View调用了invalidate方法后，会为该View添加一个标记位，同时不断向父容器请求刷新，父容器通过计算得出自身需要重绘的区域，直到传递到ViewRootImpl中，最终触发performTraversals方法，进行开始View树重绘流程。
+
+时序图：
+![invalidate的内部实现](/img/invalidate的内部实现.png)
 
 ```java
 public void invalidate() {
@@ -1050,6 +1057,9 @@ private void invalidateRectOnScreen(Rect dirty) {
 ```
 
 ### postInvalidate
+
+时序图：
+![postInvalidate](/img/postinvalidate.png)
 
 postInvalidate是在非UI线程中调用，invalidate是在UI线程中调用
 
