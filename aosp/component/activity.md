@@ -1,0 +1,1 @@
+![start_activity](/img/activity.png)
