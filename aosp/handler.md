@@ -1,10 +1,6 @@
 # Handler机制
 
-![handler_code](/img/handler_code.png)
-![handler_init](/img/handler_init.svg)
-![handler_send](/img/handler_send.svg)
-![looper_prepare](/img/looper_prepare.svg)
-![looper_loop](/img/looper_loop.svg)
+![handle时序图](/img/handler时序图.png)
 
 ## looper循环处理消息队列
 
@@ -243,8 +239,8 @@ workerThread.start();
 mHandler = new Handler(workerThread.getLooper());
 ```
 
-![handler](../img/thread_looper_messagequeu_message_handler.png)
+![handler](/img/thread_looper_messagequeu_message_handler.png)
 
-![allhandler](../img/all_handler.jpg)
+![allhandler](/img/all_handler.jpg)
 
 ## [你知道android的MessageQueue.idleHandler吗？](https://mp.weixin.qq.com/s/KpeBqIEYeOzt_frANoGuSg)
