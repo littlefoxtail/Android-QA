@@ -4,7 +4,7 @@
 - **[触摸事件](TouchEvent.md)**
 - **[按键事件](KeyEvent.md)**
 - **[动画](animation.md)**
-- **[invalidate方法的内部实现](invalidate.md)**
+
 - TODO
   - **[RecyclerView](recyclerview.md)**
   - **[DiffUtil在RecyclerView中的使用详解](recyclerview_diffutil.md)**
