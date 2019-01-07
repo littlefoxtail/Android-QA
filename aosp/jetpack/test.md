@@ -42,7 +42,7 @@ Mockito是一个流行mock框架，可以和JUnit结合起来使用。Mockito允
 - 执行测试代码
 - 验证测试代码是否被正确执行
 
-![mockito_step](../../img/mockito_step)
+![mockito_step](/img/mockito_step)
 
 #### 使用Mockito API
 
