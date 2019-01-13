@@ -16,20 +16,50 @@
 ## 属性动画
 
 在XML中定义的动画，可在一段时间内修改目标对象的属性值，如背景颜色或alpha值
-![image](../../img/objectAnimator.png)
+![image](../../img/objectAnimator.jpg)
+
+参考文章：
+[属性动画 ValueAnimator 运行原理全解析](https://cloud.tencent.com/developer/article/1128091)
 
 属性动画功能非常强大，也是最常用的动画方法。可自定义如下属性：
 
 - 动画时间(Duration)，指定动画总共完成所需要的时间，默认为300ms
-- 时间插值器(Time interpolation)，是一个基于当前动画已消耗时间的函数，用来计算属性的值
+- 时间插值器(Time interpolation)，是一个基于当前动画已消耗时间的函数，用来计算属性的值，直接控制动画的变化速率，形象点就是加速度，可以简单理解为变化的快慢
 - 重复次数(Repeat count)：指定动画是否重复执行，重复执行的次数，也可以指定动画向反方向地回退操作
 - 动画集(Animator sets)，将一系列动画放进一个组，可以设置
+- 估值器(TypeEvaluator)：用于计算属性动画的给定属性的取值。与属性的起始值，结束值，fraction三个值相关，控制动画的值
+
+```java
+public class AccelerateInterpolator extends BaseInterpolator {
+    public float getInterpolation(float input) {
+        if (mFactor == 1.0f) {
+            return input * input;
+        } else {
+            //这里第二个参数是第一个参数的幂，所以是指数函数啊
+            return (float)Math.pow(input, mDoubleFactor);
+        }
+    }
+}
+
+```
+
+```java
+public class IntEvaluator implements TypeEvaluator<Interger> {
+    // fraction是插值器转换后的值
+    // result = x0 + t * (x1 - x0) 这不就是一次函数吗
+    public Integer evaluate(float fraction, Integer startValue, Integer endValue) {
+        return (int)(startInt + fraction * (endValue - startInt));
+    }
+}
+```
+
 
 ### ObjectAnimator.ofFloat，是一个静态方法：
 
 - 首先创建ObjectAnimator对象，并指定target对象和属性名
 - 然后`setFloatValues(values)`方法，经几次调用，最后调用
     `KeyframeSet.ofFloat(values)`，创建了一个(含多个keyframe)的KeyframeSet对象
+
 
 ```java
 public class ObjectAnimator {
@@ -46,6 +76,11 @@ public class ObjectAnimator {
 - 该方法用于设置动画的执行总时间，调用父类的ValueAnimator的方法：
 
 ### ObjectAnimator.start：
+
+1. ValueAnimator属性动画调用start之后，会先去进行一些初始化工作，包括变量的初始化、通知动画开始事件
+2. 通过AnimationHandler将自身this添加到mAnimationCallbacks队列里，AnimationHandler是一个单例，为所有的属性动画服务，列表里存放着所有正在进行或准备开始的属性动画
+3. 如果当前存在要运行的动画，那么AnimationHandler会去通过Choreographer向底层注册监听下一个屏幕刷新信号，当接收到信号时，它的mFrameCallback会开始进行工作，工作的内容包括遍历列表来分别处理每个属性动画在当前帧的行为，处理完列表中的所有动画后，如果列表还不为 0，那么它又会通过 Choreographer 再去向底层注册监听下一个屏幕刷新信号事件，如此反复，直至所有的动画都结束。
+4. AnimationHandler 遍历列表处理动画是在 doAnimationFrame() 中进行，而具体每个动画的处理逻辑则是在各自，也就是 ValueAnimator 的 doAnimationFrame() 中进行，各个动画如果处理完自身的工作后发现动画已经结束了，那么会将其在列表中的引用赋值为空，AnimationHandler 最后会去将列表中所有为 null 的都移除掉，来清理资源。
 
 .
 .
