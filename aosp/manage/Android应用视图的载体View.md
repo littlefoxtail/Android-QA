@@ -8,38 +8,10 @@
 
 <!-- /code_chunk_output -->
 
+![img](/img/view_measure_layout_draw.png)
+
 # Android显示框架：Android应用视图的载体View
 
-```sequence {theme="simple"}
-ViewRootImpl->ViewRootImpl: 1.performTraversals
-ViewRootImpl->ViewRootImpl: 2.measureHierarchy
-ViewRootImpl->ViewRootImpl: 3.relayoutWindow
-ViewRootImpl->Session: 4.relayout
-Session->WindowManagerService: 4.relayoutWindow
-
-ViewRootImpl->ViewRootImpl: 5.重新测performMeasure
-
-ViewRootImpl->ViewRootImpl: 6.performLayout
-ViewRootImpl->ViewRootImpl: 7.performDraw
-
-
-```
-
-```sequence {theme="simple"}
-ViewRootImpl->ViewRootImpl:1.measureHierarchy
-ViewRootImpl->ViewRootImpl:2.measureHierarchy:getRootMeasureSpec
-ViewRootImpl->ViewRootImpl:3.measureHierarchy:performMeasure
-```
-
-```sequence {theme="simple"}
-WindowManagerService->WindowManagerService: 1.relayoutWindow
-WindowManagerService->WindowManagerService: 2.createSurfaceControl
-
-WindowManagerService->WindowSurfacePlacer: 3.performSurfacePlacement
-WindowSurfacePlacer->WindowSurfacePlacer: 4.performSurfacePlacementLoop
-WindowSurfacePlacer->RootWindowContainer: 5.performSurfacePlacement
-
-```
 
 
 
