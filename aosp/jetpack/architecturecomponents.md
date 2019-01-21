@@ -14,7 +14,7 @@
 1. 用户不会因为系统销毁我们的应用而导致丢失数据
 2. 我们的应用可以在网络状况不好甚至断网的情况下继续工作
 
-![app_architecture](../../img/app_architecture.png)
+![app_architecture](/img/app_architecture.png)
 
 * *UI Controllers* - UI Controllers 是activities或者是fragments，只做如何显示数据和传递事件UI，UI Controllers既不包含UI数据也不直接操作数据。
 * *ViewModel 和LiveData*-这些类代表UI所显示的所有的数据
@@ -254,7 +254,7 @@ Lifecycle使用两个主要枚举来跟踪有关联组件的生命周期状态
 ### State
 
 由Lifecycle对象跟踪的组件的当前状态
-![lifycycle](../../img/lifecycle-states.png)
+![lifycycle](/img/lifecycle-states.png)
 
 生命周期管理(Lifecycle)帮助开发者创建“可感知生命周期的”组件，让其自己管理自己的生命周期，从而减少内存泄露和崩溃的可能性。
 生命周期库是其他架构组件的基础
