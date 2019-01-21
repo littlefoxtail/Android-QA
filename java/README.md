@@ -7,7 +7,7 @@
 
 - TODO
   - **[java中的同步](同步/README.md)**
-  - **[java中的集合](collection.md)**
+  - **[java中的集合](集合/README.md)**
   - **[FileChannel和ByteBuffer](filechannelbytebuffer.md)**
   - **[红黑树的理解](redblacktree.md)**
   - **[java基础](javabasic.md)**
