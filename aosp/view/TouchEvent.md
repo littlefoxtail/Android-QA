@@ -40,40 +40,6 @@ PS: 从上表可以看到 Activity 和 View 都是没有事件拦截的，这是
 >
 > View最为事件传递的最末端，要么消费掉事件，要么不处理进行回传，根本没必要进行事件拦截。
 
-## 事件分发流程
-
-```text
-Native层 -> WMS -> ViewRootImp -> PhoneWindow$decorView.dispatchPointerEvent ->Activity.dispatchTouchEvent －> PhoneWindow.superDispatchTouchEvent －> DecorView.superDispatchTouchEvent －> ViewGroup.dispatchTouchEvent －> ... －> View.dispatchTouchEvent
-```
-
-```sequence
-Native->InputEventSender:1. dispatchInputEventFinished
-InputEventSender->ImeInputEventSender:2.onInputEventFinished
-ImeInputEventSender->InputMethodManager:3.finishedInputEvent
-InputMethodManager->InputMethodManager:4.invokeFinishedInputEventCallback
-InputMethodManager->InputMethodManager.PendingEvent:5.run
-PendingEvent->ImeInputState:6.onFinishedInputEvent
-ImeInputState->AsyncInputStage:7.forward
-AsyncInputStage->InputStage:8.forward
-InputStage->InputStage:9.forward:onDeliverToNext
-InputStage->InputStage:10.onDeliverToNext:deliver
-InputStage->ViewPostImeInputStage:11.onProcess
-ViewPostImeInputStage->ViewPostImeInputStage:12.processPointerEvent
-ViewPostImeInputStage->DecorView:13.processPointerEvent:dispatchPointerEvent
-DecorView->View:14.dispatchPointerEvent
-View->ViewGroup:15.dispatchTouchEvent
-
-
-
-```
-
-```sequence
-ViewGroup->ViewGroup:1.dispatchTouchEvent
-ViewGroup->ViewGroup:2.cancelAndClearTouchTargets
-ViewGroup->ViewGroup:3.cancleAndClearTouchTargets:dispatchTransformedTouchEvent
-ViewGroup->ViewGroup:4.onInterceptTouchEvent
-
-```
 
 ### 在Native层android系统的事件流程：
 
@@ -378,7 +344,7 @@ ACTION\_DOWN->ACTION\_MOVE->ACTION\_MOVE...->ACTION_UP.
 
 ## 四、谁来处理Touch事件
 
-![View](../img/View.jpg)
+![View](/img/View.jpg)
 
 ## 五、怎么处理Touch事件
 
@@ -488,6 +454,6 @@ Activity持有一个Window，而Window持有一个DecorView。而事件是至上
 3. ViewGroup作为容器类View，对事件的处理多了onInterceptTouchEvent这个阻断方法，其实我们只要看onDispatchTouchEvent就行了，因为它会在这个方法中调用onInterceptTouchEvent做是否阻断的判定。
 4. 返回true，通常表示处理或消费了事件，不再传递。
 
-
-
 通过Thread.dumpStack()来打印出当前线程的调用栈信息
+
+> 1. 不管是ViewRootImpl的dispatchInputEvent方法，还是WindowInputEventReceiver的dispatchInputEvent方法，它们本质上都是调用deliverInputEvent方法来处理点击事件的消息。

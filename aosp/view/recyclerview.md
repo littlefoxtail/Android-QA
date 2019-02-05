@@ -1,3 +1,8 @@
+# RecyclerView
+
+RecyclerView是Android5.0提出的新UI控件
+A flexible view for providing a limited window into a large data set
+
 # RecyclerView的设计结构
 
 - RecyclerView创建流程
@@ -11,13 +16,79 @@
 RecyclerView继承于ViewGroup，实现ScrollingView与NestedScrollingChild接口
 
 对比ListView：
+ListView相比RecyclerView，有一些优点：
 
-|Item复用方面|样式丰富方面|效果增强|代码内聚|
-|:---:|:---:|:---:|:---:|
-|RecyclerView|内置了RecyclerViewPool、多级缓存、ViewHolder|通过支持水平、垂直和表格列表及其他更复杂形势|内置ItemDecoration和ItemAnimator，可以自定义绘制ItemView之间的一些特殊UI或Item项数据变化时的动画效果|将功能密切相关的类写成内部类|
-|ListView|需要手动添加ViewHolder|只支持具体某一种|将这些特殊UI作为ItemView的一部分|无|
+- addHeaderView()，addFootderView()添加头视图和尾视图
+- 通过"android:divider"设置自定义分割线
+- setOnItemClickListener和setOnItemLongClickListener设置点击事件和长按事件
+
+这些功能在RecyclerView中都没有直接的接口，要自己实现，因此如果只是简单的显示功能，ListView无疑更简单
+
+||Item复用方面|样式丰富方面|效果增强|代码内聚|局部刷新|
+|:---:|:---:|:---:|:---:|:---:|:---:|
+|RecyclerView|内置了RecyclerViewPool、多级缓存、ViewHolder|通过支持水平、垂直和表格列表及其他更复杂形势|内置ItemDecoration和ItemAnimator，可以自定义绘制ItemView之间的一些特殊UI或Item项数据变化时的动画效果|将功能密切相关的类写成内部类|有|
+|ListView|需要手动添加ViewHolder|只支持具体某一种|将这些特殊UI作为ItemView的一部分|无|无|
 
 ![recyclerview_structure](../../img/recyclerview_structure.png)
+
+## ViewHolder
+
+对于Adapter来说，一个ViewHolder就对应一个data。它也是Recycler缓存池的基本单元。
+
+```java
+class ViewHolder {
+    public final View itemView; //会被当做child view来add到RecyclerView中
+    int mPosition = NO_POSITION;//标记当前的ViewHolder在Adapter中所处的位置
+    int mItemViewType = INVALID_TYPE;//这个ViewHolder的Type，在ViewHolder保存到RecyclerPool时，主要靠这个类型来对ViewHolder做复用
+    int mFlags;//标记ViewHolder的状态，比如FLAG_BOUND(显示在屏幕上)、FLAG_INVALID(无效，想要使用必须rebound)
+}
+```
+
+## Adapter
+
+它的工作把data和View绑定，即上面说的一个data对应一个ViewHolder。主要负责ViewHolder的创建以及数据变化时通过RecyclerView。
+
+1. 它引用着一个数据源集合dataSource
+2. getItemCount()用来告诉RecyclerView展示的总条目
+3. 它并不是直接隐射data->ViewHolder，而是data postion->data type->viewholder。所以对于ViewHolder来说，它知道的只是它的view type
+
+## AdapterDataObservable
+
+Adapter是数据源的直接接触者，当数据源发生变化时，它需要通知给RecyclerView。这里使用的模式是观察者模式。AdapterDataObservable是数据源变化时的被观察者。
+
+RecyclerViewDataObserver是观察者。开发中我们通常使用adapter.notifyXXX()来刷新UI。
+
+## RecyclerViewDataObserver
+
+它是`RecyclerView`用来监听`Adapter`数据变化的观察者
+
+## LayoutManager
+
+它是`RecyclerView`的布局管理者，`RecyclerView`在`onLayout`时，会利用它来layoutChildren，它决定RecyclerView中的子View的摆放规则。但不知如此，它做的工作还有：
+
+1. 测量子View
+2. 对子View进行布局
+3. 对子View进行回收
+4. 子View动画的调度
+5. 负责RecyclerView滚动的实现
+
+## Recycler
+
+对于LayoutManager来说，它是ViewHolder的提供者。对于RecyclerView来说，它是ViewHolder的管理者，是RecyclerView最核心的实现。
+
+### scrap list
+
+```java
+final ArrayList<ViewHolder> mAttachedScrap = new ArrayList<>();
+ArrayList<ViewHolder> mChangedScrap = null;
+```
+
+`mAttachedScrap`和`mChangedScrap`中的View复用主要作用在`adapter.notifyXXX`时。这时候就会产生很多scrap状态的view。也可以把它理解为一个ViewHolder的缓存。不过这里获取ViewHolder时完全根据ViewHolder的position而不是item type。
+
+### mCacheViews
+
+可以把它理解为RecyclerView的一级缓存。它的默认大小为3，从中可以根据item type
+
 
 # 创建流程
 
