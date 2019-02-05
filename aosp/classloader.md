@@ -22,7 +22,7 @@ Java语言自带三个类加载器：
 
 每一个ClassLoader实例都有一个父类加载器的引用（非继承关系，关联关系），虚拟机内置的类加载器（Bootstrap ClassLoader）本身没有父类加载器，但可以用作其他ClassLoader实例的父类加载。当一个ClassLoader实例需要加载某个类，它会视图亲自搜索某个类之前，先把这个任务委托给它的父类加载器，这个过程是由上至下依次检查的
 
-![parents_delegation_model](../img/parents_delegation_model.png)
+![parents_delegation_model](/img/parents_delegation_model.png)
 
 双亲委托模型主要避免重复加载
 
@@ -123,3 +123,7 @@ public class FileSystemClassLoader extends ClassLoader {
     }
 }
 ```
+
+# Android中的ClassLoader
+
+[androidClassLoader](androidclassloader.md)

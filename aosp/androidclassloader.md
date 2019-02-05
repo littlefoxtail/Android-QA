@@ -5,7 +5,7 @@
 ## 与JVM的ClassLoader上不同
 
 JVM可以自定义ClassLoader，通过读取一个本地class文件，通过defineClass成功加载一个本地的class，android中不允许。
-![unsupported_define](../img/unsupported_define.png)
+![unsupported_define](/img/unsupported_define.png)
 
 ClassLoader#loadClass与JVM上一模一样：
 
