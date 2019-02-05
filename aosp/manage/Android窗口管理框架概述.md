@@ -4,6 +4,8 @@
 - WindowManagerService层：负责管理窗口Surface的布局和文字
 - SurfaceFinger层：将WindowManagerService管理的窗口按照一定的次序显示在屏幕上
 
+Android显示框架的角色：
+
 - Activity：应用视图的容器。
 - Window：应用窗口的抽象表示，它的实际表现是View。
 - View：实际显示的应用视图。

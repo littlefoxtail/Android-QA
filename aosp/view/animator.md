@@ -16,7 +16,7 @@
 ## 属性动画
 
 在XML中定义的动画，可在一段时间内修改目标对象的属性值，如背景颜色或alpha值
-![image](../../img/objectAnimator.jpg)
+![image](/img/objectAnimator.jpg)
 
 参考文章：
 [属性动画 ValueAnimator 运行原理全解析](https://cloud.tencent.com/developer/article/1128091)
@@ -53,13 +53,11 @@ public class IntEvaluator implements TypeEvaluator<Interger> {
 }
 ```
 
-
 ### ObjectAnimator.ofFloat，是一个静态方法：
 
 - 首先创建ObjectAnimator对象，并指定target对象和属性名
 - 然后`setFloatValues(values)`方法，经几次调用，最后调用
     `KeyframeSet.ofFloat(values)`，创建了一个(含多个keyframe)的KeyframeSet对象
-
 
 ```java
 public class ObjectAnimator {
@@ -90,7 +88,7 @@ public class ObjectAnimator {
 
 这是动画最为核心的一个类，动画最后都会走到这个类里面。
 
-见[Choreographer](../choreographer.md)
+见[Choreographer](choreographer.md)
 
 #### schduleFrameLocked
 

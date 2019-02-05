@@ -2,6 +2,8 @@
 
 ## [Animator(属性动画)](animator.md)
 
-## AnimationDrawable(逐帧动画)
+## [插值器与估值器](interpolator.md)
 
-## VectorDrawable(矢量动画)
+## [AnimationDrawable](逐帧动画)
+
+## [VectorDrawable](矢量动画)

@@ -2,8 +2,6 @@
 
 Android每隔16.6ms会刷新一次屏幕，也就是每过16.6ms底层会发出一个屏幕刷新信号，当我们的app接收到这个屏幕刷新信号时，就会去计算屏幕数据，也就是我们常说的测量、布局、绘制三大流程。这整个过程关键的一点，app需要先向底层注册监听下一个屏幕刷新信号事件，这样当底层发出刷新信号时，才可以找到上层app并回调它的方法来通知事件到达了，app才可以接着去做计算屏幕数据之类的工作。
 
-
-
 Choreographer是线程单例的，而且必须要和一个Looper绑定，因为其内部有一个Handler需要和Looper绑定
 
 DisplayEventReceiver是一个abstract class，其JNI的代码部分会创建一个IDisplayEventConnection的VSYNC监听者对象。这样，来自EventThread的VSYNC中断信号就可以传递给Choreographer对象。当VSYNC信号到来时，DisplayEventReceicer的onVsync函数将被调用。

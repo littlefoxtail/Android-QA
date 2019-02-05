@@ -87,7 +87,7 @@ public class InstallInstalling {
 }
 ```
 
-![installingAsyncTask_onPostExecute](../img/installingAsyncTask_onPostExecute.png)
+![installingAsyncTask_onPostExecute](/img/installingAsyncTask_onPostExecute.png)
 
 ```java
 public PackageInstaller {

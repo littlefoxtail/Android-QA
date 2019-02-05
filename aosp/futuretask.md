@@ -78,7 +78,7 @@ FutureTask：一个可以取消的异步任务执行类，这个类提供了Futu
 
 ### 类关系
 
-![image](../img/FutureTask.jpg)
+![image](/img/FutureTask.jpg)
 
 ### 成员变量
 

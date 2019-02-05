@@ -27,12 +27,12 @@ Linux现有的进程通信手段：
 
 ## 从内核空间与用户空间角度
 
-![binder_structure](../img/binder_structure.png)
+![binder_structure](/img/binder_structure.png)
 每一个Android应用都是一个独立的Android进程，它们拥有自己独立的虚拟地址空间，应用进程处于用户空间之中，彼此之间互相独立，不能共享。但是内核空间却是可以共享的，Client进程向Server进程通信，就是利用进程间可以共享的内核地址空间来完成底层的通信工作。Client进程与Server端进程往往采用ioctl等方法跟内核空间的驱动进行交互
 
 ## 从Java与C++分层的角度
 
-![binder_detail_structure](../img/binder_detail_structure.png)
+![binder_detail_structure](/img/binder_detail_structure.png)
 
 整个Binder通信机制中，从大的方面可以分为:
 
@@ -58,7 +58,7 @@ Framework Binder最终通过JNI调用Native Binder的功能，它们在架构上
 
 ### AIDL(Android Interface Definition Language)
 
-![原理](../img/rpc.png)
+![原理](/img/rpc.png)
 
 1. 定义AIDL文件IRemoteService.aidl，定义远程服务需要提供的功能
 
@@ -258,6 +258,6 @@ BpBinder(客户端)和BBinder(服务端)都是Android中Binder通信相关的代
 ### Binder类分层
 
 整个Binder从kernel至，native, JNI, Framework层所涉及的全部类
-![image](../img/java_binder_framework.jpg)
+![image](/img/java_binder_framework.jpg)
 
 ## 二、初始化

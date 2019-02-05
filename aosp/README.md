@@ -1,12 +1,11 @@
 
 - **[View相关](view/README.md)**
 - **[Jetpack](jetpack/README.md)**
-- **[Android窗口管理](window_manager.md)**
+- **[Android的窗口管理](manager/README.md)**
 - **[ClassLoader](classloader.md)**
 - **[WebView遇到的一些问题和总结](webView.md)**
 - **[Handler](handler.md)**
 - **[Choreographer控制同步处理输入、动画、绘制](choreographer.md)**
-- **[进程与AMS的关系](ams.md)**
 - **[应用中的Context](context.md)**
 - **[LayoutInflater如何加载布局的](layoutinflater.md)**
 - **[动画](animation.md)**
@@ -17,11 +16,14 @@
 - **[ExecutorService中的关闭](executorservice.md)**
 - **[内存泄露中的强弱引用](memory.md)**
 - **[四大组件](component/README.md)**
+- **[Binder](binder.md)**
+- **[Thread Local](threadlocal.md)**
+- **[Thread Performance](thread_performance.md)**
+- **[清单文件](manifest.md)**
+- **[安卓内存泄露](memoryleak.md)**
 
 - TODO
-  - **[ActivityManagerService](ams.md)**
   - **[Application not responding](applicationnotresponding.md)**
-  - **[Choreographer启动流程](choreographer.md)**
   - **[Fragment](fragment.md)**
   - **[futuretask](futuretask.md)**
   - **[图片缓存处理](image.md)**
@@ -36,7 +38,7 @@
 
 android系统底层采用Linux作为基底，上层采用包含虚拟机的Java层以及Native层，通过系统调用(Syscall)连通系统的内核空间与用户空间。用户空间主要采用C++和Java代码，通过JNI技术打通用户空间的Java层和Native层，从而融为一体
 
-![android_boot](../img/android-boot.jpg)
+![android_boot](/img/android-boot.jpg)
 
 ## Framework层
 
