@@ -126,7 +126,7 @@ HashMap是一个关联数组、哈希表，它是线程不安全的，允许key�
 
 ### 链表节点
 
-挂载在哈希表上的元素，链表的结构：
+挂载在哈希表上的元素，链表的结构：
 
 ```java
 static class Node<K,V> implements Map.Entry<K,V> {
