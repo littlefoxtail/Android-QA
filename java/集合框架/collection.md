@@ -12,7 +12,6 @@ public Iterator<E> iterator() {
 }
 ```
 
-
 ```java
 public listIterator<E> listIterator() {
     return listIterator(0);

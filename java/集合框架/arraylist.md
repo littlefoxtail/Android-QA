@@ -1,6 +1,9 @@
 # ArrayList
 
-ArrayList是基于数组的，而数组是定长的。
+## 总体介绍
+
+ArrayList实现了List接口，是顺序容器，即元素存放的数据与放进去的顺序相同，允许放入null元素，底层通过数组实现。
+ArrayList是基于数组的，而数组是定长的，capacity表示数组的实际大小。
 ArrayList可以动态调整大小，可以才可以无感知的插入多条数据，也说明其必然有一个默认的大小。而要想扩充数组的大小，只能通过复制
 
 ArrayList实现了List、RandomAccess接口，可插入空数据，也支持随机访问。
