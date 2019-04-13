@@ -137,6 +137,9 @@
 
 # 创建型模式（六种)
 
+- 创建型模式(Creational Pattern)对类的实例化过程进行了抽象，能够将软件模式中对象的创建和对象的使用分离，为了使软件的结构更加清晰，外接对于这些对象只需要知道他们共同的接口，而不清楚其具体实现细节，使得整个系统的设计更加符合单一职责原则
+- 创建型模式在创建什么（What），由谁创建（Who），何时创建（When）等方面都为软件设计者提供了尽可能大的灵活性。创建型模式隐藏了类的实例的创建细节，通过隐藏对象如何被创建和组合在一起达到真个系统独立的目的
+
 在面向对象程序设计中，工厂通常是一个用来创建其他对象的对象。工厂是构造方法的抽象，用来实现不同的分配方案。
 有时，特定类型对象的控制过程比简单地创建一个对象更复杂。在这种情况下，工厂对象就派上用场了。工厂对象可能会动态地创建产品对象的类，或者从对象池中返回一个对象
 
@@ -743,7 +746,12 @@ public final class Hero {
 * 由于单例模式中没有抽象层，因此单例类的扩展有很大的困难
 * 单例类的职责过重，在一定程度上违背了单一职责。因为单例类既充当了工厂角色，提供了工厂方法，同时又充当了产品角色，包含一些业务方法，将产品的创建和产品的本身的功能融合到一起
 
-# 结构型模式（七种）
+# 结构型模式Structural Pattern（七种）
+
+* 描述如何将类或者对象结合在一起形成更大的结构，通过简单的组合形成复杂的、功能更为强大的结构
+* 结构型模式可以分为类结构型模式和对象结构型模式
+  * 类结构型模式关心类的组合，由多个类可以组合成一个更大的系统，在类结构型模式中一般只存在继承关系和实现关系
+  * 对象结构型关心类和对象的组合，通过关联关系使得在一个类中定义另一个类的实例对象，然后通过该对象调用其方法。根据“合成复用原则”，在系统中尽量使用关联关系来替代继承关系，因此大部分结构性模式都是对象结构型模式
 
 ## Adapter(适配器模式)
 
@@ -755,6 +763,7 @@ public final class Hero {
 根据适配器类与适配者类的关系不同，适配器模式可分为对象适配器和类适配器两种，在对象适配器模式中，适配器与适配者之间是关联关系；在类适配器模式中，适配器与适配者之间是继承关系。
 
 * Target（目标抽象类）：目标抽象类定义客户所需接口，可以是一个抽象类或接口，也可以是具体类
+
     ```java
     public interface RawingBoat {
         void row();
@@ -762,6 +771,7 @@ public final class Hero {
     ```
 
 * Adaptee（被适配者）：定义了一个已经存在的接口，这个接口需要适配，被适配者一般是一个具体类，包含了客户希望使用的业务方法
+
     ```java
     public class FishingBoat {
 
@@ -772,6 +782,7 @@ public final class Hero {
     ```
 
 * Adapter（适配器类）：适配器类可以调用另一个接口，作为一个转换器，对Adaptee和Targe进行适配，适配器类是适配器模式的核心，在对象适配器中，它通过继承Target并关联一个Adaptee对象使得二者产生关联
+
     ```java
     public class FinishBoatAdapter implements RowingBoat {
 
@@ -829,6 +840,7 @@ public final class Hero {
 桥接模式用一种巧妙的方式处理多层继承存在的问题，用抽象关联取代了传统的多层继承，将类之间的静态继承关系转换为动态的对象组合关系
 
 * Abstraction（抽象类）：用于定义抽象类的接口，定义了一个Implementor(实现类接口)类型的对象并可以维护该对象，它与Implementor之间具有关联关系，它即可以包含抽象业务方法，也可以包含具体业务方法
+
     ```java
     public interface Weapon {
         void wield();
@@ -842,6 +854,7 @@ public final class Hero {
     ```
 
 * RefinedAbstraction（扩充抽象类）：扩充由于Abstraction定义的接口，通常情况下它不再是抽象类而是具体类，它实现了抽象类声明的抽象业务方法
+
     ```java
     public class Sword implements Weapon {
         private final Enchantment enchantment;
@@ -911,7 +924,9 @@ public final class Hero {
         }
     }
     ```
+
 * Implementor（实现类接口）：这个接口不一定要与Abstraction的接口完全一致，实际上可以完全不同，一般而言，Implementor接口仅提供基本操作，而Abstraction定义的接口可能做更多复杂的事。Abstraction中不仅拥有自己的方法，还可以调用到Implementor中定义的方法，使用关联关系来替代继承关系
+
     ```java
     public interface Enchantment {
         void onActivate();
@@ -923,6 +938,7 @@ public final class Hero {
     ```
 
 * ConcreteImplementor（具体实现类）：具体实现Implementor接口，在不同的ConcreteImplementor中提供基本操作的不同实现，在程序运行时，ConcreteImplementor将替换其父类对象，提供给抽象类具体的业务操作方法
+
     ```java
     public class FlyingEnchantment implements Enchantment {
         public void onActiviate() {
@@ -956,6 +972,7 @@ public final class Hero {
     ```
 
 * Client（客户端）：
+  
     ```java
     public static void main(String[] args) {
         Sword enchantedSword = new Sword(new SoulEatingEnchantment());
@@ -1307,7 +1324,11 @@ public final class Hero {
 * [Apache Commons Proxy](https://commons.apache.org/proper/commons-proxy/)
 * Mocking frameworks Mockito, Powermock, EasyMock
 
-# 行为型模式(十一种)
+# 行为型模式Behavioral Pattern(十一种)
+
+* 是对不同的对象之间划分责任和算法的抽象化
+* 行为型模式不仅仅关注类和对象的结构，而且重点关注它们之间的相互作用
+* 通过行为型模式，可以更加清晰地划分类与对象的职责，并研究系统在运行时实例对象之间的交互。在系统运行时，对象并不是孤立的，它们可以通过相互通信与协作完成某些复杂功能，一些对象在运行时也会影响到其他对象的运行
 
 ## Chain of Responsibility Pattern(责任链模式)
 
@@ -1403,7 +1424,7 @@ public final class Hero {
         }
 
         public enum RequestType {
-        DEFEND_CASTLE, TORTURE_PRISONER, COLLECT_TAX
+            DEFEND_CASTLE, TORTURE_PRISONER, COLLECT_TAX
         }
     ```
 
