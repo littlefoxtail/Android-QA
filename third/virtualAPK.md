@@ -25,7 +25,7 @@
 
 - ActivityManagerService简称AMS，是android内核三大功能之一(另外两个是WindowManagerService和View)
   AMS主要提供主要功能
-  ![image](../img/ams.jpg)
+  ![image](/img/ams.jpg)
     1. 统一调试应用的Activity。应用程序要运行Activity，首先会报告给AMS，然后由AMS决定该Activity是否启动
     2. 内存管理。Activity退出后，其所有的进程并不会被立即杀死，从而在下次启动的时候，提高Activity的启动速度。这些Activity只有在内存吃紧的时候，才会被自动杀死
     3. 进程管理。AMS向外提供了查询系统正在运行的进程API
