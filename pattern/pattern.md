@@ -137,8 +137,8 @@
 
 # 创建型模式（六种)
 
-- 创建型模式(Creational Pattern)对类的实例化过程进行了抽象，能够将软件模式中对象的创建和对象的使用分离，为了使软件的结构更加清晰，外接对于这些对象只需要知道他们共同的接口，而不清楚其具体实现细节，使得整个系统的设计更加符合单一职责原则
-- 创建型模式在创建什么（What），由谁创建（Who），何时创建（When）等方面都为软件设计者提供了尽可能大的灵活性。创建型模式隐藏了类的实例的创建细节，通过隐藏对象如何被创建和组合在一起达到真个系统独立的目的
+* 创建型模式(Creational Pattern)对类的实例化过程进行了抽象，能够将软件模式中对象的创建和对象的使用分离，为了使软件的结构更加清晰，外接对于这些对象只需要知道他们共同的接口，而不清楚其具体实现细节，使得整个系统的设计更加符合单一职责原则
+* 创建型模式在创建什么（What），由谁创建（Who），何时创建（When）等方面都为软件设计者提供了尽可能大的灵活性。创建型模式隐藏了类的实例的创建细节，通过隐藏对象如何被创建和组合在一起达到真个系统独立的目的
 
 在面向对象程序设计中，工厂通常是一个用来创建其他对象的对象。工厂是构造方法的抽象，用来实现不同的分配方案。
 有时，特定类型对象的控制过程比简单地创建一个对象更复杂。在这种情况下，工厂对象就派上用场了。工厂对象可能会动态地创建产品对象的类，或者从对象池中返回一个对象
@@ -204,6 +204,7 @@ public class ImageReaderFactory {
 工厂方法模式提供了一个抽象工厂接口来声明抽象工厂方法，而由其子类来具体实现工厂方法，创建具体的产品对象
 
 * Product（抽象产品）：它是定义产品的接口，是工厂方法模式所创建对象的超类型，也就是产品对象的公共父类
+
     ```java
     public interface Weapon {
         WeaponType getWeaponType();
@@ -211,6 +212,7 @@ public class ImageReaderFactory {
     ```
 
 * ConcreteProduct（具体产品）：它实现了抽象产品接口，某些类型的具体产品由专门的具体工厂创建，具体工厂和具体产品之间一一对应
+
     ```java
     public class ElfWeapon implements Weapon {
         private WeaponType weaponType;
@@ -242,6 +244,7 @@ public class ImageReaderFactory {
     ```
 
 * Factory（抽象工厂）：抽象工厂类中，声明了工厂方法(Factory Method)，用于返回一个产品。抽象工厂是工厂方法模块的核心，所有创建对象的工厂方法都必须实现该接口
+
     ```java
     public interface Blacksmith {
         Weapon manufactureWeapon(WeaponType weaponType);
@@ -331,6 +334,7 @@ public class ImageReaderFactory {
 可以将一组具有同一主题的单独的工厂封装起来，正常使用中，客户端程序需要创建抽象工厂的具体实现，然后使用抽象工厂作为接口来创建这一主题的具体对象。
 
 * AbstractFactory（抽象工厂）：它声明了一组用于创建一族产品的方法，生成一组具体产品，这些产品构成了一个产品族，每一个产品都位于某个产品等级结构中
+
     ```java
     public interface KingdomFactory {
         Castle createCastle();
@@ -342,6 +346,7 @@ public class ImageReaderFactory {
     ```
 
 * ConcreteFactory(具体工厂)：它实现了在抽象工厂中声明的创建产品的方法，生成一组具体产品，这些产品构成了一个产品族，每一个产品都位于某个产品等级结构中
+
     ```java
     public class ElfKingdomFactory implements KingdomFactory {
         public Castle createCastle() {
@@ -375,6 +380,7 @@ public class ImageReaderFactory {
     ```
 
 * AbstractProduct(抽象产品)：它为每种产品声明接口，在抽象产品中声明了产品所具有的业务方法
+
     ```java
     public interface Army {
         String getDescription();
@@ -394,6 +400,7 @@ public class ImageReaderFactory {
     ```
 
 * ConcreteProduct(具体产品)：它定义具体工厂生产的具体产品对象，实现抽象产品接口中声明的业务方法
+
     ```java
     public class ElfKing implements King {
         @Override
@@ -459,8 +466,7 @@ public class ImageReaderFactory {
 
 ## 建造者模式（Builder）
 
-*通俗来讲： 允许您创建不同的对象风格，同时避免构造器污染。 当可能有几种风格的对象时很有用。 或者当创建对象时涉及很多步骤*
-
+**通俗来讲： 允许您创建不同的对象风格，同时避免构造器污染。 当可能有几种风格的对象时很有用。 或者当创建对象时涉及很多步骤**
 将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。
 建造者模式是一步一步创建一个复杂的对象，它允许用户只通过指定复杂对象的类型和内容就可以构建它们，用户不需要知道内部的具体构建细节。
 
@@ -628,6 +634,7 @@ public final class Hero {
 原型模式的工作原理：将一个原型对象传给那个要发动创建的对象，这个要发动创建的对象通过请求原型对象拷贝自己来实现创建过程。
 
 * Prototype（抽象原型类）：它是声明克隆方法的接口，是所有具体原型类的公共父类，可以是抽象类也可是接口，甚至还可以是具体实现类
+  
     ```java
     public abstract class Prototype implements Cloneable {
         public abstract Object copy() throws CloneNotSupportedException;
@@ -635,6 +642,7 @@ public final class Hero {
     ```
 
 * ConcretePrototype（具体原型类）：它实现在抽象原型类中声明的克隆方法，在克隆方法中返回自己的一个克隆对象
+  
     ```java
     public abstract class Beast extends Prototype {
 
@@ -697,6 +705,7 @@ public final class Hero {
     ```
 
 * Client（客户端）：让一个原型对象克隆自身从而创造一个新的对象，在客户类中只需要直接实例化或通过工厂方法等方式创建一个原型对象，再通过调用该对象的克隆方法即可得到多个相同的对象
+
     ```java
     Prototype obj1  = new OrcBeast("laser");
     Prototype obj2 = obj.copy();
@@ -1023,6 +1032,7 @@ public final class Hero {
 
 * Component（抽象构件）：可以是接口或抽象类，为叶子构件和容器构件对象声明接口，在该角色中可以包含所有子类共有行为的声明和实现。
     在抽象构件中定义了访问及管理它的子构件的方法
+
     ```java
     public abstract class LetterComposite {
         private List<LetterComposite> children = new ArrayList<>();
@@ -1048,8 +1058,10 @@ public final class Hero {
         }
     }
     ```
+
 * Leaf（叶子构件）：它在组合结构中表示叶子节点对象，容器节点包含子节点，其子节点可以是叶子节点，也可以容器节点，它提供一个集合用于存储子节点，
     实现了在抽象构件中定义的行为，包括哪些访问及管理子构件的方法，在其业务方法中可以递归调用其子节点的业务方法
+
     ```java
     public class Letter extends LetterComposite {
         private char c;
@@ -1064,6 +1076,7 @@ public final class Hero {
     ```
 
 * Composite（容器构件）：它在组合结构中表示容器节点对象，容器节点包含子节点，其子节点可以是叶子节点，也可以是容器节点，它提供一个集合用于存储子节点，实现了在抽象构件中定义的行为
+  
     ```java
     public class Word extends LetterComposite {
         public Word(List<Letter> letters) {
@@ -1128,6 +1141,7 @@ public final class Hero {
 装饰模式是一种用来替代你继承的技术，它通过无须定义子类的方式来给对象动态增加职责，使用对象之间的关联关系取代类之间的继承关系。在装饰模式中引入装饰类，在装饰类中既可以调用带装饰的原有类的方法，还可以增加新的方法，以扩充原有类的功能
 
 * Component（抽象构件）:它是具体构件和抽象装饰类的共同父类，声明了在具体构件展总实现的业务方法，它的引入可以使客户端以一直的方式处理未被装饰的对象以及装饰之后的对象，实现客户端的透明操作
+
     ```java
     public interface Troll {
         void attach();
@@ -1138,6 +1152,7 @@ public final class Hero {
     }
     ```
 * ConcreteComponent (具体构件类)：它是抽象构件类的子类，用于定义具体的构建对象，实现了在抽象构件中声明的方法，装饰器可以给它增加额外的责任
+
     ```java
     public class SimpleTroll implements Troll {
         @Override
@@ -1157,6 +1172,7 @@ public final class Hero {
 
 * Decorator（抽象装饰类）：它是抽象构件类的子类，用于给具体构件增加职责，但是具体职责在其子类中实现。它维护一个指向抽象构件对象的引用，通过该引用可以调用装饰之前构件对象的方法，并通过其子类扩展该方法，以达到装饰的目的
 * ConcreteDecorator(具体装饰类)：抽象装饰类的子类，负责给具体构件增加职责。每一个具体装饰类都定义了一些新的行为，它可以调用在抽象装饰类中定义的方法，并可以增加新的方法用以扩充对象的行为
+
     ```java
     public ClubbedTroll implements Troll {
         private Troll decorated;
@@ -1183,6 +1199,7 @@ public final class Hero {
     ```
 
 * Client（客户端）：
+
     ```java
     Troll troll = new SimpleTroll();
     troll.attack();
@@ -1247,6 +1264,7 @@ public final class Hero {
 定义：代理模式：给某一个对象提供一个代理或占位符，并由代理对象来控制对原对象的访问。
 
 * Subject（抽象主题角色）：它声明了真实主题和代理主题的共同接口，这样一来在任何使用真实主题的地方都可以使用代理主题，客户端通常需要针对抽象主题角色进行编程
+
     ```java
     public interface WizardTowser {
         void enter(Wizard wizard);
@@ -1254,6 +1272,7 @@ public final class Hero {
     ```
 
 * Proxy（代理主题角色）：它包含了对真实主题的引用，从而可以在任何时候操作真实主题对象；在代理主题角色中提供了一个真实主题角色相同的接口，以便在任何时候都可以替代真实主题；代理主题角色还可以控制对真实主题的使用，负责在需要的时候创建和删除真实主题对象，并对真实主题对象的使用加以约束。
+
     ```java
     public class WizardTowerProxy implements WizardTower {
         private static final int NUM_WIZARDS_ALLOWED = 3;
@@ -1276,7 +1295,9 @@ public final class Hero {
         }
     }
     ```
+
 * RealSubject（真实主题角色）：它定义了代理角色所代表的真实对象，在真实主题角色中实现了真实的业务操作，客户端可以通过代理主题角色间接调用真实主题角色中定义的操作
+
     ```java
     public class IvoryTowser implements WizardTowser {
         public void enter(Wizard wizard) {
@@ -1336,6 +1357,7 @@ public final class Hero {
 责任链模式结构的核心在于引入一个抽象处理者。
 
 * Handler（抽象处理者）：它定义了一个处理请求的接口，一般设计为抽象类，由于不同的具体处理者处理请求的方式不同，因此在其中定义了抽象请求处理方法。因为每一个处理者的下家还是一个处理者，因此在抽象处理者中定义了一个抽象处理者类型的对象，作为其对下家的引用。通过该引用，处理者可以连成一条链。
+
     ```java
     public abstract class RequestHandler {
         private static final LOGGER = LoggerFactory.getLogger(RequestHandler.class);
@@ -1359,6 +1381,7 @@ public final class Hero {
     }
 
 * ConcreteHandler（具体处理类）：它是抽象处理者的子类，可以处理用户请求，在具体处理者类中实现了抽象处理者中定义的抽象请求处理方法，在处理请求zhiIan需要进行判断，看是否有相应的处理权限，如果可以处理请求就处理它，否则将请求转发给后继者；在具体处理者中可以访问链中下一个对象，以便请求的转发。
+
     ```java
     public class OrcCommand extends RequestHandler {
         public OrcCommand(RequestHandler handler) {
@@ -1462,6 +1485,7 @@ public final class Hero {
 命令模式包含的角色：
 
 * Command(抽象命令类)：抽象命令类一般是一个抽象类或接口。在其中声明了用于执行请求的execute()等方法，通过这些方法可以调用请求接收者的相关操作
+
     ```java
     public abstract class Command {
         public abstract void execute(Target target);
@@ -1476,6 +1500,7 @@ public final class Hero {
     ```
 
 * ConcreteCommand(具体命令类)：具体命令类是抽象命令类的子类，实现了在抽象命令类中声明的方法，它对应具体的接受者对象，将接收者对象的动作绑定其中。在实现execute()方法时，将调用接收者对象的相关操作。
+
     ```java
     public class InvisibilitySpell extends Command {
         private Target target;
@@ -1542,6 +1567,7 @@ public final class Hero {
     ```
 
 * Invoker(调用者)：调用者即请求发送者，它通过命令对象来执行请求。一个调用者并不需要在设计时候确定其接收者，因此它只与抽象命令类之间存在关联关系。在程序运行时可以将一个具体命令对象注入其中，在调用具体命令对象的execute()方法，从而实现间接调用请求接收者的相关操作。
+
     ```java
     public class Wizard {
         private Deque<Command> undoStack =  new LinkedList<>();
@@ -1587,6 +1613,7 @@ public final class Hero {
     ```
 
 * Receiver(接收者)：接收者执行与请求相关的操作，它具体实现对请求的业务处理。
+
     ```java
     public abstract class Target {
         private Size size;
@@ -1632,6 +1659,7 @@ public final class Hero {
     ```
 
 * Client：
+
     ```java
     Wizard wizard = new Wizard();
     Goblin goblin = new Goblin();
@@ -1685,6 +1713,7 @@ public final class Hero {
 迭代器模式的角色：
 
 * Iterator（抽象迭代器）：它定义了访问和遍历元素的接口，声明了用于遍历数据元素的方法
+
     ```java
     public interface ItemIterator {
         boolean hasNext();
@@ -1694,6 +1723,7 @@ public final class Hero {
     ```
 
 * ConcreteIterator（具体迭代器）：它实现了抽象迭代器接口，完成了对聚合对象的遍历。同时在具体迭代器中通过游标来记录在聚合对象中的位置，在具体实现时，游标通常是一个表示位置的非负整数
+
     ```java
     public class TreasureChestItemIterator implements ItemIterator {
         private TreasureChest chest;
@@ -1738,9 +1768,11 @@ public final class Hero {
         }
     }
     ```
+
 * Aggregate(抽象聚合类)：它用于存储和管理元素对象，声明一个creteIterator()方法用来创建一个迭代器对象，充当抽象迭代器工厂角色
 
 * ConcreteAggregate（具体聚合类）：它实现了在抽象聚合类中声明的createIterator()方法，该方法返回一个与该具体聚合类对应的具体迭代器ConcreteIterator实例
+
     ```java
     public class TreasureChest {
         private List<Item> items;
@@ -1770,6 +1802,7 @@ public final class Hero {
         }
     }
     ```
+
 迭代器模式是一种使用频率非常高的设计模式，通过引入迭代器可以将数据遍历功能从聚合对象中分离出来，聚合对象只负责存储数据，而遍历数据由迭代器来完成
 
 ### 迭代器模式优点
@@ -1813,6 +1846,7 @@ public final class Hero {
 观察者模式(Observer Pattern):观察者模式又叫做发布-订阅(Publish/Subscribe)模式、模型-视图(Model/View)模式、源-监听器(Source/Listener)模式
 
 * Subject(目标):目标指被观察者。在目标中定义了一个观察者集合，一个观察目标可以接受任意数量的观察者来观察，它提供了一系列方法来增加和删除观察者对象，同时它定义了nofity()。目标类可以是抽象类或者具体类
+
     ```java
     public class Weather {
         private WeatherType currentWeather;
@@ -1848,6 +1882,7 @@ public final class Hero {
 * ConcreteSubject（具体目标）：具体目标是目标类的子类，通常包含有经常发生改变的数据，当它的状态发生改变时，向它的各个观察者发出通知；同时它还实现了在目标类中定义的抽象业务逻辑方法。如果无须扩展目标类，则具体目标类可以省略
 
 * Observer（观察者）:观察者将堆观察目标的改变作出反应，观察者一般定义为接口，该接口声明了更新数据的`update`，因此称为抽象观察者
+
     ```java
     public interface WeatherObserver {
         void update(WeatherType currentWeather);
@@ -1905,6 +1940,7 @@ public final class Hero {
 允许一个对象在其内部状态改变时改变它的行为，对象看起来似乎修改了它的类。状态模式是一种对象行为型模式。
 
 * Context(环境类)：环境类又称为上下文类，它是拥有多种状态的对象。由于环境类的状态存在多样性且在不同状态下对象的行为有所不同，因此将状态独立出去形成单独的状态类。在环境类中维护了一个抽象状态State的实例。
+
     ```java
     public class Mammoth {
     private State state;
@@ -1937,6 +1973,7 @@ public final class Hero {
     ```
 
 * State（抽象状态类）：它用于定义一个接口以封装与环境类的一个特定状态相关的行为，在抽象状态类中声明了各种不同状态对应的方法，而在其子类中实现类这些方法，由于不同状态下的对象的行为可能不同，因此在不同子类中方法的实现可能存在不同，相同方法可以写在抽象状态类中
+
     ```java
     public interface State {
         void onEnterState();
@@ -1946,6 +1983,7 @@ public final class Hero {
     ```
 
 * ConcreteState(具体状态类)：它是抽象状态类的子类，每一个子类实现一个与环境类的一个状态相关的行为，每一个具体状态类对应环境的一个具体状态，不同具体状态类其行为有所不同。
+
     ```java
     public class AngryState implements State {
         private Mammoth mammoth;
@@ -2043,12 +2081,15 @@ public final class Hero {
     ```
 
 * Strategy(抽象策略类)：它为所支持的算法声明了抽象方法，是所有策略类的父类，它可以是抽象类或具体类，也可以是接口。环境类通过抽象策略类中声明的方法在运行时调用具体策略类中实现的算法。
+
     ```java
     public interface DragonSlayingStrategy {
         void execute();
     }
     ```
+
 * ConcreteStrategy(具体策略类)：它实现了在抽象策略类中声明的算法，在运行时，具体策略类将覆盖在环境类中定义的抽象策略类对象，使用一种具体的算法实现某个业务处理。
+
     ```java
     public class MeleeStrategy implements DragonSlayingStrategy {
         public void execute() {
