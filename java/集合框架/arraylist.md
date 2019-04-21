@@ -82,6 +82,14 @@ private void wirteObject(java.io.ObjectOutputStream s) throws java.io.IOExceptio
 
 当对象中自定义了writeObject和readObject方法时，JVM会调用这两个自定义方法来实现序列化与反序列化
 
+## 与LinkedList异同
+
+- 是否保证线程安全：ArrayList和LinkedList都是不同步的，不保证线程安全
+- 底层数据结构：ArrayList底层使用Object数组；LinkedList底层使用的是双向链表数据结构
+- 插入和删除是否受元素位置的影响：1.ArrayList插入和删除元素的时间复杂度受元素位置的影响。2.LinkedList采用链表存储，所以插入，删除元素时间复杂度不受元素的影响，都是近似 O（1）而数组为近似 O（n）
+- 是否支持快速随机访问：LinkedList不支持搞笑的随机元素访问，而ArrayList支持。快速随机访问就是通过元素的序号快速获取元素对象(对应于get(int index) 方法)
+- ArrayList的空 间浪费主要体现在在list列表的结尾会预留一定的容量空间，而LinkedList的空间花费则体现在它的每一个元素都需要消耗比ArrayList更多的空间（因为要存放直接后继和直接前驱以及数据）
+
 ## Vector
 
 Vector也是实现了`List`，底层数据结构和`ArrayList`类似，也是一个动态数组存放数据。不过在add()方法的时候`synchronized`进行同步写数据，开销较大，所以`Verctor`是一个同步容器并不是一个并发容器。
@@ -97,3 +105,4 @@ public synchronized boolean add(E e) {
 
 ![vector_add](/img/vector_add.png)
 ![insertElementAt](/img/insertElementAt.png)
+
