@@ -6,15 +6,19 @@
 
 ![Image](/img/extend.gif)
 ![context_uml](/img/context_uml.png)
-Context类本身是一个纯abstract类。为了使用方便又定义Context包装类-ContextWrapper,
-ContextWrapper构造函数中必须包含一个真正Context引用，同时ContextWrapper中有attachBaseContext()
-用于给ContextWrapper对象中指定真正的Context对象.
 
-ContextThemeWrapper内部包含了与主题相关的接口。这里的主题就是指在Androidmanifest.xml中通过android:theme
-为Application或者Activity指定的主题。
+Context类本身是一个纯abstract类。为了使用方便又定义Context包装类
+
+1. ContextImpl类真正实现了Context中所有的函数:
+   - ContextWrapper Context的代理类，委托到另一个Context
+   - Application/Activity/Service通过attach()设置委托对象
+   - ContextThemeWrapper内部包含了与主题相关的接口。这里的主题就是指在Androidmanifest.xml中通过android:theme，为Application或者Activity指定的主题。
 只有Activity才需要主题，Service默默的后台工作不需要，所以Service直接继承ContextWrapper
-
-ContextImpl类真正实现了Context中所有的函数。
+2. Application:四大组件属于某一Application, 获取所在Application:
+   - Activity/Service：是通过其方法getApplication，可主动获取当前的所在mApplication；
+     - mApplication是由LoadedApk.makeApplication过程所初始化
+   - Receiver：只能在onReceiver方法里
+   - provider：无
 
 ## 什么时候创建的Context
 
