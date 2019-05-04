@@ -7,18 +7,18 @@
 * 控制器：翻译用户的输入并依照用户的输入操作模型和视图；
 * 模型：管理应用的行为和数据，响应时间请求（经常来自视图）和更新状态的指令（检查来自控制器）
 
-![mvc](../img/Standard-MVC.jpg)
+![mvc](/img/Standard-MVC.jpg)
 控制器负责对模型中的数据进行更新，而视图向模式中请求数据；当有用户的行为触发操作时候，会有控制器更新模型，并通知视图进行更新，在这时视图向模型请求新的数据。
 
 ## 依赖关系
 
 在MCV中，模型层可以单独工作，而视图层和控制器层都依赖于模型层中的数据。
-![relationship](../img/Essential-Dependencies-in-MVC.jpg)
+![relationship](/img/Essential-Dependencies-in-MVC.jpg)
 
 # MVP
 
 MVP是MVC的一个变种，最大的区别就是MVP中使用Presenter对视图和模型进行了解耦，它们都对对方一无所知，沟通都通过Presenter进行。
-![tu](../img/Standard-MVP.jpg)
+![tu](/img/Standard-MVP.jpg)
 常见的MVP架构：1. Passive View 2. Supervising Controller
 
 ## 被动视图（Passive View）
@@ -28,23 +28,24 @@ MVP第一个变种就是被动视图(Passive View)，在该变种架构模式中
 ### 依赖关系
 
 视图成为了完全被动的并且不再根据模型来更新视图本身的内容。
-![image](../img/Essential-Dependencies-in-Passive-View.jpg)
+![image](/img/Essential-Dependencies-in-Passive-View.jpg)
 因为视图层不依赖与任何层级也就最大化了视图层的可测试性，同时也将视图层和模型层进行了合理的分离，两者不再互相依赖
 
 ### 通信方式
 
 被动视图的示意图中一共有四条线，用于表示Model、View和Presenter之间的通信：
-![image](../img/Passive-View-with-Tags.jpg)
+![image](/img/Passive-View-with-Tags.jpg)
 
 1. 当视图接收到来自用户的事件时，会将事件转交给Presenter进行处理
 2. 被动的视图向外界暴露接口，当需要更新视图时候Presenter通过视图暴露的接口更新视图内容
 3. Presenter负责对模型进行操作和更新，在需要时取出其中存储的信息
 4. 当模型层改变时，可以将改变的信息发送给观察者Presenter
+
 在MVP的变种被动视图中，模型的操作以及视图的更新都仅通过Presenter作为中间人进行
 
 ## 监督控制器（Supervising Controller）
 
-![image](../img/Supervising-Controller.jpg)
+![image](/img/Supervising-Controller.jpg)
 
 在监督控制器中，视图层接管了一部分视图逻辑，主要内容就是同步简单的视图和模型的状态；
 而监督控制器就需要负责相应用户的输入以及一部分更加复杂的视图、模型状态同步工作。
@@ -53,6 +54,7 @@ MVP第一个变种就是被动视图(Passive View)，在该变种架构模式中
 剩下的无法通过上述方式直接绑定的属性就需要通过监督控制器来操作和更新了。
 
 ### 通信方式
+
 监督控制器中的视图和模型层之间增加了两者之间的耦合，也就增加了整个架构的复杂性
 
 视图和模型之间新增的依赖就是数据绑定的产物；视图通过声明式的语法与模型中的简单属性进行绑定，当模型发生改变时，会通知其观察者视图做出相应的更新。
@@ -82,9 +84,9 @@ MVVM(Model-view-viewmodel)是一种软件架构模式。
 MVVM有助于将图形用户界面的开发与业务逻辑或后端（数据模型）开发分离开来。
 MVVM的视图模型是一个值转换器，这意味着视图模型负责从模型中暴露（转换）数据对象，以便轻松管理和呈现对象。在这方面，视图模型比视图做的更多，并且处理大部分视图的显示逻辑。视图模型可以实现中介者模式。
 
-![image](../img/Model-View-ViewModel.jpg)
+![image](/img/Model-View-ViewModel.jpg)
 在MVVM的实现中，引入了隐式的一个Binder层，而声明式的数据和命令的绑定在MVVM模式中就是通过它完成的
-![image](../img/Binder-View-ViewModel.jpg)
+![image](/img/Binder-View-ViewModel.jpg)
 通过隐式的Binder来完成视图和视图模型两者之间的双向绑定。
 MVVM中，其中最重要的不是如何同步视图和展示模式/视图模型之间的状态，是使用观察者模式、双向绑定还是其他机制都不是整个模式中最重要的部分，最为关键的展示模型/视图模型创建了一个视图的抽象，将视图中的状态和行为抽离出一个新抽象
 
@@ -129,7 +131,7 @@ Model层最大的特点是被赋予了数据获取的职责，与我们平常Mod
 
 ## 如何协作
 
-![image](../img/mvvm.png)
+![image](/img/mvvm.png)
 
 MVVM不是从MVP进化而来，而是在MVP之后出现的一种“更好的”UI模式解决方案
 ViewModel大致上就是MVP的Presenter的MVC的Controller了，而View和ViewModel间没有了MVP的界面接口，而是直接交互，用数据“绑定”的形式
