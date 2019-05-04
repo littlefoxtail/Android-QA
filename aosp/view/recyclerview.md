@@ -1,9 +1,9 @@
 # RecyclerView
 
-RecyclerView是Android5.0提出的新UI控件
+RecyclerView是Android5.0提出的新UI控件，在限定的视图内展示大量的数据
 A flexible view for providing a limited window into a large data set
 
-# RecyclerView的设计结构
+## RecyclerView的设计结构
 
 - RecyclerView创建流程
 - RecyclerView布局策略管理器LayoutManager
@@ -29,7 +29,14 @@ ListView相比RecyclerView，有一些优点：
 |RecyclerView|内置了RecyclerViewPool、多级缓存、ViewHolder|通过支持水平、垂直和表格列表及其他更复杂形势|内置ItemDecoration和ItemAnimator，可以自定义绘制ItemView之间的一些特殊UI或Item项数据变化时的动画效果|将功能密切相关的类写成内部类|有|
 |ListView|需要手动添加ViewHolder|只支持具体某一种|将这些特殊UI作为ItemView的一部分|无|无|
 
-![recyclerview_structure](../../img/recyclerview_structure.png)
+![recyclerview_structure](/img/recyclerview_structure.png)
+
+### 设计模式
+
+- 通过桥接模式，使得RecyclerView将布局方式独立成LayoutManager，实现对布局的定制化
+- 通过组合模式，使RecycleView通过dispatchLayout对item view进行布局绘制
+- 通过适配器模式，ViewHolder将RecyclerView与ItemView联系起来，使得RecycleView方便操作itemView
+- 通过观察者模式，给ViewHolder注册观察者，当调用notifyDataSetChanged时，就能重新绘制
 
 ## ViewHolder
 
@@ -91,9 +98,9 @@ ArrayList<ViewHolder> mChangedScrap = null;
 
 可以把它理解为RecyclerView的一级缓存。它的默认大小为3，从中可以根据item type
 
-# 创建流程
+## 创建流程
 
-## 构造
+### 构造
 
 ```java
 public RecyclerView(Contex context, AttributeSet attrs, int defStyle) {
@@ -116,9 +123,6 @@ public RecyclerView(Contex context, AttributeSet attrs, int defStyle) {
     initAdapterHelper();
     //初始化ChildHelper，它是一个工具类，用来向RecyclerView移除和添加子View
     initChildrenHelper();
-
-
-
 }
 ```
 
@@ -127,7 +131,7 @@ RecyclerView初始化了两个重要的工具类
 - AdapterHelper：用来对Adapter里的操作进行排队和处理
 - ChildHelper：用来向RecyclerView移除
 
-## setLayoutManager()
+### setLayoutManager()
 
 ```java
 public class RecyclerView extends ViewGroup {
@@ -319,114 +323,15 @@ public void onLayoutChild(RecyclerView.Recycler recycler, RecyclerView.State sta
 |ViewFlinger|快速滑动管理|
 |NestedScrollingChildHelper|管理子View嵌套滑动|
 
-RecyclerView的Measure过程
 
-```java
-@Override
-protected void onMeasure(int widthSpec, int heightSpec) {
-    if (mLayout == null) {
-        // 1.没有LayoutManager的情况
-        defaultOnMeasure(widthSpec, heightSpec)
-    }
-    if (mLayout.mAutoMeasure) {
-        // 2. 有LayoutManager并开启了自动测量
-    } else {
-        // 3. 有LayoutManager但没有开启自动测量
 
-    }
-}
-```
 
-RecyclerView的自动测绘过程
-
-```java
-protected void onMeasure(int widthSpec, int heightSpec) {
-    if (mLayout.mAutoMeasure) {
-        // 1. 首先执行的LayoutManager的onMeasure方法
-        // 2. 检查width和height都已经是精确值的嘶吼，就不用再跟进内容进行计算所需要的width和height
-        final int widthMode = MeasureSpec.getMode(widthSpec);
-        final int heightMode = MeausreSpec.getMode(heightSpec);
-        final boolean skipMeasure = widthMode = MeasureSpec.EXACTLY 
-            && heightMode == MeasureSpec.EXACTLY;
-        mLayout.onMeasure(mRecycler, mState, widthSpec, heightSpec);
-        if (skipMeasure || mAdapter == null) {
-            return;
-        }
-        // 开启布局流程计算出所有Child的边界
-        // 然后根据计算出的child的边界计算出RecyclerView的所需width和heght
-        // 检查是否需要再次测量
-        if (mState.mLayoutStep == State.STEP_START) {
-            dispatchLayoutStep1();
-        }
-        mLayout.setMeasureSpecs(widthSpec, heightSpec);
-        mState.mIsMeasuring = true;
-        dispatchLayoutStep2();
-        // 布局过程结束，根据Childrend中的边界信息计算并设置RecyclerView长宽的测量值
-        mLayout.setMeasuredDimensionFromChildren(widthSpec, heightSpec);
-
-        // 检查是否需要再次测量。
-        if (mLayout.shouldMeasureTwice()) {
-            mLayout.setMeasureSpecs(MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.EXACTLY),
-            MeasureSpec.makeMeasureSpec(getMeasuredHeight(), MeasureSpec.EXACTLY));
-            mState.mIsMeasuring = true;
-            dispatchLayoutStep2();
-            mLayout.setMeasuredDimensionFromChildren(widthSpec, heightSpec);
-        } else {
-
-        }
-    }
-}
-```
-
-RecyclerView的非自动测绘流程
-
-```java
-if (mHasFixedSize) {
-    // 如果RecyclerView已经设置Size固定，则执行LayoutManager onMeasure
-    mLayout.onMeasure(mRecycler, mState, widthSpec, heightSpec);
-    return;
-// 1. 如果过在测量的过程中有数据更新，则先处理更新的数据
-// 2.执行自定义测量流程，需要自定义LayoutManager实现onMeasure方法
-    if (mAdapterUpdateDuringMeasure) {
-        eatRequestLayout();
-        onEnterLayoutOrScroll();
-        processAdapterUpdatesAndSetAnimationFlags();
-
-        if (mState.mRunPredictiveAnimations) {
-            mState.mInPreLayout = true;
-        } else {
-            mAdapterHelper.consumeUpdatesInOnePass();
-            mState.mInPreLayout = false;
-        }
-        mAdapterUpdateDuringMeasure = false;
-        resumeRequestLayout(false);
-    } else if (mState.mRunPredictiveAnimation) {
-        setMeasuredDimension(getMeasureWidth(), getMeasureHeight());
-        return;
-    }
-    // 处理完新更新的数据，执行自定义测量操作
-    if (mAdapter != null) {
-        mStae.mItemCount = mAdapter.getItemCount();
-    } else {
-        mState.mItemCount = 0;
-    }
-    eatRquestLayout();
-    mLayout.onMeasure(mRecycler, mState, widthSpec, heightSpec);
-    resumeRequestLayout(false);
-    mState.mInPreLayout = false;
-}
-
-```
 
 Android默认提供的RecyclerView支持线性布局、网格布局、瀑布流布局三种，同时能够控制横向还是纵向滚动。
 
 - ViewHolder的编写规范
 - RecyclerView复用Item的工作已经完成
 - RecyclerView需要多出一步LayoutManager的设置工作
-
-
-
-
 
 # LayoutManager
 
