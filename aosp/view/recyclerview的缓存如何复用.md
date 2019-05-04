@@ -19,7 +19,7 @@ public class RecyclerView {
          * 2.mAttachedScrap
          * 3.mCachedView
          * 4.mViewCacheExtension
-         * 5.mRecyclerViewPool
+         * 5.mRecyclerPool
          * 6.mAdapter创建一个ViewHolder
          */
         ViewHolder tryGetViewHolderForPositionByDeadline(int position,
