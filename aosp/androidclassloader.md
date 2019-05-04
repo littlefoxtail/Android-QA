@@ -40,7 +40,7 @@ Dalvik虚拟机如同其他Java虚拟机一样，在运行程序时首先需要�
 
 ## Android平台的ClassLoader
 
-![classloader_tree](../img/classloader_tree.png)
+![classloader_tree](/img/classloader_tree.png)
 
 ClassLoader主要传入一个父构造器，而且一般父构造器不能为空。Android中默认无父构造器为空，默认父构造器为一个PathClassLoader且此PathClassLoader父构造器为BootClassLoader
 
