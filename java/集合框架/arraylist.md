@@ -1,5 +1,16 @@
 # ArrayList
 
+<!-- TOC -->
+
+- [ArrayList](#arraylist)
+  - [总体介绍](#%E6%80%BB%E4%BD%93%E4%BB%8B%E7%BB%8D)
+  - [add](#add)
+    - [自动扩容](#%E8%87%AA%E5%8A%A8%E6%89%A9%E5%AE%B9)
+    - [序列化](#%E5%BA%8F%E5%88%97%E5%8C%96)
+  - [与LinkedList异同](#%E4%B8%8Elinkedlist%E5%BC%82%E5%90%8C)
+  - [Vector](#vector)
+
+<!-- /TOC -->
 ## 总体介绍
 
 ArrayList实现了List接口，是顺序容器，即元素存放的数据与放进去的顺序相同，允许放入null元素，底层通过数组实现。
@@ -63,24 +74,35 @@ Arrays:
 由于ArrayList是基于动态数组实现的，所以并不是所有的空间都被使用（防止浪费了）。因此使用`transient`，可以防止自动序列化。
 
 ```java
-private void wirteObject(java.io.ObjectOutputStream s) throws java.io.IOException{
-    int expectedModCount = modConnt;
-    s.defaultWriteObject();
-
-    s.write(size);
-
-    for (int i=0; i<size; i++) {
-        s.wirteObject(elementData[i]);
+class Arraylist {
+    transient Object[] elementData;//数组默认不会被序列化
+    
+    private void readObject(java.io.ObjectInputStream s) {
+        
     }
+    
+    private void wirteObject(java.io.ObjectOutputStream s) throws java.io.IOException{
+        int expectedModCount = modConnt;
+        s.defaultWriteObject();
 
-    if (modCount != expectedModCount) {
-        throw new ConcurrentModificationException();
+        s.write(size);
+
+        for (int i=0; i<size; i++) {
+            s.wirteObject(elementData[i]);
+        }
+
+        if (modCount != expectedModCount) {
+            throw new ConcurrentModificationException();
+        }
+
     }
-
 }
+
 ```
 
 当对象中自定义了writeObject和readObject方法时，JVM会调用这两个自定义方法来实现序列化与反序列化
+
+
 
 ## 与LinkedList异同
 

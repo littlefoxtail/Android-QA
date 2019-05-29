@@ -1,5 +1,15 @@
 # LinkedList
+<!-- TOC -->
 
+- [LinkedList](#linkedlist)
+  - [总体介绍](#%E6%80%BB%E4%BD%93%E4%BB%8B%E7%BB%8D)
+  - [方法剖析](#%E6%96%B9%E6%B3%95%E5%89%96%E6%9E%90)
+    - [add()](#add)
+    - [remove](#remove)
+    - [get()](#get)
+    - [set()](#set)
+
+<!-- /TOC -->
 ## 总体介绍
 
 LinkedList同时实现了List接口和Deque接口，也就说它既可以看作一个顺序容器，又可以看作一个队列（Queue），同时又可以看作一个栈（Stack）。这样看来，LinkedList简直就是一个全能冠军。关于栈和队列，现在首选是ArrayDeque，它有比LinkedList（当作栈或队列使用时）有着更好的性能。
@@ -65,7 +75,7 @@ void linkBefor(E e, Node<E> succ) {
 }
 ```
 
-## remove
+### remove
 
 `remove()`方法也有两个版本
 
@@ -99,7 +109,7 @@ E unlink(Node<E> x) {
 }
 ```
 
-## get()
+### get()
 
 ```java
 public E get(int index) {
@@ -107,7 +117,7 @@ public E get(int index) {
 }
 ```
 
-## set()
+### set()
 
 ```java
 public E set(int index, E element) {
