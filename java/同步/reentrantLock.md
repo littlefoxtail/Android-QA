@@ -283,10 +283,12 @@ public class ReentrantLock {
 
 ## AbstractQueueSynchronizer的实现分析
 
+
+
 > AQS核心思想是，如果被请求的共享资源空闲，则将当前请求资源的线程设置为有效的工作线程，并且将共享资源设置为锁定状态。如果被请求的共享资源被占用，那么就需要一套线程阻塞等待以及被唤醒时锁分配的机制，这个机制ASQ是用CLH队列锁实现的，即将暂时获取不到锁的线程加入队列中。
 > CLH(Cralg,Landin,and Hagersten)队列是一个虚拟的双向队列（虚拟的双向队列即不纯在队列实例，仅存在结点之间的关联关系）。AQS是将每条请求共享资源的线程封装成一个CLH锁队列的一个结点(Node)来实现锁的分配
 
-![aqs_schematic](../img/aqs_schematic.png)
+![aqs_schematic](/img/aqs_schematic.png)
 
 Node的成员变量
 
@@ -379,6 +381,14 @@ waitStatus表示Node节点的一些状态，pre/next表示该队列是由双向�
         }
     }
     ```
+
+### compareAndSetState
+
+贯穿于整个ReentrantLock实现原理的重中之重，比较和替换是设计并发算法用到的一种技术。如果当前变量的值与我们期望的值相等，就使用一个新值替换当前变量的值。这些方法都是native方法，利用JNI来完成CPU指令的操作，JAVA的CAS最终利用了CPU的原子操作来保证JAVA原子操作。
+
+### setExclusiveOwnerThread
+
+只是一个简单的set操作，他更新了lock中exclusiveOwnerThread属性，
 
 # synchronized(this)
 
