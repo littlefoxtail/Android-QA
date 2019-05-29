@@ -3,7 +3,7 @@
 # 注解
 
 1. 运行时注解，性能有问题
-2. 编译时注解，核心依赖[APT(Annotation Processing Tools)](../aosp/annotationprocessingtools.md)实现
+2. 编译时注解，核心依赖[APT(Annotation Processing Tools)](/aosp/annotationprocessingtools.md)实现
 
     原理是在某些代码元素上(如类型、函数、字段等)添加注解，在编译时编译器会检查AbstactProcess的子类
     并且调用该类型的process函数，然后将添加了注解的所有元素都传递到process函数中，使得开发人员可以在
@@ -48,4 +48,4 @@
 
 # DataBinding利用编译器在背后做的那些事儿
 
-![databinding_process](../img/databinding_process.png)
+![databinding_process](/img/databinding_process.png)
