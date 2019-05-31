@@ -243,4 +243,12 @@ mHandler = new Handler(workerThread.getLooper());
 
 ![allhandler](/img/all_handler.jpg)
 
-## [你知道android的MessageQueue.idleHandler吗？](https://mp.weixin.qq.com/s/KpeBqIEYeOzt_frANoGuSg)
+## IdleHandler
+
+[你知道android的MessageQueue.idleHandler吗？](https://mp.weixin.qq.com/s/KpeBqIEYeOzt_frANoGuSg)
+
+```java
+public static interface IdleHandler {
+    boolean queueIdle();
+}
+```
