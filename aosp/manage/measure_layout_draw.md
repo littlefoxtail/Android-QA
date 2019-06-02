@@ -42,7 +42,7 @@ ViewRootImpl，他是链接WindowManager和DecoreView的纽带。更广阔可以
 向DecoreView分发收到的用户发起的event事件，如按键，触屏等事件
 
 Window是一个抽象概念，每一个Window都对应一个View和一个ViewRootImple,Window又通过ViewRootImpl与View建立联系
-![image](../../img/hierarchy.png)
+![image](/img/hierarchy.png)
 
 ## 开始
 
@@ -57,14 +57,14 @@ MeasureSpec并不是指View的测量宽高，MeasureSpec作用在于：在Measur
 View的LayoutParams根据父容器所施加的规则转换成对应的MeasureSpec，
 然后在onMeasure方法中根据这个MeasureSpec来确定View的测量宽高。
 
-* MeasureSpec数值（数值1080(二进制为: 1111011000)为例）
+- MeasureSpec数值（数值1080(二进制为: 1111011000)为例）
 
     |模式名称|模式数值(高2位)|实际数值(低30位)|
     |---|---|----|
     |UPSPECIFIED|00|000000000000000000001111011000|
     |EXACTLY|01|000000000000000000001111011000|
     |AT_MOST|10|000000000000000000001111011000|
-* View.MeasureSpec:
+- View.MeasureSpec:
 
     |模式|二进制数值|描述|
     |---|---|----|
@@ -72,7 +72,7 @@ View的LayoutParams根据父容器所施加的规则转换成对应的MeasureSpe
     |EXACTLY|01|表示父控件已经确切的指定了子View的大小|
     |AT_MOST|10|表示子View具体大小没有尺寸限制，但是存在上限，上限一般为父View大小|
 
-* 上面的测量模式跟`wrap_content`、`match_parent`以及写成固定的尺寸关系
+- 上面的测量模式跟`wrap_content`、`match_parent`以及写成固定的尺寸关系
 
     |对应关系|描述|
     |---|---|
@@ -89,20 +89,92 @@ performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
 
 ## measure测量流程
 
+View的位置
+> View的位置：在左上角(getLeft(),getTop())，该坐标是以它的父View的左上角为坐标原点，单位是pexels
+
+View大小
+> View大小：View的大小有两对值来表示。getMeasuredWidth()/getMeasuredHeight()这组值表示了该View在它的父View里期望的大小值，在measure()方法完成后可获得。 getWidth()/getHeight()这组值表示了该View在屏幕上的实际大小，在layout()方法完成后可获得。
+
+View内边距
+> View内边距：View的内边距用padding来表示，它表示View的内容距离View边缘的距离。通过getPaddingXXX()方法获取。需要注意的是我们在自定义View的时候需要单独处理 padding，否则它不会生效，这一块的内容我们会在View自定义实践系列的文章中展开
+
+View外边距
+
+> View内边距：View的外边距用margin来表示，它表示View的边缘离它相邻的View的距离。
+
+Measure过程决定了View的宽高，该过程完成后，通常都可以通过getMeasuredWith()/getMeasuredHeight()获得宽高。
+
+[测量、布局、绘制流程](measure_layout_draw.md)
+
+测量时候，measure()方法被父View调用，在measure()中做一些优化工作后，调用onMeasure()来进行实际的自我测量
+
+- View：View在onMesaure()中会计算出自己的尺寸然后保存
+- ViewGroup：ViewGroup在onMeasure()会调用所有子View的measure()让它们进行自我测量，并根据子View计算出的期望尺寸来计算出它们的实际尺寸和位置然后保存。同时，根据子View尺寸和位置来计算出自己的尺寸然后保存
+
+日常开发中接触最多的不是MeasureSpec而是LayoutParams，在View测量的时候，LayoutParams会和父View的MeasureSpec相结合被换算成View的MeasureSpec，进而决定View的大小
+
 所有View自上而下量算的过程：
 ![measure_hierarchy.png](/img/measure_hierarchy.png)
 
 如果要进行量算过程的View是ViewGroup类型，那么ViewGroup会在onMeasure方法内部遍历子View依次进行量算。
 
-* 整个应用量算的起点是ViewRootImpl类，从它开始依次对子View进行量算，如果子View是一个ViewGroup，那么又会遍历该ViewGroup的子View依次进行量算，量算会从View树的根节点，纵向递归进行，从而实现自上而下对View进行量算，直至完成对叶子节点View的量算
+- 整个应用量算的起点是ViewRootImpl类，从它开始依次对子View进行量算，如果子View是一个ViewGroup，那么又会遍历该ViewGroup的子View依次进行量算，量算会从View树的根节点，纵向递归进行，从而实现自上而下对View进行量算，直至完成对叶子节点View的量算
 
-* 如果对一个View进行量算呢？Android通过调用View的measure()方法对View进行量算，让该View的父控件知道该View想要多大的尺寸空间
+- 如何对一个View进行量算呢？Android通过调用View的measure()方法对View进行量算，让该View的父控件知道该View想要多大的尺寸空间
 
-* 具体来说，View的父控件ViewGroup会调用View的measure方法，ViewGroup会将一些宽度和高度的限制条件传递给View的measure方法
+- 具体来说，View的父控件ViewGroup会调用View的measure方法，ViewGroup会将一些宽度和高度的限制条件传递给View的measure方法
 
-* 在View的measure方法首先从成员变量中读取以前的缓存过的量算结果，如果能找到该缓存值，那么就基本完事了，如果没有找到缓存值，那么measure方法会执行onMeasure回调方法，measure方法会将上述的宽度和高度的限制条件依次传递给onMeasure方法。onMeasure方法会完成具体的量算工作，并将量算的结果通过View的setMeasuredDimension方法保存到View的成员变量mMeasuredWidth和mMeasuredHeight中
+- 在View的measure方法首先从成员变量中读取以前的缓存过的量算结果，如果能找到该缓存值，那么就基本完事了，如果没有找到缓存值，那么measure方法会执行onMeasure回调方法，measure方法会将上述的宽度和高度的限制条件依次传递给onMeasure方法。onMeasure方法会完成具体的量算工作，并将量算的结果通过View的setMeasuredDimension方法保存到View的成员变量mMeasuredWidth和mMeasuredHeight中
 
-* 量算完成之后，View的父控件就可以通过调用getMeasuredWidth、getMeausreHeight中
+- 量算完成之后，View的父控件就可以通过调用getMeasuredWidth、getMeausreHeight中
+
+### MeausreSpec
+
+在View测量的时候，LayoutParams会和父View的MeasureSpec相结合被换算成View的MeasureSpec，进而决定View的大小
+
+```java
+public class ViewGroup {
+    public static int getChildMeasureSpec(..) {
+
+    }
+}
+```
+
+- 对于顶级View（DecorView）其父MeasureSpec由窗口的尺寸和自身的LayoutParams共同确定
+- 对于普通View和MeasureSpec由父MeasureSpec和自身的LayoutParams共同确定
+
+#### 关键点1：View.onMeausre(int withMeasureSpec, int heightMeasureSpec)
+
+直接继承View来自定义View时候，需要重写onMeausre()方法，并设置wrap_content时的大小。
+因为View.getDefaultSize(int size, int measureSpec)如果不处理wrap_content就相当于match_parent。
+如何处理？
+
+```java
+@Override
+  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+      super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+      Log.d(TAG, "widthMeasureSpec = " + widthMeasureSpec + " heightMeasureSpec = " + heightMeasureSpec);
+
+      //指定一组默认宽高，至于具体的值是多少，这就要看你希望在wrap_cotent模式下
+      //控件的大小应该设置多大了
+      int mWidth = 200;
+      int mHeight = 200;
+
+      int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
+      int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
+
+      int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
+      int heightSpecSize = MeasureSpec.getSize(heightMeasureSpec);
+
+      if (widthSpecMode == MeasureSpec.AT_MOST && heightMeasureSpec == MeasureSpec.AT_MOST) {
+          setMeasuredDimension(mWidth, mHeight);
+      } else if (widthSpecMode == MeasureSpec.AT_MOST) {
+          setMeasuredDimension(mWidth, heightSpecSize);
+      } else if (heightSpecMode == MeasureSpec.AT_MOST) {
+          setMeasuredDimension(widthSpecSize, mHeight);
+      }
+  }
+```
 
 ### ViewGroup的测量过程
 
@@ -163,8 +235,8 @@ public final void measure(int widthMeasureSpec, int heightMeasureSpec) {
 }
 ```
 
-DecoreView是FragmeLayout子类，因此它实际上调用的是DecorView#onMeasure方法，最后会调用super.onMeasure，即FrameLayout#onMeasure方法
- 
+DecoreView是FragmeLayout子类，因此它实际上调用的是DecorView#onMeasure方法，最后会调用super.onMeasure，即FrameLayout#onMeasure方法。
+
 onMeasure不同的ViewGroup有着不同的实现，但大体是对每个子View进行遍历，根据ViewGroup的
 MeasureSpec及子View的layoutParams来确定自身的测量宽高，然后根据所有子View的测量宽高信息再确定父容器的测量宽高
 
@@ -173,7 +245,7 @@ MeasureSpec及子View的layoutParams来确定自身的测量宽高，然后根�
 > 3. 在不影响层级深度的情况下，使用LinearLayout和FrameLayout而不是RelativeLayout
 > 4. 布局中不得不使用ViewGroup多重嵌套时，不要使用LinearLayout改用RelativeLayout，可以有效降低嵌套数
 
-FrameLayout#onMeasure
+#### FrameLayout.onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 
 ```java
 @Override
@@ -190,6 +262,7 @@ protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         for (int i = 0; i < count; i++) {
                 if (mMeasureAllChildren || child.getVisibility() != GONE){
                 // 具体的测量函数
+                // 1.调用measureChildWidthMargins测量每一个子View的大小，找到最大高度和宽度保存在maxWidth/maxHeight
                         measureChildWidthMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
                         // 不断迭代出子View需要的最大宽度和最大高度
                         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
@@ -203,14 +276,15 @@ protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
                         }
                 } 
         }
-        // 最大宽度和高度需要叠加padding
+        // 2.将上一步计算的maxWidth/maxHeight加上padding
         maxWidth += getPaddingLefWithForegound() + getPaddingRightWithForeground();
         maxHeight += getPaddingTopWithForegound() + getPaddingBottomWithForegound();
 
-        // 需要判断是否满足设置的最小宽高的要求
+        // 3. 当前视图是否设置最小宽度和高度，如果设置有的话，并且比前面计算得到的宽度和高度还要打，就将它们当作为当前视图的宽度和高度值
         maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
         maxWidth = Math.max(maxWidth, getSuggestedMinmumWidth());
 
+        // 4.前景图， 如果设置有的话，并且它们比前面计算得到的宽度maxWidth和高度maxHeight还要大，那么就将它们作为当前视图的宽度和高度值
         final Drawable drawable = getForeground();
         if (drawable != null) {
                 maxHeight = Math.max(maxHeight, drawable.getMininumHeight());
@@ -219,7 +293,7 @@ protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // 经过一些列步骤，得到了ViewGroup的maxHeight和maxWidth的最终值
         // 表示当容器用这个尺寸就能够正常显示器所有字View
 
-        // 此处resolveSizeAndState根据数值、MeasureSpec和childState计算出最终的数值
+        // 5. 此处resolveSizeAndState根据数值、MeasureSpec和childState计算出最终的数值
         // 然后用setMeasureDimension保存到mMeasureWidth与mMeasureHeight成员变量(定义于View)
         setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, childState), resolveSizeAndState(maxHeight, heightMeasureSpec, 
         childState << MEASURED_HEIGHT_STATE_SHIFT));
@@ -247,6 +321,7 @@ protected void measureChildWithMargins(View child, int parentWidthMeasureSpec, i
         child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
 }
 ```
+
 日常开发中接触最多的不是MeasureSpec而是LayoutParams，在View测量的时候，LayoutParams会和父View的MeasureSpec
 相结合被换算成View的MeasureSpec，进而决定View的大小。
 
@@ -295,9 +370,6 @@ public static int getChildMeasureSpec(int spec, int padding, int childDimension)
 }
 ```
 
-* 对于顶级View(DecorView)其MeasureSpec由窗口的尺寸和自身的LayoutParams共同确定的
-* 对于普通View其MeasureSpec由父容器的Measure和自身LayoutParams
-
 ### View的测量过程
 
 ViewGroup提到measureChildWithMargin方法，它接收的主要参数是子View以及父容器的MeasureSpec，所以它的作用就是对子View进行测量，
@@ -319,7 +391,7 @@ protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 }
 ```
 
-### 总结
+### 测量总结
 
 测量始于DecorView，通过不断的遍历子View的measure方法，根据ViewGroup的MeasureSpec及子View的LayoutParams来决定
 子View的MeasureSpec，进一步获取子View的测量宽高，然后逐层返回，不断保存ViewGroup的测量高度。
@@ -328,6 +400,11 @@ protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
 所有View自上而下布局的调用过程：
 ![layout_hierarchy](/img/layout_hierarchy.png)
+
+在进行布局的时候，layout()方法被父View调用，在layout()中它会保存父View传进来的自己的位置和尺寸，并且调用onLayout来进行实际的内部布局。对于onLayout()，View和ViewGroup有所区别
+
+- View：由于没有子View，所以View的onLayout()什么也不做
+- ViewGroup：ViewGroup在onLayout()中会调用自己的所有子View的layout()方法，
 
 ### ViewGroup的布局流程
 
@@ -359,6 +436,7 @@ public void layout(int l, int t, int r, int b) {
                 int oldT = mTop;
                 int oldB = mBottom;
                 int oldR = mRight;
+                //1.设置四个顶点
                 //这里setOpticalFrame还是会调用setFrame
                 //setFrame方法会将新的left,top,right,bottom存储到view的成员变量
                 //返回true代表发生了view的位置和尺寸变化
@@ -366,6 +444,7 @@ public void layout(int l, int t, int r, int b) {
                         setOpticalFrame(l, t, r, b) : setFrame(l, t, r, b);
 
                 if (changed || (mPrivateFlags & PFLAG_LAYOUT_REQUIRED) == PFLAG_LAYOUT_REQUIRED) {
+                // 2. 确定View子元素的位置
                 //如果view的布局发生了变化，或者mPrivateFlags有需要LAYOUT的标签PFLAG_LAYOUT_REQUIRED,那么就会执行
                 //首先触发onLayout方法执行，View中默认的onLayout是个空方法
                 //不过继承自ViewGroup的类都要实现onLayout，从而在onLayout中依次循环子View
@@ -408,14 +487,14 @@ public void layout(int l, int t, int r, int b) {
 
 ```
 
-* 在layout()方法内部刚开始执行的时候，首先会根据mPrivateFlag3变量是否具有标志位`PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT`，是则执行
+- 在layout()方法内部刚开始执行的时候，首先会根据mPrivateFlag3变量是否具有标志位`PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT`，是则执行
     onMeasure()方法，从而对View进行量算，量算的结果会保存在View的成员变量中。量算完成后就会将mPrivateFlag3移除标签`PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT`
 
-* 如果isLayoutModeOptical()返回true，那么就会执行setOpticalFrame()方法，否则会执行setFrame()方法，并且setOpticalFrame()内部会调用setFrame()，所以无论如何都会执行setFrame()方法。setFrame()方法会将View新的left、top、right、bottom存储到View的成员变量中，并且返回一个boolean值，如果返回true表示View的位置或尺寸发生了变化，否则未发生变化。
+- 如果isLayoutModeOptical()返回true，那么就会执行setOpticalFrame()方法，否则会执行setFrame()方法，并且setOpticalFrame()内部会调用setFrame()，所以无论如何都会执行setFrame()方法。setFrame()方法会将View新的left、top、right、bottom存储到View的成员变量中，并且返回一个boolean值，如果返回true表示View的位置或尺寸发生了变化，否则未发生变化。
 
-* 如果View的布局发生了变化，或者mPrivateFlags有需要LAYOUT的标签PFLAG\_LAYOUT\_REQUIRED，就会触发onLayout方法的执行，View中默认的onLayout方法是个空方法。不过继承自ViewGroup的类都需要实现onLayout方法，从而onLayout方法中依次循环子View，并调用子View的layout方法。在执行完onLayout方法之后，从mPrivateFlags中移除标签PFLAG_LAYOUT_REQUIRED。然后会遍历注册的Layout Change事件监听器，依次调用onLayoutChange方法，这样Layout事件监听器就会得到响应
+- 如果View的布局发生了变化，或者mPrivateFlags有需要LAYOUT的标签PFLAG\_LAYOUT\_REQUIRED，就会触发onLayout方法的执行，View中默认的onLayout方法是个空方法。不过继承自ViewGroup的类都需要实现onLayout方法，从而onLayout方法中依次循环子View，并调用子View的layout方法。在执行完onLayout方法之后，从mPrivateFlags中移除标签PFLAG_LAYOUT_REQUIRED。然后会遍历注册的Layout Change事件监听器，依次调用onLayoutChange方法，这样Layout事件监听器就会得到响应
 
-* 从mPrivateFlags中移除强制layout的标签PFLAG\_FORCE_LAYOUT，向mPrivateFlags3中加入Layout完成的标签PFLAG3\_IS_LAID_OUT
+- 从mPrivateFlags中移除强制layout的标签PFLAG\_FORCE_LAYOUT，向mPrivateFlags3中加入Layout完成的标签PFLAG3\_IS_LAID_OUT
 
 #### setFrame
 
@@ -497,13 +576,13 @@ protected boolean setFrame(int left, int top, int right, int bottom) {
     }
 ```
 
-* 该方法中，会将旧left、right、top、bottom进行对比，只要不完全相同就说明View的布局发生了变化，则将changed变量设置为true。然后比较新旧尺寸是否相同，如果尺寸发生了变化，并将其保存到变量sizeChanged中，如果尺寸发生了变化，那么sizeChanged的值为true
+- 该方法中，会将旧left、right、top、bottom进行对比，只要不完全相同就说明View的布局发生了变化，则将changed变量设置为true。然后比较新旧尺寸是否相同，如果尺寸发生了变化，并将其保存到变量sizeChanged中，如果尺寸发生了变化，那么sizeChanged的值为true
 
-* 将新的left、top、right、bottom存储到View的成员变量中保存下来。并执行mRenderNode.setLeftTopRightBottom()方法会，其会调用RenderNode中原生方法的nSetLeftTopRightBottom()方法，该方法会根据left、top、right、bottom更新用于渲染的显示列表
+- 将新的left、top、right、bottom存储到View的成员变量中保存下来。并执行mRenderNode.setLeftTopRightBottom()方法会，其会调用RenderNode中原生方法的nSetLeftTopRightBottom()方法，该方法会根据left、top、right、bottom更新用于渲染的显示列表
 
-* 如果View的尺寸和之前相比发生了变化，那么就执行sizeChange()方法，该方法中又会调用onSizeChanged()方法，并将View的新旧尺寸传递进去
+- 如果View的尺寸和之前相比发生了变化，那么就执行sizeChange()方法，该方法中又会调用onSizeChanged()方法，并将View的新旧尺寸传递进去
 
-* 如果View处于可见状态，那么会调用invalidate和invalidateParentCaches方法。invalidateParentCaches()方法会移除其父控件的PFLAG_INVALIDATED标签，这样其父控件就会重建用于渲染的显示列表
+- 如果View处于可见状态，那么会调用invalidate和invalidateParentCaches方法。invalidateParentCaches()方法会移除其父控件的PFLAG_INVALIDATED标签，这样其父控件就会重建用于渲染的显示列表
 
 #### sizeChange
 
@@ -597,6 +676,9 @@ View的布局流程就已经全部分析完了。可以看出，布局流程的�
 
 ```java
 private void draw(boolean fullRedrawNeeded) {
+    //surface用来操作应用窗口的绘图表面
+    Surface surface = mSurface;
+    if (surface == null || )
     if (!dirty.isEmpty() || mIsAnimating || accessibilityFocusDirty) {
             //如果采用硬件渲染绘制且ThreadedRenderer可用，进入该流程
         if (mAttachInfo.mThreadedRenderer != null && mAttachInfo.mThreadedRenderer.isEnabled()) {
@@ -625,6 +707,7 @@ private void draw(boolean fullRedrawNeeded) {
     }
 }
 ```
+
 首先获取了mDirty值，该值保存了需要重绘区域的信息，关于视图绘制。根据fullRedrawNeeded来判断是否需要
 重置dirty区域，最后调用了ViewRootImpl#drawSoftware方法，并把相关参数传递进去，包括dirty区域
 
@@ -637,22 +720,21 @@ try {
    canvas = mSurface.lockCanvas(dirty);
    canvas.setDensity(mDensity);
 } catch (Surface.OutOfResourcesException e) {
-   
+
 }
 
 try {
+    try {
+        mView.draw(canvas);
+    } finally {
 
-        try {
-            mView.draw(canvas);
-        } finally {
-            
-        }
-    
+    }
+
 } finally {
     try {
         surface.unlockCanvasAndPost(canvas);
     } catch(IllegalArgumentException e) {
-        
+
     }
 }
 ```
@@ -669,7 +751,7 @@ try {
 2. 保存当前的图层信息
 3. 绘制View的内容
 4. 对View的子View进行绘制
-5. 绘制View的褪色的边缘，类似于阴影效果。
+5. 绘制当前视图在滑动时的边框渐变效果
 6. 绘制View的装饰
 
 View@draw
@@ -677,7 +759,7 @@ View@draw
 ```java
 public void draw(Canvas canvas) {
     int saveCount;
-
+    // 1.
     if (!dirtyOpaque) {
        drawBackground(canvas);
     }
@@ -688,13 +770,13 @@ public void draw(Canvas canvas) {
     boolean verticalEdges = (viewFlags & FADING_EDGE_VERTICAL) != 0;
 //一般情况下，不支持这种效果时
     if (!verticalEdges && !horizontalEdges) {
-        //     绘制自身内容
+        //     3. 绘制自身内容
         if (!dirtyOpaque) onDraw(canvas);
-        // 绘制child view
+        // 4. 绘制child view
         dispatchDraw(canvas);
-
+        // 6.
         onDrawForeground(canvas);
-
+        // 7.
         drawDefaultFocusHighlight(canvas);
 
     }
@@ -746,6 +828,12 @@ protected void dispatchDraw(Canvas canvas) {
 }
 ```
 
+dispatchDraw用来循环绘制子View视图，它主要做了以下事情：
+
+1. 检查是否需要显示动画，即FLAG_RUN_ANIMATION == 1，则开始显示动画，并通知动画监听者动画已经开始。
+2. 如果FLAG_USE_CHILD_DRAWING_ORDER == 0，则说明子视图按照它们在children数组里顺序进行绘制否则需要调用getChildDrawingOrder来判断绘制顺序，最终调用drawChild()来完成 子视图的绘制。
+3. 判断是否需要进行重绘以及通知动画监听者动画已经结束。
+
 ViewGroup@drawChild
 
 ```java
@@ -754,14 +842,66 @@ protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
 }
 ```
 
-View@draw(未完成)
+View@draw
 
 ```java
 boolean draw(Canvas canvas, ViewGroup child, long drawingTime) {
+    //表示子视图child是否还在显示动画
     boolean more = false;
+    //绘制子视图的ui
+    if (!drawingWithDrawingCache) {
+        if (drawingWithRenderNode) {
+            mPrivateFlags &= ~PFLAG_DIRTY_MASK;
+            ((DisplayListCanvas) canvas).drawRenderNode(renderNode);
+        } else {
+            // Fast path for layouts with no backgrounds
+            if ((mPrivateFlags & PFLAG_SKIP_DRAW) == PFLAG_SKIP_DRAW) {
+                //SKIP_DRAW， 说明需要跳过当前子视图去绘制自己的子视图
+                mPrivateFlags &= ~PFLAG_DIRTY_MASK;
+                dispatchDraw(canvas);
+            } else {
+                // 绘制自身，再绘制它的子视图
+                draw(canvas);
+            }
+        }
+    } else if (cache != null) {
+        mPrivateFlags &= ~PFLAG_DIRTY_MASK;
+        if (layerType == LAYER_TYPE_NONE || mLayerPaint == null) {
+            // no layer paint, use temporary paint to draw bitmap
+            //缓冲方式绘制，需要将上一次的Bitmap对象cache绘制到canvas上
+            Paint cachePaint = parent.mCachePaint;
+            if (cachePaint == null) {
+                cachePaint = new Paint();
+                cachePaint.setDither(false);
+                parent.mCachePaint = cachePaint;
+            }
+            cachePaint.setAlpha((int) (alpha * 255));
+            canvas.drawBitmap(cache, 0.0f, 0.0f, cachePaint);
+        } else {
+            // use layer paint to draw the bitmap, merging the two alphas, but also restore
+            int layerPaintAlpha = mLayerPaint.getAlpha();
+            if (alpha < 1) {
+                mLayerPaint.setAlpha((int) (alpha * layerPaintAlpha));
+            }
+            canvas.drawBitmap(cache, 0.0f, 0.0f, mLayerPaint);
+            if (alpha < 1) {
+                mLayerPaint.setAlpha(layerPaintAlpha);
+            }
+        }
+    }
+    //恢复画布的堆栈状态
+    if (restoreTo >= 0) {
+        canvas.restoreToCount(restoreTo);
+    }
+
 
 }
 ```
+
+## 总结
+
+1. 渲染Android应用视图的渲染流程，测量流程用来确定视图的大小、布局流程用来确定视图的位置、绘图流程最终将视图绘制在应用窗口上
+2. Android应用程序窗口UI首先是使用Skia图形库API来绘制在一块画布上，实际地是绘制在这块画布里面的一个图形缓冲区中，这个图形缓冲区最终会被交给SurfaceFlinger服 务，而SurfaceFlinger服务再使用OpenGL图形库API来将这个图形缓冲区渲染到硬件帧缓冲区中。
 
 ### 补充章节
 
@@ -971,7 +1111,7 @@ public ViewParent invalidateChildInParent(final int[] location, final Rect dirty
 
             final int left = mLeft;
             final int top =  mTop;
-            
+
             if ((mGroupFlags & FLAG_CLIP_CHILDREN) == FLAG_CLIP_CHILDREN) {
                 if (!dirty.intersect(0, 0, mRight - left, mBottom - top)) {
                     dirty.setEmpty();
