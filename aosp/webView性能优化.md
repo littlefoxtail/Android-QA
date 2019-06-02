@@ -1,4 +1,4 @@
-# WebView
+# WebView的性能优化
 
 [链接](http://motalks.cn/2016/09/11/Android-WebView-JavaScript-3/)  
 Android WebView性能优化的常用方法
@@ -84,6 +84,7 @@ WebView 的兼容性一直也是困扰我们 Android 开发者的一个大问题
 1. Webview打开一个链接，播放一段音乐，退出Activity时音乐还在后台播放，可以通过在Activity的onPause中调用webview.onPause()解决，并在Activity的onResume中调用webview.onResume()恢复。
 
 2. 5.0以后api调整，设置跨域cookie读取
+
     ```java
         public final void setAcceptThirdPartyCookies() {
             //target 23 default false, so manual set true
@@ -94,6 +95,7 @@ WebView 的兼容性一直也是困扰我们 Android 开发者的一个大问题
     ```
 
 3. 5.0之后不支持Https和Http的混合模式，需要设置
+
     ```java
     webSetting.setMixedContentMode(webSetting.getMixedContentMode())
     ```
