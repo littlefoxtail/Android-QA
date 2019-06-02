@@ -8,7 +8,7 @@ Android中，对于进程的概念被弱化，通过抽象后的四大组件，�
 
 Android系统中用于描述进程的数据结构是ProcessRecord对象，AMS便是管理进程的核心模块。四大组件定义在AndroidManifest.xml文件，每一项都可以
 用属性android:process指定所运行的进程。同一个app可以运行在同一个进程，也可以运行在多个进程，甚至多个app可以共享一个进程。
-![image](../img/process_record.jpg)
+![image](/img/process_record.jpg)
 
 ### 进程与AMS的关联
 
@@ -71,7 +71,7 @@ AMS的进程相关的成员变量:
 
 ### APP端的组件信息
 
-![image](../img/client_component.jpg) 
+![image](/img/client_component.jpg) 
 主要保存功能：
 
 * ActivityThread：记录provider,activity,service在客户端的相关信息
