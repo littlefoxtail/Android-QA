@@ -1,3 +1,5 @@
+# setVisibility
+
 View有一个方法setVisibility，作用是可以控制视图的显示和隐藏，int类型的参数可以传入三种值View.VISIBLE, View.GONE, View.INVISIBLE，其中VISIBILE表示设置视图显示，GONE和INVISIBLE设置视图隐藏，区别在于前者隐藏后不占用视图空间，而后者隐藏后依然占用视图空间
 
 ```java

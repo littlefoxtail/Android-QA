@@ -32,6 +32,6 @@
     - mCachedViews：用于移出屏幕表项的回收和复用，且只能用于指定位置的表项，有点像“回收池预备队列”，即总是先回收到mCachedViews，当它放不下的时候，按照先进先出原则将最先进入的ViewHolder存入回收池。
     - mRecyclerPool：用于移出屏幕表项的回收和复用，且只能用于指定viewType的表项
 5. 缓存结构
-    - mAttachedScrap：ArrayList<ViewHolder>
-    - mCachedViews：ArrayList<ViewHolder>
-    - mRecyclerPool：对ViewHolder按viewType分类存储在SparseArray<ScrapData>中，同类ViewHolder存储在ScrapData中的ArrayList中
+    - mAttachedScrap：`ArrayList<ViewHolder>`
+    - mCachedViews：`ArrayList<ViewHolder>`
+    - mRecyclerPool：对ViewHolder按viewType分类存储在`SparseArray<ScrapData>`中，同类ViewHolder存储在ScrapData中的ArrayList中

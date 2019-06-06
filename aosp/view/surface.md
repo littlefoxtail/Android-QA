@@ -17,7 +17,7 @@
 
 ### 创建步骤
 
-![image](../img/surface_create.png)
+![image](/img/surface_create.png)
 
 ## SurfaceView
 

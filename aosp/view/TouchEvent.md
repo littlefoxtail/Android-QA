@@ -40,7 +40,6 @@ PS: 从上表可以看到 Activity 和 View 都是没有事件拦截的，这是
 >
 > View最为事件传递的最末端，要么消费掉事件，要么不处理进行回传，根本没必要进行事件拦截。
 
-
 ### 在Native层android系统的事件流程：
 
 - Android系统是从底层驱动中获取各种原始的用户消息，包括按键、触摸屏、鼠标
@@ -131,8 +130,8 @@ final class ImeInputStage extends AsyncInputStage
         }
 ```
 
-
 经过一系列责任链：
+
 ```text
 t android.view.ViewRootImpl$ViewPostImeInputStage.processKeyEvent(ViewRootImpl.java:4152)
 at android.view.ViewRootImpl$ViewPostImeInputStage.onProcess(ViewRootImpl.java:4114)
