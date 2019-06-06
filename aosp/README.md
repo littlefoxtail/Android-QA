@@ -38,7 +38,6 @@
   - [注解处理器](annotationprocessingtools.md)
   - [Java依赖注入规范](JSR330.md)
   - [内存泄露](memoryleak.md)
-  - [内存泄露](memoryleak.md)
 
 ## Android系统
 
