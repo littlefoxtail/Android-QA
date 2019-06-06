@@ -277,6 +277,7 @@ final class BinderProxy implements IBinder {
 ## 创建IActivityManager.Proxy
 
 IActivityManager.java:
+
 ```java
 private static class Proxy implements IActivityManager {
     private IBinder mRemote;
@@ -385,5 +386,6 @@ requireForeground, callingPackage, userId);
 历经千山万水，总算进入了AMS.startService。当system_service收到BR_TRANSACTION的过程后，通信并没有完全结束，还需将服务启动完成的回应消息，告诉给发起端进程
 
 ## 总结
+
 Binder一步步调用进入到system_server进程的AMS.startSevice，整个过程涉及Java Framework，native，kernel driver各个层面知识
-![binder_ipc_process](../img/binder_ipc_process.jpg)
+![binder_ipc_process](/img/binder_ipc_process.jpg)

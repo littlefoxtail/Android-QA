@@ -49,6 +49,7 @@ ClassLoader主要传入一个父构造器，而且一般父构造器不能为空
 - URLClassLoader
     只能用于加载jar文件，但是由于dalvik不能直接识别jar，所以在Android中无法使用这个加载器
 - DexClassLoader
+
     ```java
     public class DexClassLoader extends BaseDexClassLoader {
         public DexClassLoader(String dexPath, String optimizedDirectory, String librarySearchPath, ClassLoader parent) {
@@ -60,6 +61,7 @@ ClassLoader主要传入一个父构造器，而且一般父构造器不能为空
     DexClassLoader支持加载APK、DEX和JAR，也可以从SD卡进行加载。
     dalvik不能直接识别jar,DexClassLoader却可以加载jar文件，其实在BaseDexClassLoader里对".jar"，".zip"，".apk",".dex"后缀的文件最后都会生成一个对应的dex文件，所以最终处理的还是dex文件
 - PathClassLoader
+
     ```java
     public class PathClassLoader extends BaseDexClassLoader {
         public PathClassLoader(String dexPath, ClassLoader parent) {

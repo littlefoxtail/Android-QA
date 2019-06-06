@@ -95,6 +95,7 @@ Framework Binder最终通过JNI调用Native Binder的功能，它们在架构上
         }
     }
     ```
+
     Binder具有被跨进程传输的能力是因为它实现了IBinder接口，系统会为每个实现了该接口的对象提供跨进程传输
 
     Binder具有的完成特定任务的能力是通过它的attachInterface方法获得的，Binder对象可通过attachInterface方法持有一个IInterface对象的引用，并依靠它获得完成特定任务的能力，queryLocalInterface方法可以认为是根据descriptor查找相应的IInterface对象。

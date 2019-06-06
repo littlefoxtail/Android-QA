@@ -60,7 +60,7 @@ inflate有多个不同的重载方法：
 
 ```java
 public View inflate(XmlPullParser parser, ViewGroup root, boolean attachToRoot) {
-	...
+    ...
 }
 ```
 
@@ -105,4 +105,3 @@ root != null， attachToRoot == false：
 ### 加载xml布局的原理
 
 其实就是从根节点开始，递归解析xml的每个节点，每一步递归的过程是：通过节点名称（全类名），使用ClassLoader创建对应类的实例，也就是View，然后，将这个View添加到它的上层节点（父View）。并同时会解析对应xml节点的属性作为View的属性。每个层级的节点都会被生成一个个的View，并根据View的层级关系add到对应的直接父View（上层节点）中，最终返回一个包含了所有解析好的子View的布局根View。
-

@@ -80,6 +80,7 @@ public void lock() {
 
 - 非公平锁
     非公平锁lock实现:
+
     ```java
     final void lock() {
         if (comparAndSetState(0, 1))
@@ -92,6 +93,7 @@ public void lock() {
     ```
 
     非公平锁tryAcquire(int)实现：
+
     ```java
     final boolean nonfairyTryAcquire(int acquires) {
         final Thread current = Thread.currentThread();
@@ -118,6 +120,7 @@ public void lock() {
 - 公平锁
 
     公平锁lock实现:
+
     ```java
     public class ReentrantLock {
         static final class FairSync extend Sync {
@@ -154,6 +157,7 @@ public void lock() {
     ```
 
     挂起等待线程：
+
     ```java
     public class AbstractQueuedSynchronizer {
         final boolean acquireQueed(final Node node, int arg) {
@@ -283,8 +287,6 @@ public class ReentrantLock {
 
 ## AbstractQueueSynchronizer的实现分析
 
-
-
 > AQS核心思想是，如果被请求的共享资源空闲，则将当前请求资源的线程设置为有效的工作线程，并且将共享资源设置为锁定状态。如果被请求的共享资源被占用，那么就需要一套线程阻塞等待以及被唤醒时锁分配的机制，这个机制ASQ是用CLH队列锁实现的，即将暂时获取不到锁的线程加入队列中。
 > CLH(Cralg,Landin,and Hagersten)队列是一个虚拟的双向队列（虚拟的双向队列即不纯在队列实例，仅存在结点之间的关联关系）。AQS是将每条请求共享资源的线程封装成一个CLH锁队列的一个结点(Node)来实现锁的分配
 
@@ -317,7 +319,8 @@ waitStatus表示Node节点的一些状态，pre/next表示该队列是由双向�
 
 没有成功获取同步状态的线程会被加入同步等待队列的尾部
 
-* 先创建线程节点并加入同步队列
+- 先创建线程节点并加入同步队列
+
     ```java
     private Node addWaiter(Node node) {
         Node node = new Node(Thread.currentThread(), mode);
@@ -355,7 +358,8 @@ waitStatus表示Node节点的一些状态，pre/next表示该队列是由双向�
     }
     ```
 
-* 节点入队后，自旋尝试获取同步状态
+- 节点入队后，自旋尝试获取同步状态
+
     ```java
     final boolean acquireQueue(final Node node, int arg) {
         boolean failed = true;

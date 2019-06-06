@@ -1,16 +1,3 @@
-
-
-<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
-
-<!-- code_chunk_output -->
-
-* [清单文件](#清单文件)
-	* [何时被解析的](#何时被解析的)
-	* [apk安装](#apk安装)
-		* [PackageManagerService](#packagemanagerservice)
-
-<!-- /code_chunk_output -->
-
 # 清单文件
 
 ## 何时被解析的
@@ -169,7 +156,7 @@ public class PackageManagerService {
 
     private abstract class HandlerParams {
         final boolean startCopy() {
-            
+
         }
     }
 }

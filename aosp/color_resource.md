@@ -7,7 +7,7 @@ Android提供三个材料主题风格：
 - `Theme.Material`-深色版本的材料主题，默认风格
 - `Theme.Material.Light`-材料主题的轻量版本
 - `Theme.Material.Light.DarkActionBar`-轻量版本的材料主题，但是深色操作栏
-    ![three-flavors-sml](../img/three-flavors-sml.png)
+    ![three-flavors-sml](/img/three-flavors-sml.png)
 
 ## 使用自定义主题
 
@@ -31,8 +31,8 @@ Android提供三个材料主题风格：
 |textColorPrimary|应用的主要文字颜色，actionBar的标题文字默认使用该颜色|
 |colorSwitchThumbNormal|switch thumbs 默认状态的颜色. (switch off|
 
-![color_theme](../img/color_theme.png)
-![screen-attributes-sml](../img/screen-attributes-sml.png)
+![color_theme](/img/color_theme.png)
+![screen-attributes-sml](/img/screen-attributes-sml.png)
 
 ## 兼容性
 

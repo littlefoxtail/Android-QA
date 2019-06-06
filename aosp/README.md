@@ -22,6 +22,7 @@
 - [Thread Performance](thread_performance.md)
 - [清单文件](manifest.md)
 - [安卓内存泄露](memoryleak.md)
+- [Window的源码](window.md)
 
 - TODO
   - [Application not responding](applicationnotresponding.md)
@@ -33,7 +34,6 @@
   - [自定义View的步骤](customView.md)
   - [对话框的源码分析](dialog.md)
   - [PriotiryBlockingQueue队列源码分析](priotiryblockingqueue.md)
-  - [Window的源码](window.md)
   - [彻底理解ANR应用无响应机制](彻底理解安卓应用无响应机制.md)
   - [注解处理器](annotationprocessingtools.md)
   - [Java依赖注入规范](JSR330.md)

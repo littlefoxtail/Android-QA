@@ -29,6 +29,7 @@
 
     }
     ```
+
 3. API 4-11默认是AsyncTask任务并发执行，API11后默认是顺序执行，必须等一个任务结束才能执行下一个。但是可以通过executeOnExecutor(AsyncTask.THREAD\_POOL\_EXECUTOR)来进行并行执行任务，在并行执行任务时，有最大执行个数的限制
 
     ```java

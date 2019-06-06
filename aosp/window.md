@@ -1,14 +1,17 @@
-`View`、`Window`以及`Activity`主要用于显示并与用户交互的
+# `View`、`Window`以及`Activity`主要用于显示并与用户交互的
 
-# View
+## View
+
 这个类表示用户界面组件的基本构建块。一个View在屏幕上占据一个矩形区域，负责绘制和事件处理。
 View是widgets的基类，它们是用于创交互式UI组件，
 View的子类(ViewGroup)是layout的的基类，它是包含其他Views(或者其他ViewGroups)并定义layout properties
 
-## View的生命周期
-![view_lifecycle](../img/view_lifecycle.png)
+### View的生命周期
 
-## View的构造
+![view_lifecycle](/img/view_lifecycle.png)
+
+### View的构造
+
 ```java
 public class Indicator extends View {
     public Indicator(Context context) {
@@ -41,22 +44,20 @@ public class Indicator extends View {
 }
 ```
 
-* 代码方式inflated
-
-* 从XML中inflating
-
-* 在从XML扩展视图并从主题属性应用特定于类的基本样式时创建
-
-* 在从XML扩展视图并从主题属性或样式资源应用特定于类的基本样式时创建。 这个构造函数来自API 21
+- 代码方式inflated
+- 从XML中inflating
+- 在从XML扩展视图并从主题属性应用特定于类的基本样式时创建
+- 在从XML扩展视图并从主题属性或样式资源应用特定于类的基本样式时创建。 这个构造函数来自API 21
 
 1. xml>style>Theme中的默认Sytle>默认Style（通过obtainStyledAttributes的第四个参数指定）>在Theme中直接指定属性值
 2. defStyleAtrtr即defStyle为0或Theme中没有定义defStyle时defStyleRes才起作用
 
-## Measurements
-![Measurements](../img/measurements.png)
+### Measurements
 
+![Measurements](/img/measurements.png)
 
-# Window
+## Window
+
 顶级窗口外观和行为策略的抽象基类。
 an instance of this class should be userd as the top-level view added to window manager。
 它提供了标准的UI策略，如背景，标题，区域，默认密钥处理。
@@ -64,6 +65,7 @@ an instance of this class should be userd as the top-level view added to window 
 这个抽象类的唯一实现是android.view.PhoneWindow。
 
 Window在Android中有三种类型:
+
 - 应用Window： z-index在1~99之间，它往往对应着一个Activity
 - 子Window：z-index在1000~1999之间，它往往不能独立存在，需要依附在父Window上，例如Dialog等
 - 系统Window：z-index在2000~2999之间，它往往需要声明权限才能创建
@@ -73,11 +75,8 @@ Window在Android中有三种类型:
 z-index对应着WindowManager.LayoutParams里的type参数
 
 ## 窗口参数
+
 在WindowManager里定义了一个LayoutParams内部类，它描述了窗口的参数信息：
-
-
-
-
 
 > Window负责管理View， View是Window里面用于交互的Ui元素。Window只attach一个View Tree，当Window需要重新绘制(如，当View调用invalidate)
 最终转为window的surface, surface被锁住并返回Canvas对象，此时View拿到Canvas对象来绘制自己。当所有View绘制完成后，Surface解锁，并且post到绘制缓存用于绘制，
@@ -86,6 +85,7 @@ z-index对应着WindowManager.LayoutParams里的type参数
 在Activity的attach方法中新建了PhoneWindow对象
 
 PhoneWindow的setContentView函数会调用installDecor来创建DecorView对象
+
 ```java
 public void setContentView(int layoutResId) {
     if (mContentParent == null) {
@@ -111,6 +111,7 @@ public void setContentView(int layoutResId) {
 ```
 
 在installDecor函数中调用了generateDecor函数来创建按DecorView对象
+
 ```java
 private void installDecor() {
     if (mDecor == null) {
@@ -120,13 +121,15 @@ private void installDecor() {
     }
 }
 ```
+
 ```java
 protected DecorView generateDecor() {
     return new DecorVew(getContext, -1);
 }
 ```
 
-# Activity 
+## Activity
+
 an activity is single, focused thing that the user can do.
 几乎全部activities与用户交互，所以activity类负责处理创建一个窗口。可以在其中放置UI。
 
@@ -165,6 +168,7 @@ mWindowManager = mWindow.getWindowManager();
 ```
 
 Window类的setWindowManager方法
+
 ```java
 public void setWindowManager(WindowManager wm, IBinder appToken, String appName, boolean hardwareAccelerated) {
     mAppToken = appToken;
@@ -191,6 +195,7 @@ public final class WindowManagerImpl implements WindowManager {
 ```
 
 WindowManagerGlobal类主要有3个非常重要的变量:
+
 1. mViews保存的是View对象，DecorView
 2. mRoots保存和顶层View关联的ViewRootImple对象
 3. mParams保存的是创建顶层View的layout参数
@@ -202,10 +207,8 @@ private final ArrayList<WindowMnager.LayoutParams> mParams =
     new ArrayLis<WindowManager.LayoutParams>();
 ```
 
+## WindowManager
 
-
-
-# WindowManager
 The interface that app use to talk to the window manager
 每个window manager实例绑定到一个特定的(Display)
 
@@ -213,8 +216,8 @@ mPolicy是WMS所执行的窗口管理策略类，现在android只有PhoneWindowM
 mSessions存储的是Session服务类，每个应用都在WMS中有一个对应的Session对象保存在mSessions中。
 mWindowMap保存的是所有窗口的WindowState对象。
 
+## DecorView的按键处理
 
-# DecorView的按键处理
 DecorView是PhoneWindow类的一个嵌入类，看下按键事件在DecoarView的处理过程，先是在ViewRootImpl的processKeyEvent函数
 
 ```java
@@ -241,6 +244,7 @@ final class ViewPostImeInputStage extends InputStage {
 ```
 
 在processKeyEvent调用了mView的dispatchKeyEvent函数，就是调用了DecorView的dispatchKeyEvent函数
+
 ```java
 private int processKeyEvent(QueuedInputEvent q) {
     final KeyEvent event = (KeyEvent)q.mEvent;
@@ -262,11 +266,14 @@ public boolean dispatchKeyEvent(KeyEvent event) {
     }
 }
 ```
+
 Activity的attach调用了PhoneWindow的setCallBack函数将回调设置成Activity，最后dispatchKeyEvent就会调用Activity
 的dispatchKeyEvent中。
 
-# ViewRootImpl
+## ViewRootImpl
+
 在ActivityThread的handleResumeActivity函数中会调用WindowManager的addView函数
+
 ```java
 if (r.window == null && !a.mFinished && willBeVisible) {
     r.window = r.activity.getWindow;
@@ -287,6 +294,7 @@ if (r.window == null && !a.mFinished && willBeVisible) {
 ```
 
 最后addView函数在WindowManagerImpl中实现
+
 ```java
 public void addView(View view, ViewGroup.LayoutParams params) {
     applyDefaultToken(params);
@@ -296,6 +304,7 @@ public void addView(View view, ViewGroup.LayoutParams params) {
 
 在WindowManagerImpl最后是调用了WindowManagerGlobal的addView函数，在这个函数中新建ViewRootImpl对象，然后调用了ViewRootImpl的
 setView函数，这里的View就是Activity的Window对象的DecorView。并且在这个函数中,把view root param这3个保存在mViews mRoots mParams这3个成员变量中了。
+
 ```java
 root = new ViewRootImpl(view.getContext(), display);
 view.setLayoutParams(wparams);
@@ -306,6 +315,7 @@ mParams.add(wparams);
 ```
 
 在ViewRootImpl的setView函数中，先调用了requestLayout来绘制view，然后调用了mWindowSession的addToDisplay函数和WMS
+
 ```java
 requestLayout(); //绘制View
 
@@ -315,6 +325,7 @@ try {
 ```
 
 mWindowSession，就是通过WMS获取到WindowSession的Binder，并且自己设置一个回调在WMS中
+
 ```java
 public static IWindowSession getWindowSession() {
     synchronized (WindowManagerGlobal.class) {
@@ -344,7 +355,7 @@ public int addToDisplay(IWindow window, int seq, WindowManager.LayoutParams attr
     }
 ```
 
-# WindowToken
+## WindowToken
 
 在WMS中有两种常见的Token，WindowToken和AppWindowToken
 

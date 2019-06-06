@@ -25,12 +25,12 @@ Context类本身是一个纯abstract类。为了使用方便又定义Context包�
 每一个应用程序在客户端都是ActivityThread类开始的，创建Context对象也是在该类中完成，
 具体创建ContextImpl类的地方6处：
 
-* PackageInfo.makeApplication()
-* performLaunchActivity()
-* handleCreateBackupAgent()
-* handleCreateService()
-* handleBindApplication()
-* attach()
+- PackageInfo.makeApplication()
+- performLaunchActivity()
+- handleCreateBackupAgent()
+- handleCreateService()
+- handleBindApplication()
+- attach()
 
 其中attach()方法仅在Framework进程启动时调用，应用程序运行时不会调用该方法。
 
