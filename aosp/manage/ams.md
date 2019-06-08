@@ -1,78 +1,194 @@
-# Ams
+# ActivityManagerService
 
-组件启动后，首先需要依赖进程，那么就需要先创建进程，系统需要记录每个进程，这便产生了ProcessRecord。
-Android中，对于进程的概念被弱化，通过抽象后的四大组件，让开发者感受不到进程的存在。当应用退出时，进程也并非马上退出，而是
-称为cache/empty进程，下次该应用再启动的时候，可以不用创建进程直接初始化组件即可。
+组件启动后，首先需要依赖进程，那么就需要先创建进程，系统需要记录每个进程，这便产生了ProcessRecord。Android中，对于进程的概念被弱化，通过抽象后的四大组件，让开发者感受不到进程的存在。当应用退出时，进程也并非马上退出，而是称为cache/empty进程，下次该应用再启动的时候，可以不用创建进程直接初始化组件即可。
 
-## 进程管理
+ActivityManagerService是贯穿Android系统组件的核心服务，在ServiceServer执行run()方法的时候被创建，运行在独立的线程中，负责Activity、Service、BroadcastReceiver的启动、切换、调度以及应用进程的管理和调度工作。
 
-Android系统中用于描述进程的数据结构是ProcessRecord对象，AMS便是管理进程的核心模块。四大组件定义在AndroidManifest.xml文件，每一项都可以
-用属性android:process指定所运行的进程。同一个app可以运行在同一个进程，也可以运行在多个进程，甚至多个app可以共享一个进程。
-![image](/img/process_record.jpg)
+> ActivityManager相当于前台接待，她将客户的各种需求传达给大总管ActivityMangerService，但是大总管自己不干活，他招来了很多小弟，他最信赖的小弟ActivityThread替他完成真正的启动、切换、以及退出操作，至于其他的中间环节就交给ActivityStack、ActivityStarter等其他小弟来完成。
 
-### 进程与AMS的关联
+## 组件管家ActivityManagerService
 
-AMS的进程相关的成员变量:
+### ActivityManagerService的启动流程
 
-1. mProcessNames:数据类型为ProcessMap，以进程名和userId为Key来记录ProcessRecord：
-    * 添加进程，addProcessNameLocked();
-    * 删除进程，removeProcessNameLocked();
-2. mPidSelfLocked:数据类型为SparseArray，以进程pid为key来记录ProcessRecord：
-    * startProcessLocked()，移除已存在进程，增加新创建进程pid信息
-    * removeProcessLocked，processStartTimeOutLocked
-    * cleanUpApplicationRecordLocked移除进程
-3. mLruProcesses：数据类型为ArrayList，以进程最近使用情况来排序记录ProcessRecord:
-    * 其中第一个元素代表的便是最近最少使用的进程
-    * updateLruProcessLocked()更新进程队列位置
-4. mRemovedProcesses：数据类型为ArrayList，记录所有需要强制移除的进程；
-5. mProcessesToGc：数据类型为ArrayList，记录系统进入idle状态需执行gc操作的进程；
-6. mPendingPssProcesses：数据类型为ArrayList，记录将要收集内存使用数据PSS的进程；
-7. mProcessesOnHold：数据类型为ArrayList，记录刚开机过程，系统还没与偶准备就绪的情况下， 所有需要启动的进程都放入到该队列；
-8. mPersistentStartingProcesses：数据类型ArrayList，正在启动的persistent进程；
-9. mHomeProcess: 记录包含home Activity所在的进程；
-10. mPreviousProcess：记录用户上一次刚访问的进程；其中mPreviousProcessVisibleTime记录上一个进程的用户访问时间；
-11. mProcessList: 数据类型ProcessList，用于进程管理，Adj常量定义位于该文件；
+SystemServer将系统服务分为三类：
 
-### 进程与组件的关联
+- 引导服务
+- 核心服务
+- 其他服务
 
-系统这边是由ProcessRecord对象记录进程，进程自身比较重要成员变量如下：
+```java
+public class SystemServer {
+    private void run() {
+        startBootstrapServices();
+    }
 
-1. processName；记录进程名，默认情况下进程名和该进程运行的第一个apk的包名的相同的，当然也可以自定义进程名
-2. pid：记录进程pid，该值由进程创建时内核所分配。
-3. thread：执行完attachApplicationLocked()方法，会把客户端进程ApplicationThread的binder服务的代理端传到AMS，并保持到ProcessRecord的成员变量thread
-4. info：记录运行在该进程的第一个应用
-5. pkgList:记录运行在该进程中所有的包名，比如通过addPackage()添加
-6. pkgDeps：记录该进程所依赖的包名，比如通过addPackageDependency()添加
-7. lastActivityTime：每次updateLruProcessLocked()过程会更新该值
-8. killedByAm：当值为true,意味着该进程是被AMS所杀，并非因为内存低而被LMK所杀
-9. killed：当值为true，意味着该进程被杀，不论是AMS还是其他方式
-10. waitingToKill：比如cleanUpRemovedTaskLocked()过程会赋值为"remove task"，当该进程处于后台且任一组件都运行在某个进程，再来说说ProcessRecord对象中与组件的关联关系：
+    private void startBootstrapServices() {
+        //创建AMS
+        mActivityManagerService = mSystemServiceManager.startService(
+        ActivityManagerService.Lifecycle.class).getService();
+    }
+}
+```
 
-|成员变量|说明|对应组件|
-|:----:|:------:|:-----:|
-|activities|记录进程的ActivityRecord|Activity|
-|services|记录进程的ActivityRecord列表|Service|
-|executingServices|记录进程的正在执行的ActivityRecord|Service|
-|connections|记录该进程bind的ConnectionRecord|Service|
-|receivers|动态注册的广播接收者ReceiverList集合|Broadcast|
-|curReceiver|当前正在处理的一个广播BroadcastRecord|Broadcast|
-|pubProviders|该进程发布的ContentProviderRecord的map表|ContentProvider|
-|conProviders|该进程所请求的ContentProviderConnection列表|ContentProvider|
+ActivityManagerService的构造方法如下：
 
-### AMS的组件管理
+```java
+public ActivityManagerService(Context systemContext) {
+    //创建并启动系统线程及相关handle
+    mHandlerThread = new ServiceThread(TAG,
+                THREAD_PRIORITY_FOREGROUND, false /*allowIo*/);
+    mHandlerThread.start();
+    mHandler = new MainHandler(mHandlerThread.getLooper());
 
-组件启动，先填充完进程信息，接下来还需要完善组件本身的信息，各个组件在system_server的核心信息记录如下：
+    //创建用来存储各种组件Activity、Broadcast的数据结构
+    mFgBroadcastQueue = new BroadcastQueue(this, mHandler,
+                "foreground", BROADCAST_FG_TIMEOUT, false);
+    mBgBroadcastQueue = new BroadcastQueue(this, mHandler,
+            "background", BROADCAST_BG_TIMEOUT, true);
+    mBroadcastQueues[0] = mFgBroadcastQueue;
+    mBroadcastQueues[1] = mBgBroadcastQueue;
 
-* Service的信息记录在ActiveServices和AMS
-* Broadcast信息记录在BroasdcastQueue和AMS
-* Activity信息记录在ActivityStack，ActivityStackSupervisor，以及AMS
-* Provider信息记录在ProviderMap和AMS
-    AMS是四大组件最为核心：
+    mServices = new ActiveServices(this);
+    mProviderMap = new ProviderMap(this);
+    mAppErrors = new AppErrors(mUiContext, this);
+}
+```
 
-### APP端的组件信息
+构造方法主要干了两件事：
 
-![image](/img/client_component.jpg) 
-主要保存功能：
+- 创建并启动系统线程以及相关Handle
+- 创建用来存储各种组件Activity、Broadcast的数据结构。
 
-* ActivityThread：记录provider,activity,service在客户端的相关信息
-* LoadedApk：记录动态注册的广播接收器，以及bind方式启动service在客户端的相关信息
+MainHandle里的Looper来源于线程ServiceThread，该Handle主要用来处理组件调度相关操作。
+
+UiHandle里的Looper来源于线程UiThread（继承于ServiceThread），它的线程名"android.ui"，该Handler主要用来处理UI相关操作。
+
+### 工作流程
+
+- IActivityManager：系统私有API，用于与活动管理器服务进行通信。 此提供从应用程序返回活动管理器的调用。
+- ActivityManager：此类提供有关活动，服务和包含过程的信息，并与之交互。
+
+ActivityManager
+> ActivityManager是提供给客户端调用的接口，日常开发中我们可以利用ActivityManager来获取系统中正在运行的组件（Activity、Service）、进程（Process）、任务（Task）等信息，ActivityManager定义了相应的方法来获取和操作这些信息
+
+概念区分：
+
+- 进程（Process）：Android系统进行资源调度和分配的基本单位，需要注意的是同一个栈的Activity可以运行在不同的进程里。
+- 任务（Task）：Task是一组以栈的形式聚集在一起的Activity的集合，这个任务栈就是一个Task。
+
+## ActivityThread
+
+> ActivityThread管理着应用进程里的主线程，负责Activity、Service、BroadcastReceiver的启动、切换、以及销毁等操作。
+
+### ActivityThread的启动流程
+
+```java
+public class ActivityThread {
+    public void main() {
+        //主线程的looper
+        Looper.prepareMainLooper();
+        ActivityThread thread = new ActivityThread();
+        // 调用attach方法将ApplicationThread对象关联AMS，以便AMS调用ApplicationThread里的方法，IPC的过程
+        thread.attach(false, startSeq);
+        //主线程的Handle
+        if (sMainThreadHandler == null) {
+            sMainThreadHandler = thread.getHandler();
+        }
+        // 开始消息循环
+        Looper.loop();
+    }
+}
+```
+
+attach:
+
+```java
+public final class ActivityThread {
+     @UnsupportedAppUsage
+    private void attach(boolean system, long startSeq) {
+        sCurrentActivityThread = this;
+        mSystemThread = system;
+        //是否是系统进程
+        if (!system) {
+            // 应用进程的处理
+            android.ddm.DdmHandleAppName.setAppName("<pre-initialized>",
+                                                    UserHandle.myUserId());
+            RuntimeInit.setApplicationObject(mAppThread.asBinder());
+            final IActivityManager mgr = ActivityManager.getService();
+            try {
+                // 将ApplicationThread对象关联给AMS，以便AMS调用ApplicationThread里的方法，这同样也是一个IPC的过程
+                mgr.attachApplication(mAppThread, startSeq);
+            } catch (RemoteException ex) {
+                throw ex.rethrowFromSystemServer();
+            }
+            // Watch for getting close to heap limit.
+            BinderInternal.addGcWatcher(new Runnable() {
+                @Override public void run() {
+                    if (!mSomeActivitiesChanged) {
+                        return;
+                    }
+                    Runtime runtime = Runtime.getRuntime();
+                    long dalvikMax = runtime.maxMemory();
+                    long dalvikUsed = runtime.totalMemory() - runtime.freeMemory();
+                    if (dalvikUsed > ((3*dalvikMax)/4)) {
+                        if (DEBUG_MEMORY_TRIM) Slog.d(TAG, "Dalvik max=" + (dalvikMax/1024)
+                                + " total=" + (runtime.totalMemory()/1024)
+                                + " used=" + (dalvikUsed/1024));
+                        mSomeActivitiesChanged = false;
+                        try {
+                            mgr.releaseSomeActivities(mAppThread);
+                        } catch (RemoteException e) {
+                            throw e.rethrowFromSystemServer();
+                        }
+                    }
+                }
+            });
+        } else {
+            // 系统进程的处理方式
+            // Don't set application object here -- if the system crashes,
+            // we can't display an alert, we just want to die die die.
+            android.ddm.DdmHandleAppName.setAppName("system_process",
+                    UserHandle.myUserId());
+            try {
+                mInstrumentation = new Instrumentation();
+                mInstrumentation.basicInit(this);
+                ContextImpl context = ContextImpl.createAppContext(
+                        this, getSystemContext().mPackageInfo);
+                mInitialApplication = context.mPackageInfo.makeApplication(true, null);
+                mInitialApplication.onCreate();
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "Unable to instantiate Application():" + e.toString(), e);
+            }
+        }
+
+        ViewRootImpl.ConfigChangedCallback configChangedCallback
+                = (Configuration globalConfig) -> {
+            synchronized (mResourcesManager) {
+                // We need to apply this change to the resources immediately, because upon returning
+                // the view hierarchy will be informed about it.
+                if (mResourcesManager.applyConfigurationToResourcesLocked(globalConfig,
+                        null /* compat */)) {
+                    updateLocaleListFromAppContext(mInitialApplication.getApplicationContext(),
+                            mResourcesManager.getConfiguration().getLocales());
+
+                    // This actually changed the resources! Tell everyone about it.
+                    if (mPendingConfiguration == null
+                            || mPendingConfiguration.isOtherSeqNewer(globalConfig)) {
+                        mPendingConfiguration = globalConfig;
+                        sendMessage(H.CONFIGURATION_CHANGED, globalConfig);
+                    }
+                }
+            }
+        };
+        ViewRootImpl.addConfigCallback(configChangedCallback);
+    }
+}
+```
+
+### ActivityThread工作流程
+
+![activity_thread_structure.png](/img/activity_thread_structure.png)
+
+ActivityThread内部有个Binder对象ApplicationThread，AMS可以调用ApplicationThread里的方法，而
+ApplicationThread里的方法利用mH（Handler）发送消息给ActivityThread里的消息队列，ActivityThread再去处理这些消息，进而完成诸如Activity启动等各种操作。
