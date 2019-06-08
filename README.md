@@ -3,7 +3,7 @@
 - [设计模式](pattern/pattern.md)
 - [网络通信](network/README.md)
 - [Android Open Source Code](aosp/README.md)
-- [third](third/README.md)
+- [第三方库](third/README.md)
 - [Java](java/README.md)
 - [设计模式](pattern/pattern.md)
 
