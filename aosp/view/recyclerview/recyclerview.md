@@ -13,9 +13,12 @@ A flexible view for providing a limited window into a large data set
 - RecyclerView视图动画ItemAdapter
 - RecyclerView视图分隔条ItemDecoration
 
-RecyclerView继承于ViewGroup，实现ScrollingView与NestedScrollingChild接口
+RecyclerView继承于ViewGroup，实现ScrollingView、NestedScrollingChild接口
 
-对比ListView：
+## 与ListView对比
+
+[与ListView对比](cache/与ListView的缓存对比.md)
+
 ListView相比RecyclerView，有一些优点：
 
 - addHeaderView()，addFootderView()添加头视图和尾视图
@@ -79,24 +82,9 @@ RecyclerViewDataObserver是观察者。开发中我们通常使用adapter.notify
 4. 子View动画的调度
 5. 负责RecyclerView滚动的实现
 
-## Recycler
+## RecyclerView的缓存机制
 
 [RecyclerView的缓存机制](recyclerview的缓存机制.md)
-
-对于LayoutManager来说，它是ViewHolder的提供者。对于RecyclerView来说，它是ViewHolder的管理者，是RecyclerView最核心的实现。
-
-### scrap list
-
-```java
-final ArrayList<ViewHolder> mAttachedScrap = new ArrayList<>();
-ArrayList<ViewHolder> mChangedScrap = null;
-```
-
-`mAttachedScrap`和`mChangedScrap`中的View复用主要作用在`adapter.notifyXXX`时。这时候就会产生很多scrap状态的view。也可以把它理解为一个ViewHolder的缓存。不过这里获取ViewHolder时完全根据ViewHolder的position而不是item type。
-
-### mCacheViews
-
-可以把它理解为RecyclerView的一级缓存。它的默认大小为3，从中可以根据item type
 
 ## 创建流程
 
@@ -323,22 +311,12 @@ public void onLayoutChild(RecyclerView.Recycler recycler, RecyclerView.State sta
 |ViewFlinger|快速滑动管理|
 |NestedScrollingChildHelper|管理子View嵌套滑动|
 
-
-
-
-
 Android默认提供的RecyclerView支持线性布局、网格布局、瀑布流布局三种，同时能够控制横向还是纵向滚动。
 
 - ViewHolder的编写规范
 - RecyclerView复用Item的工作已经完成
 - RecyclerView需要多出一步LayoutManager的设置工作
 
-# LayoutManager
+## RecyclerView的绘制流程
 
-LayoutManager是RecyclerView用来管理子View布局的一个组件
-
-1. 布局子视图
-2. 在滚动过程中根据子视图在布局中所处位置，决定何时添加子视图和回收视图
-3. 滚动子视图
-
-其中，只有滚动子视图，才会需要对子视图回收或者添加，而添加
+[recyclerView的绘制流程](recyclerview的绘制流程.md)

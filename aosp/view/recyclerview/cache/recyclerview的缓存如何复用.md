@@ -105,7 +105,7 @@ public class RecyclerViewPool {
 
 - RecycleView中，并不是每次绘制表现，都会重新创建ViewHolder对象，也不是每次都会重新绑定ViewHolder数据
 - RecyclerView通过Recycler获取下一个带绘制表项
-- Recycler有四个层次用于缓存ViewHolder对象，优先级从高到低依次为*ArrayList<ViewHolder> mAttachedScrap*、ArrayList<ViewHolder> mCachedViews、ViewCacheExtension mViewCacheExtension、RecycledViewPool mRecyclerPool。如果四层缓存都未命中，则重新创建并绑定ViewHolder对象
+- Recycler有四个层次用于缓存ViewHolder对象，优先级从高到低依次为`ArrayList<ViewHolder> mAttachedScrap`、`ArrayList<ViewHolder> mCachedViews`、ViewCacheExtension mViewCacheExtension、RecycledViewPool mRecyclerPool。如果四层缓存都未命中，则重新创建并绑定ViewHolder对象
 - RecyclerViewPool对ViewHolder按viewType分类存储，同类ViewHolder存储在默认大小为5的ArrayList中
 - mRecyclerPool中复用的ViewHolder需要重新绑定数据，从mAttachedScrap中复用的ViewHolder不需要重新创建也不需要重新绑定数据
 - 从mRecyclerPool中复用的ViewHolder，只能复用于viewType相同的表项，从mCachedViews中复用的ViewHolder，只能复用于指定位置的表项
