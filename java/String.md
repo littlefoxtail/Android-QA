@@ -1,7 +1,5 @@
 # 字符串
 
-## 
-
 ## String、StringBuffer和StringBuilder
 
 ||||
