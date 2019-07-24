@@ -1,28 +1,35 @@
 # ArrayList
 
-<!-- TOC -->
-
-- [ArrayList](#arraylist)
-  - [总体介绍](#%E6%80%BB%E4%BD%93%E4%BB%8B%E7%BB%8D)
-  - [add](#add)
-    - [自动扩容](#%E8%87%AA%E5%8A%A8%E6%89%A9%E5%AE%B9)
-    - [序列化](#%E5%BA%8F%E5%88%97%E5%8C%96)
-  - [与LinkedList异同](#%E4%B8%8Elinkedlist%E5%BC%82%E5%90%8C)
-  - [Vector](#vector)
-
-<!-- /TOC -->
 ## 总体介绍
 
-ArrayList实现了List接口，是顺序容器，即元素存放的数据与放进去的顺序相同，允许放入null元素，底层通过数组实现。
-ArrayList是基于数组的，而数组是定长的，capacity表示数组的实际大小。
-ArrayList可以动态调整大小，可以才可以无感知的插入多条数据，也说明其必然有一个默认的大小。而要想扩充数组的大小，只能通过复制
+ArrayList的底层是数组队列，相当于动态数组。与Java中的数组相比，它的容量能动态增长。在添加大量元素前，应用程序可以使用`ensureCapacity`操作来增加ArrayList实例的容量。这可以减少递增式再分配的数量。
 
-ArrayList实现了List、RandomAccess接口，可插入空数据，也支持随机访问。
-ArrayList相当于动态数据，其中最重要的两个属性`elementData`数组，以及`size`大小。在调用`add()`方法的时候：
+它继承于`AbstractList`，实现了`List`、`RandomAccess`、`Cloneable`、`java.io.Serializable`这些接口。
+
+1. ArrayList实现了AbstractList,，实现了List。提供了相关的增删改查等功能，是顺序容器，即元素存放的数据与放进去的顺序相同，允许放入null元素，底层通过数组实现。
+2. ArrayList实现了List、RandomAccess接口，可插入空数据，也支持随机访问。
+3. 实现了`Cloneable`接口，即覆盖了函数clone()，能被克隆。
+4. ArrayList是基于数组的，而数组是定长的，capacity表示数组的实际大小。
+5. ArrayList可以动态调整大小，可以才可以无感知的插入多条数据，也说明其必然有一个默认的大小。而要想扩充数组的大小，只能通过复制。
+6. 和 Vector 不同，ArrayList 中的操作不是线程安全的！所以，建议在单线程中才使用 ArrayList，而在多线程中可以选择 Vector 或者 CopyOnWriteArrayList。
 
 ## add
 
-![array_add](/img/array_add.png)
+```java
+public boolean add(E e) {
+    modCount++;
+    add(e, elementData, size);
+    return true;
+}
+
+private void add(E e, Object[] elementData, int s) {
+    if (s == elementData.length)
+        elementData = grow();
+    elementData[s] = e;
+    size = s + 1;
+}
+
+```
 
 - 首先进行扩容校验
 - 将插入的值放到尾部，并将size+1
@@ -76,11 +83,11 @@ Arrays:
 ```java
 class Arraylist {
     transient Object[] elementData;//数组默认不会被序列化
-    
+
     private void readObject(java.io.ObjectInputStream s) {
-        
+
     }
-    
+
     private void wirteObject(java.io.ObjectOutputStream s) throws java.io.IOException{
         int expectedModCount = modConnt;
         s.defaultWriteObject();
