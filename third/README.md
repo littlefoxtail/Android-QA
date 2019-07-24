@@ -4,7 +4,7 @@
 - [LeakCanary](leakcanary.md)
 - [图片框架glide](图片框架.md)
 - [virtualApk](virtualAPK.md)
-- [插件化问题汇总](插件化.md)
+- [插件化问题汇总](插件化问题汇总.md)
 
 - TODO
   - [retrofit的源码](retrofit.md)

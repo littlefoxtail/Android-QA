@@ -1,4 +1,3 @@
-
 # 标准MVC
 
 整个应用分为Model、View和Controller三个部分，而这些组成部分其实也有着几乎相同的职责。
@@ -12,10 +11,10 @@
 
 ## 依赖关系
 
-在MCV中，模型层可以单独工作，而视图层和控制器层都依赖于模型层中的数据。
+在MVC中，模型层可以单独工作，而视图层和控制器层都依赖于模型层中的数据。
 ![relationship](/img/Essential-Dependencies-in-MVC.jpg)
 
-# MVP
+## MVP
 
 MVP是MVC的一个变种，最大的区别就是MVP中使用Presenter对视图和模型进行了解耦，它们都对对方一无所知，沟通都通过Presenter进行。
 ![tu](/img/Standard-MVP.jpg)
@@ -62,7 +61,7 @@ MVP第一个变种就是被动视图(Passive View)，在该变种架构模式中
 
 ### MVP优缺点
 
-#### 优点：
+#### 优点
 
 1. 解耦
 2. 模块职责明确，层次清晰
