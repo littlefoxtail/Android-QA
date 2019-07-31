@@ -316,6 +316,8 @@ for (PackageParser.Activity receiver : this.mPackage.receivers) {
 
 ## ContentProvider的支持
 
+### 插件内跳转
+
 ```java
 class PluginContext extends ContextWrapper {
     @Overrie
@@ -347,6 +349,10 @@ public class PluginManager {
         return mIContentProvider;
     }
 
+    /**
+     * 这个方法的意思，通过反射查询AT中的ContentProvider集合，并利用ipc接口IContentProvider，动态代理，修改uri导致最后转向到
+     * 代理的RemoteContentProvider
+     **/
     private void hookIContentProviderAsNeed() {
         // 拿到占坑的contentProvider uri
         Uri uri = Uri.parse(PluginContentResolver.getUri(mContext));
@@ -357,5 +363,14 @@ public class PluginManager {
 
 ```
 
-
-
+```java
+public class RemoteContentProvider {
+    public Cursor quey(..) {
+        ContentProvider provider = getContentProvider(uri);//这里完成插件等加载，拿到所要的ContentProvider
+        Uri pluginUri = Uri.parse(uri.getQueryParameter(KEY_URI));// 重新取回原来的调用uri
+        if (provider != null) {
+            return provider.query(..);
+        }
+    }
+}
+```
