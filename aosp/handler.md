@@ -252,3 +252,49 @@ public static interface IdleHandler {
     boolean queueIdle();
 }
 ```
+
+## Looper.loop()里的死循环卡死问题
+
+涉及到Linux pipe/epoll机制，简单说就是在主线程的MessageQueue没有消息时，便阻塞在loop的queue.next()中的nativePollOnce()方法里，此时主线程会释放CPU资源进入休眠状态，直到下个消息到达或者有事务发生，通过往pipe管道写入数据来唤醒主线程工作。这里采用epoll机制，是一个种IO多路复用机制，可以监控多个描述符，当某个描述符就绪（读或写就绪），就立即通知相应程序进行读或写操作，本质同步I/O，即读写是阻塞的。所以说，主线程大多数时候都是处于休眠状态，并不会消耗大量CPU资源。
+
+### 消息队列的初始化工作
+
+```java
+public class MessageQueue(boolean quitAllowed) {
+    mQuitAllowed = quitAllowed;
+    mPtr = nativeInit(); //通过在java层保存Native对象引用地址来实现关联
+
+}
+```
+
+[native层的nativeInit方法](https://android.googlesource.com/platform/frameworks/base/+/master/core/jni/android_os_MessageQueue.cpp)
+
+```cpp
+static jlong android_os_MessageQueue_nativeInit(JNIEnv* env, jclass class) {
+    NativeMessageQueue* nativeMessageQueue = new NativeMessageQueue();
+    if (!nativeMessageQueue) {
+        jniThrowRuntimeException(env, "Unable to allocate native queue");
+        return 0;
+    }
+    nativeMessageQueue->incStrong(env);
+    return reinterpret_cast<jlong>(nativeMessageQueue);
+}
+```
+
+[NativeMessageQueue的初始化](https://android.googlesource.com/platform/frameworks/base/+/master/core/jni/android_os_MessageQueue.cpp)
+
+```cpp
+NativeMessageQueue::NativeMessageQueue() :
+        mPollEnv(NULL), mPollObj(NULL), mExceptionObj(NULL) {
+    mLooper = Looper::getForThread();
+    if (mLooper == NULL) {
+        // 创建了一个Looper，这与Java层的一点关系都没有
+        mLooper = new Looper(false);
+        Looper::setForThread(mLooper);
+    }
+}
+```
+
+### 消息队列的循环
+
+循环过程将调用native方法`nativePollOnce`。
