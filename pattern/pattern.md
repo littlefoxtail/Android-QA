@@ -99,12 +99,12 @@ S.O.L.I.D
 在面向对象程序设计中，工厂通常是一个用来创建其他对象的对象。工厂是构造方法的抽象，用来实现不同的分配方案。
 有时，特定类型对象的控制过程比简单地创建一个对象更复杂。在这种情况下，工厂对象就派上用场了。工厂对象可能会动态地创建产品对象的类，或者从对象池中返回一个对象
 
-* [简单工厂模式](simplefactory.md)
-* [工厂方法模式](factorymethod.md)
-* [抽象工厂模式](abstractfactory.md)
-* [建造者模式](build.md)
-* [原型模式](prototype.md)
-* [单例模式](singleton.md)
+* [简单工厂模式](simplefactory.md) 重要程度：4（5为满分）
+* [工厂方法模式](factorymethod.md) 重要程度：5
+* [抽象工厂模式](abstractfactory.md) 重要程度：5
+* [建造者模式](build.md) 重要程度：2
+* [原型模式](prototype.md) 重要程度：3
+* [单例模式](singleton.md) 重要程度：4
 
 ## 结构型模式Structural Pattern（七种）
 
@@ -113,13 +113,13 @@ S.O.L.I.D
   * 类结构型模式关心类的组合，由多个类可以组合成一个更大的系统，在类结构型模式中一般只存在继承关系和实现关系
   * 对象结构型关心类和对象的组合，通过关联关系使得在一个类中定义另一个类的实例对象，然后通过该对象调用其方法。根据“合成复用原则”，在系统中尽量使用关联关系来替代继承关系，因此大部分结构性模式都是对象结构型模式
 
-* [适配器模式](adapter.md)
-* [桥接模式](bridge.md)
-* [组合模式](composite.md)
-* [装饰模式](decorator.md)
-* [外观模式](facade.md)
-* [享元模式](flyweight.md)
-* [代理模式](proxy.md)
+* [适配器模式](adapter.md) 重要程度：4
+* [桥接模式](bridge.md) 重要程度：3
+* [组合模式](composite.md) 重要程度：4
+* [装饰模式](decorator.md) 重要程度：3
+* [外观模式](facade.md) 重要程度：5
+* [享元模式](flyweight.md) 重要程度：1
+* [代理模式](proxy.md) 重要程度：4
 
 ## 行为型模式Behavioral Pattern(十一种)
 
@@ -127,17 +127,17 @@ S.O.L.I.D
 * 行为型模式不仅仅关注类和对象的结构，而且重点关注它们之间的相互作用
 * 通过行为型模式，可以更加清晰地划分类与对象的职责，并研究系统在运行时实例对象之间的交互。在系统运行时，对象并不是孤立的，它们可以通过相互通信与协作完成某些复杂功能，一些对象在运行时也会影响到其他对象的运行
 
-* [责任链模式](chainofresponsibility.md)
-* [命令模式](command.md)
-* [解释器模式](interpreter.md)
-* [迭代器模式](inerator.md)
-* [中介模式](mediator.md)
-* [备忘录模式](memento.md)
-* [观察者模式](observer.md)
-* [状态模式](state.md)
-* [策略模式](strategy.md)
-* [模板方法模式](templatemethod.md)
-* [访问者模式](visitor.md)
+* [责任链模式](chainofresponsibility.md) 重要程度：3
+* [命令模式](command.md) 重要程度：4
+* [解释器模式](interpreter.md) 重要程度：1
+* [迭代器模式](inerator.md) 重要程度：5
+* [中介模式](mediator.md) 重要程度：2
+* [备忘录模式](memento.md) 重要程度：2
+* [观察者模式](observer.md) 重要程度：5
+* [状态模式](state.md) 重要程度：3
+* [策略模式](strategy.md) 重要程度：4
+* [模板方法模式](templatemethod.md) 重要程度：3
+* [访问者模式](visitor.md) 重要程度 1
 
 ## 附
 
