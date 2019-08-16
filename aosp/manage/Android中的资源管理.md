@@ -7,7 +7,7 @@
 
 字符串资源直接编译在resources.arsc文件中，而界面布局资源是在apk包里面对应的单独文件的
 
-```sequence {theme="simple"}
+```text
 ActivityThread->ActivityThread:performLaunchActivity
 ActivityThread->ActivityThread:createBaseContextForActivity
 ActivityThread->ContextImpl:createActivityContext
@@ -17,7 +17,7 @@ ContextImpl-->ActivityThread:appContext
 ActivityThread->Instrumentation:newActivity
 ```
 
-```sequence {theme="simple"}
+```text
 Activity->Activity: 1：getResources
 Activity-->ContextImpl: 2:getResources
 ContextImpl->ResourcesManager: 3:getResources
@@ -27,4 +27,3 @@ ResourcesManager->ResourcesManager: 6: getOrCreateActivityResourcesStructLocked:
 ResourcesManager->ResourcesManager: 7: updateResourcesForActivity
 ResourcesManager->ResourcesManager: 8: getOrCreateResources
 ```
-
