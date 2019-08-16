@@ -7,6 +7,6 @@
 ### Android窗口管理框架
 
 - [Android窗口管理框架概述](Android窗口管理框架概述.md)
-- [AMS的初探](ams.md)
+- [ActivityManagerService的初探](ActivityManagerService.md)
 - [Android窗口管理框架](Android应用视图的载体View.md)
 - [Android应用窗口的管理服务WindowServiceManager](Android应用窗口的管理服务WindowServiceManager.md)
