@@ -193,7 +193,7 @@ public class PackageParser {
 #### 创建Resource
 
 两种方式
-[VirtualAPK 资源篇](vritual_resource.md)
+[资源篇](resources.md)
 
 ```java
 public final class LoadedPlugin {
