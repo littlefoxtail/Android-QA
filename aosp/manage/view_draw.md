@@ -37,9 +37,9 @@ private void draw(boolean fullRedrawNeeded) {
                         return;
                     }
                 }
-                mFullRedrawNeeded = true;
-                scheduleTraversals();
-                return;
+            mFullRedrawNeeded = true;
+            scheduleTraversals();
+            return;
         }
         // 不用硬件渲染，或者硬件渲染不可用，则靠软件绘制
         if (!drawSoftware(surface, mAttachInfo, xOffset, yOffset, scalingRequired, dirty)) {
@@ -234,7 +234,6 @@ boolean draw(Canvas canvas, ViewGroup child, long drawingTime) {
     if (restoreTo >= 0) {
         canvas.restoreToCount(restoreTo);
     }
-
 
 }
 ```

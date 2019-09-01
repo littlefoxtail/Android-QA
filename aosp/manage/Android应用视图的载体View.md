@@ -108,6 +108,13 @@ View的声明随着Activity生命周期变化的情况：
 [测量流程](view_measure.md)
 [定位流程](view_layout.md)
 [绘制流程](view_draw.md)
+
+## invalidate/postInvalidate/requestLayout
+
+invalidate只会调onDraw方法且必须在UI线程中调用
+postInvalidate只会调onDraw方法，可以再UI线程中回调
+requestLayout会调onMeasure、onLayout和onDraw(特定条件下)方法
+
 [requestLayout](requestLayout.md)
 [invalidate](invalidate.md)
 [postInvalidate](postInvalidate.md)

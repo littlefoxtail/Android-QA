@@ -1,5 +1,10 @@
 # invalidate
 
+`PFLAG_DRAWING_CACHE_VALID`：代表drawing_cache于晓
+`PFLAG_INVALIDATED`
+
+
+
 该方法调用会引起View树的重绘，常用于内部调用或者需要刷新界面的时候，需要在主线程中调用该方法。当子View调用了invalidate方法后，会为该View添加一个标记位，同时不断向父容器请求刷新，父容器通过计算得出自身需要重绘的区域，直到传递到ViewRootImpl中，最终触发performTraversals方法，进行开始View树重绘流程。
 
 时序图：
@@ -7,38 +12,51 @@
 
 ```java
 public void invalidate() {
-        invalidate(true);
+    //true表示当前只做局部刷新
+    invalidate(true);
 }
-```
 
-```java
 public void invalidate(boolean invalidateCache) {
-        invalidateInternal(0,  0, mRight - mLeft, mBottom - mTop, invalidateCache, true);
+    invalidateInternal(0,  0, mRight - mLeft, mBottom - mTop, invalidateCache, true);
 }
-```
 
-```java
 public void invalidateInternal(int l, int t, int r, int b, boolean invalidateCache, boolean fullInvalidate) {
-        ...
-        if (skipInvalidate()) {
-                return;
+    ...
+    if (skipInvalidate()) {
+            return;
+    }
+    //根据View的标记位来判断该子View是否需要重绘，假如View没有任何变化，那么就不需要重绘
+    //PFLAG_DRAWN会在该方法内去改标识位
+    // PFLAG_INVALIDATED会在View.draw()方法执行时去掉该标识位
+    if ((mPrivateFlags & (PFLAG_DRAW | PFLAG_HAS_BOUNDS)) == (PFLAG_DRAW | PFLAG_HAS_BOUNDS) || ...) {
+        //如果需要全部重绘，调用默认值true
+        if (fullInvalidated) {
+            mLastIsOpaque = isOpaque();
+            mPrivateFlags & = ~PFLAG_DRAWN;
         }
-        ////根据View的标记位来判断该子View是否需要重绘，假如View没有任何变化，那么就不需要重绘
-        if ((mPrivateFlags & (PFLAG_DRAW | PFLAG_HAS_BOUNDS)) == (PFLAG_DRAW | PFLAG_HAS_BOUNDS) || ...) {
-                // 设置PFLAG_DIRTY
-                mPrivateFlags |= PFLAG_DIRTY;
 
-                final AttachInfo ai = mAttachInfo;
-                final ViewParent p = mParent;
-                if(p != null && ai != null && l < r && t < b) {
-                        final Rect damage = ai.mTmpInvalRect;
-                        damage.set(l, t, r, b);
-                        // 调用父容器的方法，向上传递事件
-                        p.invalidateChild(this, damage);
-                }
+        // 设置PFLAG_DIRTY
+        mPrivateFlags |= PFLAG_DIRTY;
+
+        final AttachInfo ai = mAttachInfo;
+        final ViewParent p = mParent;
+        if(p != null && ai != null && l < r && t < b) {
+                final Rect damage = ai.mTmpInvalRect;
+                damage.set(l, t, r, b);
+                // 调用父容器的方法，向上传递事件
+                p.invalidateChild(this, damage);
         }
+    }
+
+    private boolean skipInvalidate() {
+    //如果当前View不可见，并且自己的动画为空，同时父View也没在动画，那么就跳过刷新
+        return (mViewFlags & VISIBILITY_MASK) != VISIBLE && mCurrentAnimation == null &&
+        // 表示当前View是DecorView，整个View树都不可见
+                (!(mParent instanceof ViewGroup) || !((ViewGroup) mParent).isViewTransitioning(this));
+    }
 
 }
+
 ```
 
 ViewGroup@invalidateChild
@@ -68,7 +86,7 @@ public final void invalidateChild(View child, final Rect dirty) {
                     if (parent instanceof View) {
                         view = (View) parent;
                     }
-    
+
                     if (drawAnimation) {
                         if (view != null) {
                             view.mPrivateFlags |= PFLAG_DRAW_ANIMATION;
@@ -206,3 +224,7 @@ private void invalidateRectOnScreen(Rect dirty) {
    }
 }
 ```
+
+## invalidate会不会导致onMeasure、onLayout被调用呢
+
+`view`会通过`mPrivateFlags`来判断是否进行`measure`和`layout`操作
