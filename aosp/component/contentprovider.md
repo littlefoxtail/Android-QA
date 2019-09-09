@@ -14,8 +14,6 @@
 四大组件之一，没有activity那样复杂的生命周期，只有简单的onCreate过程。ContentProvider是一个抽象类，当实现自己的ContentProvider类，只需继承与ContentProvider。
 ContentProvider(内容提供者)用于提供数据的统一访问格式，封装底层的具体实现。对于数据的使用者来说，无需知晓数据的来源是数据、文件，或者网络，只需要简单地使用ContentProvider提供的数据操作接口，也就是增删改查。
 
-
-
 Uri固定的数据格式，例如：`content://com.gityuan.articles/android/3`
 
 |字段|含义|对应项|
@@ -24,5 +22,11 @@ Uri固定的数据格式，例如：`content://com.gityuan.articles/android/3`
 |授权|唯一标识provider|com.gityuan.articles|
 |路径|数据类别以及数据项|/android/3|
 
-
 其他app或者进程想要操作`ContentProvider`，则需要先获取其相应的`ContentResolver`，利用ContentResolver类来完成对数据的增删改查操作
+
+## ContentProvider的线程
+
+quer/insert/update/delete/etc时候
+
+1. 你的ContentProvider与调用者处于同一进程中，ContentProvider函数与调用者相同的线程上同步运行。
+2. 你的ContentProvider与调用者处于不同进程中，ContentProvider函数在ContentProvider进程中的binder thread上运行。
