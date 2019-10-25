@@ -17,7 +17,7 @@ RecyclerView继承于ViewGroup，实现ScrollingView、NestedScrollingChild接�
 
 ## 与ListView对比
 
-[与ListView对比](cache/与ListView的缓存对比.md)
+[与ListView对比](./cache/与ListView的缓存对比.md)
 
 ListView相比RecyclerView，有一些优点：
 
@@ -84,7 +84,7 @@ RecyclerViewDataObserver是观察者。开发中我们通常使用adapter.notify
 
 ## RecyclerView的缓存机制
 
-[RecyclerView的缓存机制](recyclerview的缓存机制.md)
+[RecyclerView的缓存机制](./cache/recyclerview的缓存机制.md)
 
 ## 创建流程
 

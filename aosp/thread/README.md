@@ -4,3 +4,5 @@
 - [threadlocal的原理](threadlocal.md)
 - [futuretask的原理](futuretask.md)
 - [thread priority](thread_priority.md)
+- [AsyncTask](asynctask.md)
+- [ExecutorService中的关闭](executorservice.md)

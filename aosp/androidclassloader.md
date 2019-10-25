@@ -230,7 +230,7 @@ public final class DexFile {
 
 ## defineClassNative
 
-```c++
+```cpp
 static jclass DexFile_defineClassNative(JNIEnv* env, jclass, jstring javaName, jobject javaLoader,
                                         jobject cookie, jobject dexFile) {
   ScopedObjectAccess soa(env);
@@ -275,5 +275,9 @@ BaseDexClassLoader中有个pathList成员变量，pathList包含了一个DexFile
 
 ## ART虚拟机的兼容性问题
 
-Android Runtime，在Android5.0及后续Android版本中作为正式的运行时库取代了以往的Dalvik虚拟机。ART能够把应用程序的字节码转换为机器码，是Android所使用的一种新的虚拟机。它与Dalvik的主要不同在于：Dalvik采用的是JIT技术，字节码都需要通过即时编译器转换为机器码，这会拖慢应用的运行效率，而ART采用Ahead-of-time技术，应用在第一次安装的时候，字节码就会预先编译成机器码，这个过程叫做预编译。ART同时也改善了性能、垃圾回收、应用程序除错以及性能分析。
+Android Runtime，在Android5.0及后续Android版本中作为正式的运行时库取代了以往的Dalvik虚拟机。
+
+ART能够把应用程序的字节码转换为机器码，是Android所使用的一种新的虚拟机。
+它与Dalvik的主要不同在于：Dalvik采用的是JIT技术，字节码都需要通过即时编译器转换为机器码，这会拖慢应用的运行效率，而ART采用Ahead-of-time技术，应用在第一次安装的时候，字节码就会预先编译成机器码，这个过程叫做预编译。ART同时也改善了性能、垃圾回收、应用程序除错以及性能分析。
+
 ART模式相比原来的Dalvik，会在安装APK的时候，使用Android系统自带的dex2oat工具把APK里面的.dex文件优化成OAT文件，OAT文件是一种Android私有ELF文件格式，它不仅包含有从DEX文件翻译而来的文件机器指令，还包含有原来的DEX文件内容。这使得我们无需重新编译原有的APK就可以让它正常在ART里面。

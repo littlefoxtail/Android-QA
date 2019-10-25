@@ -1,4 +1,4 @@
-# 四大组员
+# 四大组件
 
 - [Activity](activity.md)
 - [BroadcastReceiver](broadcastreceiver.md)

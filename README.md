@@ -1,8 +1,7 @@
 # Android-QA
 
-- [设计模式](pattern/pattern.md)
 - [网络通信](network/README.md)
-- [Android Open Source Code](aosp/README.md)
+- [AOSP](aosp/README.md)
 - [第三方库](third/README.md)
 - [Java](java/README.md)
 - [设计模式](pattern/pattern.md)
@@ -28,54 +27,37 @@
   父类的该静态方法被隐藏（如果对象是父类则调用该隐藏的方法），另外子类可继承父类的静态与非静态方法。
   
 - app 被杀掉进程后，是否还能收到广播的问题？
-
   自android 3.1开始，系统自动给所有intent添加了FLAG_EXCLUDE_STOPPED_PACKAGES，导致app处于停止状态就不能收到广播。要想处于停止状态的app收到广播，需要添加FLAG_INCLUDE_STOPPED_PACKAGES这个标记。这样的话，停止的app应该是收不到系统广播了
 
 - 列举java的集合和继承关系
 
-```text
-├── Collection
-│   ├── List
-│   │   ├── LinkedList
-│   │   ├── ArrayList
-│   │   ├── Vector
-│   │   │   ├── Stack
-│   ├── Set
+    ```text
+    ├── Collection
+    │   ├── List
+    │   │   ├── LinkedList
+    │   │   ├── ArrayList
+    │   │   ├── Vector
+    │   │   │   ├── Stack
+    │   ├── Set
 
-├── Map
-│   ├── Hashtable
-│   ├── HashMap
-│   ├── WeakHashMap
-```
+    ├── Map
+    │   ├── Hashtable
+    │   ├── HashMap
+    │   ├── WeakHashMap
+    ```
 
 - HashMap的实现原理
-
   1. HashMap概述：HashMap是基于哈希表的Map接口的非同步实现。此实现提供所有可选的映射操作，并允许使用null和null键。此类不保证映射的顺序
 
 - HashMap和HashTable的区别
-
-  1. 继承和实现的区别
-
-     Hashtable是基于陈旧的Dictionary类，完成了Map接口；HashMap是Java 1.2引进的Map接口的一个实现。
-
-  2. 线程安全不同
-
-     HashTable的方法是同步的，HashMap是未同步，所以在多线程场合要手动同步HashMap。
-
-  3. 对null处理不同
-
-     Hashtable不允许null值(key和value都不可以)，HashMap允许null值(key和value都可以)。
-
-  4. 方法不同
-
-     Hashtable有一个contains(Object value)，功能和containsValue(Object value)功能一样。
-
+  1. 继承和实现的区别：Hashtable是基于陈旧的Dictionary类，完成了Map接口；HashMap是Java 1.2引进的Map接口的一个实现。
+  2. 线程安全不同：HashTable的方法是同步的，HashMap是未同步，所以在多线程场合要手动同步HashMap。
+  3. 对null处理不同：Hashtable不允许null值(key和value都不可以)，HashMap允许null值(key和value都可以)。
+  4. 方法不同：Hashtable有一个contains(Object value)，功能和containsValue(Object value)功能一样。
   5. Hashtable使用Enumeration,HashMap使用使用Iterator。
-
   6. Hashtable中hash数组默认大小是11，增加的方式是old*2 + 1。HashMap中hash数组的默认大小是16，而且一定是2的指数。
 
 - 进程和线程的区别
-
   - 程序至少有一个进程，一个进程至少有一个线程
   - 线程的划分尺度小于进程，使得多线程程序的并发性高。
   - 进程在执行过程中拥有独立的内存单元，而多个线程共享内存，从而极大地提高了程序的运行效率。
@@ -84,51 +66,24 @@
   - 一个线程可以创建和撤销另一个线程；同一个进程的多个线程可以并发执行
 
 - 抽象类接口区别
-
   1. 默认的方法实现 抽象类可以有默认的方法实现完全是抽象的。接口根本不存在方法的实现。(在java8中新增了新特性，接口也可以有default扩展方法)
-
   2. 实现子类使用extends关键字来继承抽象类。如果子类不是抽象类的话，它需要提供抽象类中所有声明的方法的实现。子类使用关键字implements来实现接口。它需要提供接口中所有声明的方法的实现
-
-  3. 构造器
-
-     抽象类可以有构造器 接口不能有构造器
-
-  4. 与正常Java类的区
-
-     除了你不能实例化抽象类之外，它和普通Java类没有任何区别，接口是完全不同的类型。
-
-  5. 访问修饰符
-
-     抽象方法可以有public、protected和default这些修饰符，接口方法默认修饰符是public。你不可以使用其它修饰符。
-
-  6. main方法
-
-     抽象方法可以有main方法并且我们可以运行它
-
-     接口没有main方法，因此我们不能运行它。
-
-  7. 多继承
-
-     抽象类在java语言中所表示的是一种继承关系，一个子类只能存在一个父类，但是可以存在多个接口。
-
-  8. 添加新方法
-
-     如果你往抽象类中添加新的方法，你可以给它提供默认的实现。因此你不需要改变你现在的代码。
-
-     如果你往接口中添加方法，那么你必须改变实现该接口的类。
+  3. 构造器：抽象类可以有构造器 接口不能有构造器
+  4. 与正常Java类的区别：除了你不能实例化抽象类之外，它和普通Java类没有任何区别，接口是完全不同的类型。
+  5. 访问修饰符：抽象方法可以有public、protected和default这些修饰符，接口方法默认修饰符是public。你不可以使用其它修饰符。
+  6. main方法：抽象方法可以有main方法并且我们可以运行它，接口没有main方法，因此我们不能运行它。
+  7. 多继承：抽象类在java语言中所表示的是一种继承关系，一个子类只能存在一个父类，但是可以存在多个接口。
+  8. 添加新方法：如果你往抽象类中添加新的方法，你可以给它提供默认的实现。因此你不需要改变你现在的代码。如果你往接口中添加方法，那么你必须改变实现该接口的类。
   
 - 描述handler机制的原理
-
 android提供了Handler和Looper来满足线程间的通信。
 Handler先进先出原则。Looper类用来管理线程内对象之间的消息交换(Message Exchange)
-
   1. Looper：一个线程可以产生一个Looper对象，由它来管理此线程里的Message Queue(消息队列)
   2. Handler：你可以构造Handler对象来与Looper沟通，以便push新消息到Message Queue里；或者接收Looper从Message Queue所送出来的消息。
   3. Message Queue：用来存放线程放入的消息。
   4. UI thread通常就是main thread，
 
 - Android中如何访问自定义ContentProvider
-
   通过ContentProvider的Uri访问开放的数据。
    1. ContentResolver对象通过Context提供的方法getContenResolver()来获得。
    2. ContentResover提供了以下方法来操作：insert delete update query这些方法分别会调用ContenProvider中与之对应的方法并得到返回的结果。。
@@ -140,17 +95,16 @@ Handler先进先出原则。Looper类用来管理线程内对象之间的消息�
   - Messenger:基于消息的进程间通信。
   - ContentProvider:专门用于不同应用间的数据共享
   - Socket：使用TCP和UDP协议进行网络通信
+    | 名称 |优点|缺点|使用场景 |
+    | ---- | ---- | ---- | ---- |
+    |Bundle|简单易用|只能传输Bundle支持的数据类型|四大组件间的进程间通信|
+    |文件共享|简单易用|不适合高并发场景，并且无法做到进程间的进程通信|无并发访问情形，交换简单的数据实时性不高的场景|
+    |AIDL|功能强大，支持一对多并发通信，支持实时通信|使用稍复杂，需要处理好线程同步|一对多通信且有RPC需求|
+    |Messenger|功能一般，支持一对多并发通信，支持实时通信|不能很好处理高并发情形，不支持RPC，数据通过Message进行传输，因此只能传输Bundle支持的数据类型|低开发的一对多即使通信，无RPC需求，或者无需返回结果的RPC需求|
+    |ContentProvider|在数据源访问方面功能强大，支持一对多开发数据共享，可通过Call方法扩展其他操作|可以理解为受约束的AIDL，主要提供数据源的CRUD操作|一对多的进程间的数据共享|
+    |Socket|功能强大，可以通过网络传输字节流，支持一对多并发实时通信|实现细节稍微有点繁琐，不支持直接的RPC|网络数据交集|
 
-| 名称 |优点|缺点|使用场景 |
-| ---- | ---- | ---- | ---- |
-|Bundle|简单易用|只能传输Bundle支持的数据类型|四大组件间的进程间通信|
-|文件共享|简单易用|不适合高并发场景，并且无法做到进程间的进程通信|无并发访问情形，交换简单的数据实时性不高的场景|
-|AIDL|功能强大，支持一对多并发通信，支持实时通信|使用稍复杂，需要处理好线程同步|一对多通信且有RPC需求|
-|Messenger|功能一般，支持一对多并发通信，支持实时通信|不能很好处理高并发情形，不支持RPC，数据通过Message进行传输，因此只能传输Bundle支持的数据类型|低开发的一对多即使通信，无RPC需求，或者无需返回结果的RPC需求|
-|ContentProvider|在数据源访问方面功能强大，支持一对多开发数据共享，可通过Call方法扩展其他操作|可以理解为受约束的AIDL，主要提供数据源的CRUD操作|一对多的进程间的数据共享|
-|Socket|功能强大，可以通过网络传输字节流，支持一对多并发实时通信|实现细节稍微有点繁琐，不支持直接的RPC|网络数据交集|
-
-> RPC(Remote Procedure Call Protocol)远程过程调用协议
+    > RPC(Remote Procedure Call Protocol)远程过程调用协议
 
 - Binder的系统架构
   - Service Manager  
@@ -185,16 +139,10 @@ Handler先进先出原则。Looper类用来管理线程内对象之间的消息�
   ![bundlework](img/bundlework.png)
 
 - AIDL
-  - AIDL的工作流程
-    AIDL文件的本质是系统为我们提供的一种快速实现Binder工具而已，所以AIDL的工作流程可以绕到Binder进行说明。
-
+  - AIDL的工作流程：AIDL文件的本质是系统为我们提供的一种快速实现Binder工具而已，所以AIDL的工作流程可以绕到Binder进行说明。
   - AIDL的使用方法
-    - 服务端
-      服务端首先要创建一个远程Service用来监听客户端的连接请求，然后创建一个AIDL文件，将暴露给护短的
-      接口在这个AIDL文件中声明，最后在Service中实现这个AIDL接口即可
-    - 客户端
-      首先绑定服务端Service，绑定成功后，将服务端返回的Binder对象转化成AIDL接口所属的类型，接着就可以
-      调用AIDL中的方法了。
+    - 服务端：服务端首先要创建一个远程Service用来监听客户端的连接请求，然后创建一个AIDL文件，将暴露给客户端的接口在这个AIDL文件中声明，最后在Service中实现这个AIDL接口即可
+    - 客户端：首先绑定服务端Service，绑定成功后，将服务端返回的Binder对象转化成AIDL接口所属的类型，接着就可以调用AIDL中的方法了。
     - AIDL文件支持的数据类型
       - 基本数据类型
       - String和CharSequence
@@ -209,19 +157,10 @@ Handler先进先出原则。Looper类用来管理线程内对象之间的消息�
       所有类，如果累的完整路径不一样的话，就无法成功反序列化。
     - AIDL调用服务端方法后，会挂起等待，如果服务端进行执行大量耗时操作，会导致客户端ANR。解决方法：
       客户端调用放在非UI线程即可。
-  - 实现一个Messenger
-    基于消息的进程间通信方式
-    - 服务端进程
-      需要在服务端创建一个Service来处理客户端的连接请求，同时创建一个Handler并通过它来创建一个Messenger对象，
-      然后在Service在onBind中返回这个Messenger对象，然后在Service的onBind中返回这个Messenger对象底层
-      的Binder即可。
-    - 客户端进程
-      客户端进程中，首先绑定服务端的Service，绑定成功后用服务端返回的IBinder对象创建一个Messenger，
-      通过这Messenger就可以向服务端发送消息，发送消息的类型为Messger对象。如果需要服务端能够回应客户端，
-      就和服务端一样，我们还需要创建一个Handler并创建一个新的Messenger,并把这个Messenger对象通过Message
-      的replyTo参数传递给服务端，服务端通过这个replyTo参数就可以回应客户端。
-
-      ![messenger](img/messenger.png)
+  - 实现一个Messenger，基于消息的进程间通信方式
+    - 服务端进程：需要在服务端创建一个Service来处理客户端的连接请求，同时创建一个Handler并通过它来创建一个Messenger对象，然后在Service在onBind中返回这个Messenger对象，然后在Service的onBind中返回这个Messenger对象底层的Binder即可。
+    - 客户端进程：客户端进程中，首先绑定服务端的Service，绑定成功后用服务端返回的IBinder对象创建一个Messenger，通过这Messenger就可以向服务端发送消息，发送消息的类型为Messger对象。如果需要服务端能够回应客户端，就和服务端一样，我们还需要创建一个Handler并创建一个新的Messenger,并把这个Messenger对象通过Message的replyTo参数传递给服务端，服务端通过这个replyTo参数就可以回应客户端。
+    ![messenger](img/messenger.png)
 
 - LinearLayout和RelativeLayout性能对比
   1. RelativeLayout会让子View调用2次onMeasure，LinearLayout在有weight时，也会调用子View两次
@@ -231,41 +170,25 @@ Handler先进先出原则。Looper类用来管理线程内对象之间的消息�
   3. 在不影响层级深度的情况下，使用LinearLayout和FrameLayout而不是RelativeLayout。
 
 - 优化自定义view
-  1. 为了加速view，对于频繁调用的方法，需要尽量减少不必要的代码。先从onDraw开始，需要特别注意不应该在这里
-  做内存分配的事情，因为它会导致GC，从而导致卡顿。从初始化或者动画间隙期间做分配内存的动作。不要在动画正在
-  执行的时候做内存分配的事情。
-
-  2. 你还需要尽可能的减少onDraw被调用的次数，大多数时候导致onDraw都是因为调用了invalidate()。因此请尽量减少
-  调用invalidate的次数。如果可能的话，尽量调用含有4个参数的invalidate方法而不是没有参数的invalidate，没有
-  参数的invalidate会强制重绘整个view。
-
-  3. 另一个非常耗时的操作是请求layout。任何时候执行requestLayout，会使得Android UI系统去遍历整个View的层级
-  来计算出每一个view的大小。如果找到有冲突的值，它会重新计算好几次。另外需要尽量保持View的层级是扁平化，
-  这样对提高效率很有帮助。
-
-  4. 如果你有一个复杂的UI，你应该考虑写一个自定义的ViewGroup来执行他的layout操作。与内置view不同，自定义
-  的view可以使得程序仅仅测量这一部分，这避免了遍历整个view的层级结构来计算大小。
+  1. 为了加速view，对于频繁调用的方法，需要尽量减少不必要的代码。先从onDraw开始，需要特别注意不应该在这里做内存分配的事情，因为它会导致GC，从而导致卡顿。从初始化或者动画间隙期间做分配内存的动作。不要在动画正在执行的时候做内存分配的事情。
+  2. 你还需要尽可能的减少onDraw被调用的次数，大多数时候导致onDraw都是因为调用了invalidate()。因此请尽量减少调用invalidate的次数。如果可能的话，尽量调用含有4个参数的invalidate方法而不是没有参数的invalidate，没有参数的invalidate会强制重绘整个view。
+  3. 另一个非常耗时的操作是请求layout。任何时候执行requestLayout，会使得Android UI系统去遍历整个View的层级来计算出每一个view的大小。如果找到有冲突的值，它会重新计算好几次。另外需要尽量保持View的层级是扁平化，这样对提高效率很有帮助。
+  4. 如果你有一个复杂的UI，你应该考虑写一个自定义的ViewGroup来执行他的layout操作。与内置view不同，自定义的view可以使得程序仅仅测量这一部分，这避免了遍历整个view的层级结构来计算大小。
 
 - build.gralde文件
-  1. APT
-    annotationProcessor和android-apt功能是一样的，它们是替代关系。
-    APT(Annotation Processing Tool)是一种处理注解的工具，它对源代码文件进行检测找出其中的Annotation，根据注解自动生成代码。Annotation处理器在处理Annotation时可以根据源文件中的Annotation生成额外的源文件和其它文件，APT还会编译生成的源文件和原来的源文件，将它们一起生成class文件。
-    APT处理要素
-    注解处理器(AbstractProcess)+代码处理(javaPoet)+处理器注册(AutoService)+apt
+  1. APT：annotationProcessor和android-apt功能是一样的，它们是替代关系。
+    APT(Annotation Processing Tool)是一种处理注解的工具，它对源代码文件进行检测找出其中的Annotation，根据注解自动生成代码。Annotation处理器在处理Annotation时可以根据源文件中的Annotation生成额外的源文件和其它文件，APT还会编译生成的源文件和原来的源文件，将它们一起生成class文件。APT处理要素：注解处理器(AbstractProcess)+代码处理(javaPoet)+处理器注册(AutoService)+apt
 
   2. annotationProcessor
     annotationProcessor是APT工具的一种，它是google开发的内置框架，不需要引入，可以直接在build.gradle文件中使用。
 
-      ```text
+        ```text
         dependencies {
-          annotationProcessor project(':xx')
-          annotationProcessor 'com.jakenharton:butterkinfe-compiler:8.4.0'
+            annotationProcessor project(':xx')
+            annotationProcessor 'com.jakenharton:butterkinfe-compiler:8.4.0'
         }
-      ```
+        ```
 
   3. Provided和annotationProcessor区别
-
-     - annotationProcessor:
-      只在编译的时候执行依赖的库，但是库最终不打包到apk中，编译库中的代码没有直接使用的意义，也没有提供开发的api调用，最终的目的是得到编译库中生成的文件供我们调用
-     - Provided
-      Provided虽然也是编译时运行，最终不会打包到apk中,Provided是间接的得到了依赖的Library，运行的时候必须要保证这个Library的存在，否则就会崩溃，起到了避免依赖重复资源的作用。
+     - annotationProcessor:只在编译的时候执行依赖的库，但是库最终不打包到apk中，编译库中的代码没有直接使用的意义，也没有提供开发的api调用，最终的目的是得到编译库中生成的文件供我们调用
+     - Provided：Provided虽然也是编译时运行，最终不会打包到apk中,Provided是间接的得到了依赖的Library，运行的时候必须要保证这个Library的存在，否则就会崩溃，起到了避免依赖重复资源的作用。

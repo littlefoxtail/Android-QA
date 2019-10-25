@@ -2,34 +2,26 @@
 
 - [View相关](view/README.md)
 - [Jetpack](jetpack/README.md)
-- [Android的窗口管理](manager/README.md)
+- [Android的窗口管理](manage/README.md)
 - [ClassLoader](classloader.md)
 - [WebView遇到的一些问题和总结](webView性能优化.md)
 - [Handler](handler.md)
-- [Choreographer控制同步处理输入、动画、绘制](choreographer.md)
 - [应用中的Context](context.md)
 - [LayoutInflater如何加载布局的](layoutinflater.md)
-- [动画](animation.md)
+
 - [Android中的线程所有知识点](android_thread.md)
 - [Material Style](color_resource.md)
 - [Android在编码的时候经常使用到位运算](androidbit.md)
-- [AsyncTask](asynctask.md)
-- [ExecutorService中的关闭](executorservice.md)
-- [内存泄露中的强弱引用](memory.md)
 - [四大组件](component/README.md)
 - [Binder](binder.md)
-- [Thread Local](threadlocal.md)
-- [Thread Performance](thread_performance.md)
 - [清单文件](manifest.md)
 - [安卓内存泄露](memoryleak.md)
 - [Window的源码](window.md)
 - [理解AndroidCrash处理流程](理解AndroidCrash处理流程.md)
+- [Application not responding](applicationnotresponding.md)
 
 - TODO
-  - [Application not responding](applicationnotresponding.md)
   - [Fragment](fragment.md)
-  - [futuretask](futuretask.md)
-  - [图片缓存处理](image.md)
   - [Interpolator](Interpolator.md)
   - [Android性能调优](performance.md)
   - [自定义View的步骤](customView.md)
@@ -38,7 +30,6 @@
   - [彻底理解ANR应用无响应机制](彻底理解安卓应用无响应机制.md)
   - [注解处理器](annotationprocessingtools.md)
   - [Java依赖注入规范](JSR330.md)
-  - [内存泄露](memoryleak.md)
 
 ## Android系统
 

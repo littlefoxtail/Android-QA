@@ -32,6 +32,7 @@ ViewModel将视图的数据和逻辑从具有生命周期特性的实体(如Acti
 
 ## LiveData
 
+[LiveData](livedata.md)
 LiveData是一款基于观察者模式的可感知生命周期的核心组件。它允许应用程序中的组件观察LiveData对象的更改，而不会在它们之间创建明确的和严格的依赖关系路径。
 LiveData为界面代码(Observer)的监视对象(Observable)。当LiveData所持有的数据改变时，它会通知相应的界面代码进行更新。
 同时，LiveData持有界面代码Lifecycle的引用，这意味着它会在界面代码(LifecycleOwner)的生命周期处于stated或resumed时作出相应更新，而在LifecycleOwner被销毁时停止更新。防止对象泄露，以便应用程序消耗更多内存。
@@ -135,6 +136,7 @@ public class UserRepository {
 组成部分：
 
 * @Entity 这个组件定义了数据库中的表。模型对象可以很容易地转换为实体对象
+
     ```java
     @Entiry
     class User {
@@ -144,14 +146,18 @@ public class UserRepository {
         private String lastName;
     }
     ```
-* @Database 这个组件代表一个数据库持有者。在这个类定义数据的实体列表和数据的数据访问对象(data access object (DAO))。然后你使用这个类来创建一个新的数据库或者运行时获得 一个到数据库的连接
+
+* @Database 这个组件代表一个数据库持有者。在这个类定义数据的实体列表和数据的数据访问对象(data access object (DAO))。然后你使用这个类来创建一个新的数据库或者运行时获得 一个到数据库的连
+  
     ```java
     @Database(entities = {User.class}, version = 1) 
     public abstract class MyDatabase extends RoomDatabase {
         public abstract UserDao userDao();
     }
     ```
+
 * @Dao 该组件将类或接口表示为数据访问对象(data access object (DAO))，Dao负责定义访问数据库的方法。他们提供了一个读取和写入数据库数据的API
+
     ```java
     @Dao
     public interface UserDao {
@@ -161,6 +167,7 @@ public class UserRepository {
         LiveData<User> load(String userId);
     }
     ```
+
 load返回的是LiveData，Room知道数据库何时被修改，当数据改变时它会自动通知所有活动的观察者。
 
 添加完Room数据源的Repository
@@ -244,6 +251,7 @@ public class Resource<T> {
 
 ## Lifecycle
 
+[Lifecycle](lifecycler.md)
 Lifecycle是一个保存关于组件声明周期状态（activity或者fragment）信息的类，并允许其他对象观察此状态。
 Lifecycle使用两个主要枚举来跟踪有关联组件的生命周期状态
 
@@ -267,6 +275,7 @@ Lifecycle使用两个主要枚举来跟踪有关联组件的生命周期状态
 ## PagedList
 
 解决RecyclerView处理大数据集的困难
+[Paging](paging.md)
 
 ## Navigation
 
@@ -275,3 +284,7 @@ Lifecycle使用两个主要枚举来跟踪有关联组件的生命周期状态
 ### 应用应该有一个固定的起始目的地
 
 即用户从启动器启动应用程序时看到的屏幕。这个目的地也应该是用户在按下后退按钮后返回到启动程序时看到的最后一个屏幕
+
+## WorkManager
+
+[WorkManager](WorkManager.md)
