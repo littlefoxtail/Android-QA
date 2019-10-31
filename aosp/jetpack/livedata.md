@@ -56,6 +56,6 @@ public abstract class LiveData<T> {
 }
 ```
 
-看过我那篇 lifecycle 源码分析的读者应该对 dispatchingValue 处理循环调用的方式很熟悉了。以这里为例，为了防止循环调用，我们在调用客户代码前先置位一个标志（mDispatchingValue），结束后再设为 false。如果在回调里面又触发了这个方法，可以通过 mDispatchingValue 来检测。
+以这里为例，为了防止循环调用，我们在调用客户代码前先置位一个标志（mDispatchingValue），结束后再设为 false。如果在回调里面又触发了这个方法，可以通过 mDispatchingValue 来检测。
 
 检测到循环调用后，再设置第二个标志（mDispatchInvalidated），然后返回。返回又会回到之前的调用，前一个调用通过检查 mDispatchInvalidated，知道数据被修改，于是开始一轮新的迭代。

@@ -13,4 +13,3 @@ public class LifecycleRegistry extends Lifecycle {
 
 1. 假设当前集合中所有ObserverWithState元素都处于CREATED状态。此时接着收到了一个ON_START事件，从图可以看出，接下来应该是要转换到STARTED状态。由于STARTED大于CREATED，所以会执行forwardPass方法。forwardPass里调用 upEvent(observer.mState)，返回从CREATED往上到STARTED需要发送的事件，也就是ON_START，于是ON_START事件发送给了观察者。
 2. 假设当前 LifecycleRegistry的mState处于RESUMED状态。然后调用addObserver方法新添加一个LifecycleObserver，该observer会被封装成ObserverWithState存进集合中，此时这个新的ObserverWithState处于INITIALIZED状态，由于RESUMED大于INITIALIZED，所以会执行forwardPass方法。ObserverWithState的状态会按照 INITIALIZED -> CREATED -> STARTED -> RESUMED 这样的顺序变迁。
-
