@@ -148,6 +148,93 @@ class ResourcesManager {
         }
         return newResources;
     }
+
+    private static Resources createResourcesForN(..) {
+        String newAssetPath = apk.getAbsolutePath(); // Plugin apk的路径
+        ApplicationInfo info = context.getApplicationInfo();
+        String baseResDir = info.publicSourceDir; // host的文件路径
+
+        //1. 获取当前项目的splitResDirs，splitResDirs是保存当前程序所有已经加载的资源路径，按索引顺序获取多个拆分apk的完整路径
+        // 并检查是否已经包含插件路径，此时表示插件资源路径添加进去了
+        info.splitSourceDirs = append(info.splitSourceDirs, newAssetPath); //添加到屁股后面
+
+        // 2. 反射给PackageInfo设置合并之后的splitSourceDirs
+        LoadedApk loadedApk = Reflector.with(context).field("mPackageInfo").get();
+        Reflector rLoadedApk = Reflector.with(loadedApk).field("mSplitResDirs");
+        String[] splitResDirs = rLoadedApk.get();
+        rLoadedApk.set(append(splitResDirs, newAssetPath));
+        // 3. 获取ResourceImpl及其配置的映射
+
+        final ResoucesManager resourcesManager = ResourcesManager.getInstance();
+         ArrayMap<ResourcesKey, WeakReference<ResourcesImpl>> originalMap = Reflector.with(resourcesManager).field("mResourceImpls").get();
+
+        synchronized (resourcesManager) {
+            HashMap<ResourcesKey, WeakReference<ResourcesImpl>> resolvedMap = new HashMap<>();
+    
+            if (Build.VERSION.SDK_INT >= 28
+                || (Build.VERSION.SDK_INT == 27 && Build.VERSION.PREVIEW_SDK_INT != 0)) { // P Preview
+                ResourcesManagerCompatForP.resolveResourcesImplMap(originalMap, resolvedMap, context, loadedApk);
+
+            } else {
+                ResourcesManagerCompatForN.resolveResourcesImplMap(originalMap, resolvedMap, baseResDir, newAssetPath);
+            }
+            //4. 把mResourceImpls相关的东西给换了
+            originalMap.clear();
+            originalMap.putAll(resolvedMap);
+        }
+
+
+    }
+
+    private static final class ResourcesManagerCompatForP {
+        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+        public static void resolveResourcesImplMap(Map<ResourcesKey, WeakReference<ResourcesImpl>> originalMap, Map<ResourcesKey, WeakReference<ResourcesImpl>> resolvedMap, Context context, LoadedApk loadedApk) throws Exception {
+            //中间map
+            HashMap<ResourcesImpl, Context> newResImplMap = new HashMap<>();
+            Map<ResourcesImpl, ResourcesKey> resKeyMap = new HashMap<>();
+            Resources newRes;
+
+            // Recreate the resImpl of the context
+
+            // See LoadedApk.getResources()
+            if (mDefaultConfiguration == null) {
+                mDefaultConfiguration = new Configuration();
+            }
+            // 1. 这里会重新创建Resources，利用LoadedApk.getResources()会把splitResDirs字段加入到ResourcesKey中
+            newRes = context.createConfigurationContext(mDefaultConfiguration).getResources();
+            newResImplMap.put(newRes.getImpl(), context);
+
+            // Recreate the ResImpl of the activity
+            for (WeakReference<Activity> ref : PluginManager.getInstance(context).getInstrumentation().getActivities()) {
+                Activity activity = ref.get();
+                if (activity != null) {
+                    //2. 这里面会重新创建Resources，利用LoadedApk.getResources()会把splitResDirs字段加入到ResourcesKey中
+                    newRes = activity.createConfigurationContext(activity.getResources().getConfiguration()).getResources();
+                    newResImplMap.put(newRes.getImpl(), activity);
+                }
+            }
+            // Mapping all resKey and resImpl
+            for (Map.Entry<ResourcesKey, WeakReference<ResourcesImpl>> entry : originalMap.entrySet()) {
+                ResourcesImpl resImpl = entry.getValue().get();
+                if (resImpl != null) {
+                    // 反转一下key 和 value
+                    resKeyMap.put(resImpl, entry.getKey());
+                }
+                //拷贝一遍
+                resolvedMap.put(entry.getKey(), entry.getValue());
+            }
+
+            // Replace the resImpl to the new resKey and remove the origin resKey
+            for (Map.Entry<ResourcesImpl, Context> entry : newResImplMap.entrySet()) {
+                //在重新创建的Resources集合中获取到新的key
+                ResourcesKey newKey = resKeyMap.get(entry.getKey());
+                ResourcesImpl originResImpl = entry.getValue().getResources().getImpl();
+
+                resolvedMap.put(newKey, new WeakReference<>(originResImpl));
+                resolvedMap.remove(resKeyMap.get(originResImpl));
+            }
+        }
+    }
 }
 
 public static void hookResources(context base, Resources resources) {
@@ -283,7 +370,6 @@ public class VAInstrumenttation {
             }
         }
         ...
-
     }
 ```
 
@@ -294,20 +380,20 @@ public class VAInstrumenttation {
 ```java
 public class MonkeyPatcher {
     public static void monkeyPatchExistingResources(..) {
-        //通过反射创建一个AssetManager，调用addAssetPath添加sdcard上的资源包
+        //1. 通过反射创建一个新的AssetManager，调用addAssetPath添加sdcard上的资源包
         AssetManager newAssetManager = AssetManager.class.getConstructor().newInstance();
         Method mAddAssetPath = AssetManager.class.getDeclaredMethod("addAssetPath", String.class);
             mAddAssetPath.setAccessible(true);
         if (((Integer) mAddAssetPath.invoke(newAssetManager, externalResourceFile)) == 0) {
             throw new IllegalStateException("Could not create new AssetManager");
         }
-        //调用ensureStringBlocks将系统资源表以及应用资源表中的字符串资源池地址
+        //2. 调用ensureStringBlocks将系统资源表以及应用资源表中的字符串资源池地址 5.0以上没用，
         Method mEnsureStringBlocks = AssetManager.class.getDeclaredMethod("ensureStringBlocks");
         mEnsureStringBlocks.setAccessible(true);
         mEnsureStringBlocks.invoke(newAssetManager);
 
         if (activity != null) {
-            //反射获取Activity中的AssetManager的引用，替换成新创建的newAssetManager
+            //3. 反射获取Activity中的AssetManager的引用，替换成新创建的newAssetManager
             for (Activity activity : activities) {
                 Resources resources = activity.getResources();
              try {
@@ -326,8 +412,205 @@ public class MonkeyPatcher {
         }
 
         Collection<WeakReference<Resources>> references;
-
         //得到Resources的弱引用集合，把他们的AssetManager成员替换成newAssetManager
+        if (SDK_INT >= KITKAT) {
+            // Find the singleton instance of ResourcesManager
+                Class<?> resourcesManagerClass = Class.forName("android.app.ResourcesManager");
+                Method mGetInstance = resourcesManagerClass.getDeclaredMethod("getInstance");
+                mGetInstance.setAccessible(true);
+                Object resourcesManager = mGetInstance.invoke(null);
+                try {
+                    Field fMActiveResources = resourcesManagerClass.getDeclaredField("mActiveResources");
+                    fMActiveResources.setAccessible(true);
+                    @SuppressWarnings("unchecked")
+                    ArrayMap<?, WeakReference<Resources>> arrayMap =
+                            (ArrayMap<?, WeakReference<Resources>>) fMActiveResources.get(resourcesManager);
+                    references = arrayMap.values();
+                } catch (NoSuchFieldException ignore) {
+                    Field mResourceReferences = resourcesManagerClass.getDeclaredField("mResourceReferences");
+                    mResourceReferences.setAccessible(true);
+                    //noinspection unchecked
+                    references = (Collection<WeakReference<Resources>>) mResourceReferences.get(resourcesManager);
+                }
+        } else {
+            Class<?> activityThread = Class.forName("android.app.ActivityThread");
+            Field fMActiveResources = activityThread.getDeclaredField("mActiveResources");
+            fMActiveResources.setAccessible(true);
+            Object thread = getActivityThread(context, activityThread);
+            @SuppressWarnings("unchecked")
+            HashMap<?, WeakReference<Resources>> map =
+                    (HashMap<?, WeakReference<Resources>>) fMActiveResources.get(thread);
+            references = map.values();
+        }
+        for (WeakReference<Resources> wr : references) {
+                Resources resources = wr.get();
+                if (resources != null) {
+                    // Set the AssetManager of the Resources instance to our brand new one
+                    try {
+                        Field mAssets = Resources.class.getDeclaredField("mAssets");
+                        mAssets.setAccessible(true);
+                        mAssets.set(resources, newAssetManager);
+                    } catch (Throwable ignore) {
+                        Field mResourcesImpl = Resources.class.getDeclaredField("mResourcesImpl");
+                        mResourcesImpl.setAccessible(true);
+                        Object resourceImpl = mResourcesImpl.get(resources);
+                        Field implAssets = resourceImpl.getClass().getDeclaredField("mAssets");
+                        implAssets.setAccessible(true);
+                        implAssets.set(resourceImpl, newAssetManager);
+                    }
+
+                    resources.updateConfiguration(resources.getConfiguration(), resources.getDisplayMetrics());
+                }
+            }
     }
 }
 ```
+
+## Qigsaw资源处理
+
+InstantApp的原理
+
+```java
+// SplitCompatResourcesLoader
+static void loadResources(..) {
+    //获取已在的资源，字符串目录，这需要根据android版本获取
+    List<String> loadedResDirs = getLoadedResourcesDirs(preResources.getAssets());
+    if (!loadedResDirs.contains(splitApkPath)) {
+        installSplitResDirs(..);
+    }
+}
+
+// SplitCompatResourcesLoader
+// 从AssetManager中资源路径
+private static List<String> getLoadedResourcesDirs(AssetManager asset) {
+    // sdk 28前后使用的不同方式
+    // 28 AssetManager#getApkAssets ApkAssets#getAssetPath
+    // 28以下 AssetManager#mStringBlocks数量 AssetManager#getCookieName
+}
+
+// SplitCompatResourcesLoader
+private static void installSplitResDirs(..) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODE.LOLLPOP) {
+        v21.installSplitResDirs(..);
+    } else {
+        v14.installSplitResDirs(..);
+    }
+}
+
+// SplitCompatResourcesLoader
+private static class V21 extends VersionCompat {
+    private static void installSplitResDirs(Resources preResources, List<String> splitResPaths) throws Throwable {
+        Method method = VersionCompat.getAddAssetPathMethod();
+        for (String splitResPath : splitResPaths) {
+            method.invoke(preResources.getAssets(), splitResPath);
+        }
+    }
+}
+
+// SplitCompatResourcesLoader
+private static class V14 extends VersionCompat {
+    private static void installSplitResDirs(Context context, Resources preResources, List<String> splitResPaths) throws Throwable {
+        //create a new Resources.
+        Resources newResources = createResouces();
+        //1.对当前context进行更新Resources
+        checkOrUpdateResourcesForContext();
+        //2.对所有的Activity进行更新Resources
+        Object activityThread = getActivityThread();
+        Map<IBinder, Object> activities = (Map<IBinder, Object>) mActivitiesInActivityThread().get(activityThread);
+        for (Map.Entry<IBinder, Object> entry : activities.entrySet()) {
+            Object activityClientRecord = entry.getValue();
+            Activity activity = (Activity) HiddenApiReflection.findField(activityClientRecord, "activity").get(activityClientRecord);
+            if (context != activity) {
+                SplitLog.i(TAG, "pre-resources found in @mActivities");
+                checkOrUpdateResourcesForContext(activity, preResources, newResources);
+            }
+        }
+        //3.对mActiveResources进行更新Resources
+        Map<Object, WeakReference<Resources>> activeResources;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            //对ActivityThread#mActiveResources更新Resources
+            activeResources = (Map<Object, WeakReference<Resources>>) mActiveResourcesInActivityThread().get(activityThread);
+        } else {
+            //对ResourcesManager#mActiveResources
+            Object resourcesManager = getResourcesManager();
+            activeResources = (Map<Object, WeakReference<Resources>>) mActiveResourcesInResourcesManager().get(resourcesManager);
+        }
+        for (Map.Entry<Object, WeakReference<Resources>> entry : activeResources.entrySet()) {
+            Resources res = entry.getValue().get();
+            if (res == preResources) {
+                activeResources.put(entry.getKey(), new WeakReference<>(newResources));
+                SplitLog.i(TAG, "pre-resources found in @mActiveResources");
+                break;
+            }
+        }
+        //4. LoadedApk#mResources（ActivityThread#mPackages 类型ArrayMap<String, WeakReference<LoadedApk>>）
+        Map<String, WeakReference<Object>> instance_mPackages =
+                    (Map<String, WeakReference<Object>>) mPackagesInActivityThread().get(activityThread);
+        for (Map.Entry<String, WeakReference<Object>> entry : instance_mPackages.entrySet()) {
+            Object packageInfo = entry.getValue().get();
+            Resources resources = (Resources) mResourcesInLoadedApk().get(packageInfo);
+            if (resources == preResources) {
+                SplitLog.i(TAG, "pre-resources found in @mPackages");
+                mResourcesInLoadedApk().set(packageInfo, newResources);
+            }
+        }
+        //5.LoadedApk#mResources（ActivityThread#mResourcePackages 类型ArrayMap<String, WeakReference<LoadedApk>>）
+         Map<String, WeakReference<Object>> instance_mResourcePackages =
+                    (Map<String, WeakReference<Object>>) mResourcePackagesInActivityThread().get(activityThread);
+        for (Map.Entry<String, WeakReference<Object>> entry : instance_mResourcePackages.entrySet()) {
+            Object packageInfo = entry.getValue().get();
+            Resources resources = (Resources) mResourcesInLoadedApk().get(packageInfo);
+            if (resources == preResources) {
+                SplitLog.i(TAG, "pre-resources found in @mResourcePackages");
+                mResourcesInLoadedApk().set(packageInfo, newResources);
+            }
+        }
+
+    }
+
+    private static Resources createResources(Context context, Resources oldRes, List<String> splitResPaths) {
+        String appResDir = context.getPackageResourcePath();
+        AssetManager oldAsset = oldRes.getAssets();
+        List<String> resDirs = getAppResDirs(appResDir, oldAsset);
+        resDirs.addAll(0, splitResPaths);
+        //创建一个新的AssetManager
+        AssetManager newAsset = createAssetManager();
+        for (String recent : resDirs) {
+            int ret = (int) getAddAssetPathMethod().invoke(newAsset, recent);
+            if (ret == 0) {
+
+            }
+        }
+        return newResources(oldRes, newAsset);
+    }
+
+
+}
+
+
+```
+
+## Replugin资源处理
+
+```java
+public class PluginLoadedApk {
+    private void createPluginResource() {
+        if (VERSION.SDK_INT < 21) {
+            am = (AssetManager) AssetManager.class.newInstance();
+            ReflectionUtil.on(am).call("addAssetPath", ..);
+        } else {
+            am = pm.getResourcesForApplication(..);
+        }
+
+        ReflectionUtils.on(am).call("addAssetPath", ..sourceDir);
+        addWebviewAssetPath(am);
+
+        this.mPluginResources = new ResourcesProxy(..);
+    }
+
+}
+```
+
+## Tinker资源处理
+
+
