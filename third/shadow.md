@@ -1,0 +1,15 @@
+# Shadow
+
+## 设计原理解析
+
+所有的插件框架在解决的问题都不是如何动态加载类，而是动态加载的Activity没有在AndroidManifest中注册。如果Android系统没有AndroidManifest的限制，那么所有的插件框架都没有存在的必要了。因为Java语言本身就支持动态更新实现的能力。
+动态化
+
+Shadow采用了用一个壳子代理转调插件组件的技术手段实现组件生命周期。同时，反过来插件Activity想调用的父类方法，通过中间层`ShadowActivity`转调回壳子Activity。
+
+## 解决Activity生命周期的方法
+
+1. 是用代理Activity作为壳子注册在宿主中真正运行起来，然后让它持有插件Activity，想办法在收到系统的生命周期方法调用时转调插件Activity的对应生命周期方法。
+2. 是Hack修改宿主PathClassLoader，让它能在收到系统查询AndroidManifest中注册的Activity的类时返回插件的Activity类。
+
+

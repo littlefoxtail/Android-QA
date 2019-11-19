@@ -7,6 +7,7 @@
 - [插件化问题汇总](插件化问题汇总.md)
 - [ARouter](ARouter.md)
 - [插件化资源处理](resources.md)
+- [Shadow](shadow.md)
 
 - TODO
   - [retrofit的源码](retrofit.md)
