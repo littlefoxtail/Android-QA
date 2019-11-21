@@ -182,7 +182,12 @@ class ResourcesManager {
             originalMap.clear();
             originalMap.putAll(resolvedMap);
         }
-
+        /**
+         * 我理解这个.vastub卵意义都没有，叫任何都可以，前面mResourcesImpl已经被替换成新的了
+         * 但是ResourcesManager可不只有mResourcesImpl，还有mResourceReferences、mActivityResourceReferences，这个方法会依照反转mResourcesImpl新拿到的集合把
+         * 其他字段的都换了
+         */
+        android.app.ResourcesManager.getInstance().appendLibAssetForMainAssetPath(baseResDir, packageName + ".vastub");
 
     }
 
@@ -612,5 +617,223 @@ public class PluginLoadedApk {
 ```
 
 ## Tinker资源处理
+
+## WebView的资源问题
+
+```java
+// Webview
+private void ensureProviderCreated() {
+    if (mProvider != null) {
+        mProvider = getFactory().createWebView(..);
+    }
+}
+
+//Webview
+private static WebViewFactoryProvider getFactory() {
+    return WebViewFactory.getProvider();
+}
+
+// WebViewFactory
+static WebViewFactoryProvider getProvider() {
+    synchronized (sProviderLock) {
+        // For now the main purpose of this function (and the factory abstraction) is to keep
+        // us honest and minimize usage of WebView internals when binding the proxy.
+        if (sProviderInstance != null) return sProviderInstance;
+        final int uid = android.os.Process.myUid();
+        if (uid == android.os.Process.ROOT_UID || uid == android.os.Process.SYSTEM_UID
+                || uid == android.os.Process.PHONE_UID || uid == android.os.Process.NFC_UID
+                || uid == android.os.Process.BLUETOOTH_UID) {
+            throw new UnsupportedOperationException(
+                    "For security reasons, WebView is not allowed in privileged processes");
+        }
+        if (!isWebViewSupported()) {
+            // Device doesn't support WebView; don't try to load it, just throw.
+            throw new UnsupportedOperationException();
+        }
+        if (sWebViewDisabled) {
+            throw new IllegalStateException(
+                    "WebView.disableWebView() was called: WebView is disabled");
+        }
+        try {
+            Class<WebViewFactoryProvider> providerClass = getProviderClass();
+            Method staticFactory = null;
+            try {
+                staticFactory = providerClass.getMethod(
+                    CHROMIUM_WEBVIEW_FACTORY_METHOD, WebViewDelegate.class);
+            } catch (Exception e) {
+            }
+            try {
+                sProviderInstance = (WebViewFactoryProvider)
+                        staticFactory.invoke(null, new WebViewDelegate());
+                return sProviderInstance;
+            } catch (Exception e) {
+                throw new AndroidRuntimeException(e);
+            } finally {
+                Trace.traceEnd(Trace.TRACE_TAG_WEBVIEW);
+            }
+        } finally {
+            Trace.traceEnd(Trace.TRACE_TAG_WEBVIEW);
+        }
+    }
+}
+
+private static Class<WebViewFactoryProvider> getProviderClass() {
+        Context webViewContext = null;
+        Application initialApplication = AppGlobals.getInitialApplication();
+        try {
+            try {
+                webViewContext = getWebViewContextAndSetProvider();
+            } finally {
+                Trace.traceEnd(Trace.TRACE_TAG_WEBVIEW);
+            }
+            try {
+                // getAllApkPaths是Q里面新增加的方法，但字面含义就是所有apk资源路径
+                for (String newAssetPath : webViewContext.getApplicationInfo().getAllApkPaths()) {
+                    // 将webView的资源加入到assetPath中
+                    initialApplication.getAssets().addAssetPathAsSharedLibrary(newAssetPath);
+                }
+                ClassLoader clazzLoader = webViewContext.getClassLoader();
+                WebViewLibraryLoader.loadNativeLibrary(clazzLoader,
+                        getWebViewLibrary(sPackageInfo.applicationInfo));
+                try {
+                    return getWebViewProviderClass(clazzLoader);
+                } finally {
+                    Trace.traceEnd(Trace.TRACE_TAG_WEBVIEW);
+                }
+            } catch (ClassNotFoundException e) {
+                Log.e(LOGTAG, "error loading provider", e);
+                throw new AndroidRuntimeException(e);
+            } finally {
+                Trace.traceEnd(Trace.TRACE_TAG_WEBVIEW);
+            }
+        } catch (MissingWebViewPackageException e) {
+            Log.e(LOGTAG, "Chromium WebView package does not exist", e);
+            throw new AndroidRuntimeException(e);
+        }
+    }
+```
+
+```java
+// WebViewDelegate
+public void addWebViewAssetPath(Context context) {
+    //newAssetPath：/system/app/WebViewGoogle/WebViewGoogle.apk，查看
+    final String newAssetPath = WebViewFactory.getLoadedPackageInfo().applicationInfo.sourceDir;
+
+    final ApplicationInfo appInfo = context.getApplicationInfo();
+    final String[] libs = appInfo.sharedLibraryFiles;
+    if (!ArrayUtils.contains(libs, newAssetPath)) {
+        // webview路径是否在SharedLibraryFiles中，如果不存在的话，添加到主包的资源路径中
+        // 以达到访问WebView中资源
+        // Build the new library asset path list.
+        final int newLibAssetsCount = 1 + (libs != null ? libs.length : 0);
+        final String[] newLibAssets = new String[newLibAssetsCount];
+        if (libs != null) {
+            System.arraycopy(libs, 0, newLibAssets, 0, libs.length);
+        }
+        newLibAssets[newLibAssetsCount - 1] = newAssetPath;
+
+        // Update the ApplicationInfo object with the new list.
+        // We know this will persist and future Resources created via ResourcesManager
+        // will include the shared library because this ApplicationInfo comes from the
+        // underlying LoadedApk in ContextImpl, which does not change during the life of the
+        // application.
+        appInfo.sharedLibraryFiles = newLibAssets;
+
+        // Update existing Resources with the WebView library.
+        ResourcesManager.getInstance().appendLibAssetForMainAssetPath(
+                appInfo.getBaseResourcePath(), newAssetPath);
+    }
+}
+
+public void appendLibAssetForMainAssetPath(String assetPath/*主asset路径*/, String libAsset/*webview路径*/) {
+    synchronized (this) {
+        // Record which ResourcesImpl need updating
+        // (and what ResourcesKey they should update to).
+        final ArrayMap<ResourcesImpl, ResourcesKey> updatedResourceKeys = new ArrayMap<>();
+
+        final int implCount = mResourceImpls.size();
+        /**
+         * 1. mResourceImpls中的
+         * 遍历所有的ResourcesImpl ResourcesImpl是组成Resource的核心，他们之间的关系是Resource包含ResourcesImpl包含AssertManager
+         */
+        for (int i = 0; i < implCount; i++) {
+            final ResourcesKey key = mResourceImpls.keyAt(i);
+            final WeakReference<ResourcesImpl> weakImplRef = mResourceImpls.valueAt(i);
+            final ResourcesImpl impl = weakImplRef != null ? weakImplRef.get() : null;
+            /**
+             * 判断ResourcesImpl是否包含assetPath， 也就是说如果一个ResourcesImpl的mResDir不是当前应用则不会处理
+             */
+            if (impl != null && Objects.equals(key.mResDir, assetPath))
+                /**
+                 * 还要判断新的资源路径是不是已经存在，如果存在了就不做处理
+                 */
+                if (!ArrayUtils.contains(key.mLibDirs, libAsset)) {
+                    //主包路径没有webview路径
+                    final int newLibAssetCount = 1 +
+                            (key.mLibDirs != null ? key.mLibDirs.length : 0);
+                    final String[] newLibAssets = new String[newLibAssetCount];
+                    if (key.mLibDirs != null) {
+                        /**
+                         * 将新的路径添加到需要添加的ResourcesImpl对应的ResourcesKey的libDir上面了
+                         */
+                        System.arraycopy(key.mLibDirs, 0, newLibAssets, 0, key.mLibDirs.length);
+                    }
+                    //扩充资源路径数组
+                    newLibAssets[newLibAssetCount - 1] = libAsset;
+                    //创建新的ResourcesKey
+                    updatedResourceKeys.put(impl, new ResourcesKey(
+                            key.mResDir,
+                            key.mSplitResDirs,
+                            key.mOverlayDirs,
+                            newLibAssets,
+                            key.mDisplayId,
+                            key.mOverrideConfiguration,
+                            key.mCompatInfo));
+                }
+            }
+        }
+
+        redirectResourcesToNewImplLocked(updatedResourceKeys);
+    }
+}
+
+/**
+ * 这个方法是更新当前持有ResourcesImpl的Resource
+ */
+private void redirectResourcesToNewImplLocked(@NonNull final ArrayMap<ResourcesImpl, ResourcesKey> updatedResourceKeys/*新的集合，跟原有集合也不同key和value发生对调了*/) {
+    /**
+     * 2.mResourceReferences中的
+     */
+    final int resourcesCount = mResourceReferences.size();
+    for (int i = 0; i < resoucesCount; i++) {
+        final WeakReference<Resources> ref = mResourceReferences.get(i);
+        final Resources r = ref != null ? ref.get() : null;
+        if (r != null) {
+            /**
+             * 首先是根据老的ResourcesImpl找到新的ResourcesKey
+             */
+            final ResourcesKey key = updateResourceKeys.get(r.getImpl);
+            if (key != null) {
+                /**
+                 * 根据新的ResourcesKey生成新的ResourcesImpl
+                 */
+                 final ResourcesImpl impl = findOrCreateResourcesImplForKeyLocked(key);
+                 if (impl == null) {
+                     throw new Resources.NotFoundException("failed to redirect ResourcesImpl");
+                 }
+                 /**
+                  * 最后替换掉Resources中的ResourcesImpl
+                  */
+                  r.setImpl(impl);
+            }
+        }
+    }
+
+    /**
+     * 3.mActivityResourceReferences中的
+     * 与上面处理一样，只不过这里处理的是所有记录的Activity Resource
+     */
+}
+```
 
 
