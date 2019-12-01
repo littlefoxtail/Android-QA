@@ -20,7 +20,7 @@ LeakCanary、RefWatcher，组成了api层。
 
 不需要初始化了
 
-```kotlin
+```kt
 internal class LeakSentryInstalledr : ContentProvider() {
     fun onCreate() : Boolean {
         CanaryLog.logger = DefaultCanaryLog()
@@ -33,7 +33,7 @@ internal class LeakSentryInstalledr : ContentProvider() {
 
 ### 主线1 install()
 
-```kotlin
+```kt
 internal object InternalLeakSentry {
     ActivityDestroyWatcher.install(
         application, refWatcher, configProvider
@@ -44,7 +44,7 @@ internal object InternalLeakSentry {
 }
 ```
 
-```kotlin
+```kt
 internal class ActivityDestroyWatcher private constructor (..) {
     private val lifecycleCallbacks = object : ActivityLifecycleCallbacksAdapter() {
         override fun onActivityDestroyed(activity : Activity) {
@@ -58,7 +58,7 @@ internal class ActivityDestroyWatcher private constructor (..) {
 
 ### 主线2 watch()
 
-```kotlin
+```kt
 class RefWatcher constructor(..) {
     @Synchronized fun watch(..) {
         if (!isEnabled()) {
@@ -100,7 +100,7 @@ class RefWatcher constructor(..) {
 }
 ```
 
-```kotlin
+```kt
 internal class HeapDumpTrigger(..) {
     private fun checkRetainedInstance(reason: String) {
 
