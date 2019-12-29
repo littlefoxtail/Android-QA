@@ -38,7 +38,7 @@ Future#run()->Callable#call()
 public void run() {
     if (state != NEW || !UNSAFE.compareAndSwapObject(this, runnerOffset, null, Thread.currentThread()))
     return;
-    
+
     try {
         Callable<V> c = callable;
         if (c != null && state == NEW) {

@@ -12,7 +12,7 @@
     }
     ```
 
-    之前的AsyncTask加载时，是得到当前加载线程的Handler，而最新代码中，总是得到UI线程的Looper来创建和UI交互的Handler。
+    之前的AsyncTask加载时，是得到当前加载线程的Handler，而最新代码中，总是得到UI线程的Looper来创建和UI交code互的Handler。
 
 2. 多次调用一个AsyncTask对象会出现异常。如果要处理多个后台任务，需要创建多个AsyncTask并执行execute()
 

@@ -10,6 +10,13 @@
 ReentrantLock，字面意思就是可重入锁，它支持同一个线程对资源的重复加锁，不会出现自己阻塞自己的情况，也是我们平时在处理java并发情况下用的最多的同步组件之一
 (volatile, synchronized)，它是基于AQS（AbstractQueueSynchronizer）来实现。
 
+功能
+
+- 与`synchronized`监视器锁相同的独占锁、可重入互斥功能和内存语义
+- 非阻塞的尝试加锁
+- 定时等待加锁
+- wait()、notify()相同功能的Condition类，并且一个锁可以绑定多个条件队列
+
 ## 使用方法
 
 ```java
@@ -46,6 +53,11 @@ public class ReentrantLockTest {
 
 ReentrantLock是通过Sync及其子类来实现同步控制。
 ReentrantLock也是通过FairSync与NoFairSync来支持ReentrantLock在获取锁时公平与非公平选择
+
+## 设计与实现
+
+`ReentrantLock`也是基于AQS实现的同步器，利用AQS的阻塞唤醒等待队列、条件队列，可以实现Lock的各种相应功能。
+公平锁按照先到先得原则，非公平锁则可以抢占，默认是非公平锁，非公平锁在加锁时间很短的情况下能够增加吞吐量，比如在前一个线程释放锁唤醒第一个等待线程、等待线程重新尝试获取锁前，另一个线程可能可以在这个间隔内完成加锁和释放, 可以类比在地铁进站时前面的乘客在找公交卡的时间内另一个乘客可能了完成刷卡进站了。
 
 ## 公平与非公平锁
 

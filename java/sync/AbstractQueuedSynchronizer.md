@@ -1,6 +1,23 @@
 # AbstractQueuedSynchronizer
 
-AQS是一个用来构建锁和同步器的框架，使用AQS能简单且高效地构造出应用广泛的大量同步器，比如ReentrantLock、Semaphore。
+AQS是一个用来构建锁和同步器的框架，采用了volatile state变量来利用底层unsafe原子性来对状态进行修改，同步器内部依赖一个FIFO的双向队列来完成资源获取线程的排队工作，使用AQS能简单且高效地构造出应用广泛的大量同步器，比如ReentrantLock、Semaphore。
+
+AQS是基于FIFO的队列实现，并且内部维护了一个状态变量，通过原子更新这个状态变量state即可实现加锁解锁操作
+
+![aqsmind2](/img/aqsmind2.png)
+
+只有程序中需要使用condition的时候才会用到condition队列程序中有可能存在多个
+
+1. 使用node实现FIFO队列，可以用于构建锁或者其他同步装置基础框架
+2. 内部维护了一个状态变量state，通过院子更新这个状态变量state即可实现加锁解锁操作
+3. AQS设计是一个模板方法的设计模式，子类使用都是继承并通过他的方法管理其状态（acquire和release）方法操作其状态
+4. AQS可以同时使用独占锁和共享锁
+
+独占锁和共享锁：
+
+锁在一个时间点只能被一个线程战占有。根据锁的获取机制，又分为公平锁和非公平锁等待队列中按照FIFO的原则获取锁，等待时间越长的线程越先获取到锁，这就是公平的获取锁，即公平锁。而非公平锁，线程获取锁的时候，无视等待队列直接获取锁。ReentrantLock和ReentrantLookReadWriteLock.WriteLock都是独占锁
+
+共享锁：同一个时候能够被多个线程获取的锁，能被共享的锁。JUC包中ReentrantReadWriteLock.ReadLock，CyclicBarrier，CountDownLatch和Semaphore都是共享锁。
 
 ## 为什么
 
@@ -102,6 +119,61 @@ class Node {
 
 state用voltile修饰，原子操作使用CAS
 
+#### 入列代码
+
+```java
+/**
+ *
+ * 为当前线程和给定的模式创建节点并计入到同步队列中
+ */
+private Node addWaiter(Node node) {
+    //创建一个节点
+    Node node = new Node(Thread.currentThread(), mode);
+    // 快速尝试添加尾节点，如果失败则调用enq(Node node)方法设置尾节点
+    Node pred = tail;
+    //判断tail节点是否为空，不为空则添加节点到队列中
+    if (pred != null) {
+        node.prev = pred;
+        // CAS设置尾节点
+        if (compareAndSetTail(pred, node)) {
+            pred.next = node;
+            return node;
+        }
+    }
+    enq(node);
+    return node;
+}
+
+/**
+ * 插入节点到队列中
+ */
+private Node enq(final Node node) {
+    //死循环
+    for(;;) {
+        Node t = tail;
+        //如果队列为空，则首先添加一个空节点到队列中
+        if (t == null) {
+            if (compareAndSetHead(new Node))
+                tail = head;
+        } else {
+            //tail不为空，则CAS设置尾节点
+            node.prev = t;
+            if (compareAndSetTail(t, node)) {
+                t.next = node;
+                return t;
+            }
+        }
+    }
+}
+```
+
+#### CHL出列
+
+同步队列遵循FIFO规范，首节点的线程在释放同步状态后，将会唤醒后继节点的线程
+并且后继节点的线程在获取到同步状态后将会将自己设置为首节点
+因为设置首节点是通过获取同步状态成功的线程来完成的，因此设置头结点的方法并不需要使用CAS来保证
+因为只有一个线程能获取到同步状态
+
 #### acquire
 
 ##### 独占模式acquire
@@ -123,8 +195,6 @@ public final void acquire(int arg) {
 ##### 共享模式的acquire
 
 shared模式调用的是acquireShared，需要子类实现tryAcquireShared(arg)，需要子类实现tryAcquireShared返回值小于0说明获取失败，等于0表示获取成功，但是接下来的acquireShared不会成功，。
-
-
 
 ## AQS对资源的共享方式
 
