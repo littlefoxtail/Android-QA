@@ -6,6 +6,8 @@
 
 ![jdk_1_8_jvm](/img/jdk_1_8_jvm.png)
 
+![jvm内存区域](/img/jvm内存区域)
+
 **线程私有的**：
 
 - 程序计数器
@@ -24,11 +26,21 @@
 
 ## Java虚拟机栈
 
-Java虚拟机也是线程私有的，它的生命周期和线程相同，描述的是Java方法执行的内存模型，每次方法调用的数据都是通过栈传递的。
+Java虚拟机也是线程私有的，它的生命周期和线程相同，描述的是Java方法执行的内存模型，每次方法调用的数据都是通过栈传递的。每个方法被执行的同时会创建栈帧，主要保存执行方法时的局部变量表、操作数栈、动态连接和方法返回地址等信息，方法执行时入栈，方法执行完出栈，出栈相当于清空了数据，入栈出栈的时机很明确，所以这块区域不需要进行GC。
 
 Java内存可以粗糙的分为堆内存（Heap）和栈内存（Stack），其中栈就是现在说的虚拟机栈，或者说是虚拟机栈中局部变量表部分。
 
 局部变量表主要存放了编译器可知的各种数据类型（boolean、byte、 char、short、int、float、long、double）、对象引用（reference类型，它不同于对象本身，可能是；一个指向对象其实地址的引用指针）
+
+## 本地方法栈
+
+与虚拟机功能非常类似，主要区别在于虚拟机栈为虚拟机执行Java方法时服务，而本地方法栈为虚拟机执行本地方法时服务的。这块区域不需要进行GC
+
+## 本地内存
+
+线程共享区域，Java8，本地内存，也是通常说的堆外内存，包含元内存和直接内存
+
+## 堆
 
 ## 内存的分配
 
@@ -66,3 +78,79 @@ GC机制主要通过可达性分析法，通过一系列称为“GC Roots”的�
 2. 软引用，在系统将要发生内存溢出异常之前，将会把这些对象列进回收范围进行二次回收。如果这次回收还是没有足够的内存，才会抛出内存溢出异常。SoftReference表示软引用
 3. 弱引用，只要有GC，无论当前内存是否足够，都会回收掉只被弱引用关联的对象。WeakReference表示弱引用
 4. 虚引用，这个引用存在的唯一目的就是在这个对象被收集器回收时收到一个系统通知，被虚引用关联的对象，和其生存时候完全没有关系。PhantomReference表示虚引用，需要搭配ReferenceQueue使用，检测对象回收情况。
+
+## 可达性算法
+
+现代虚拟机基本采用这种算法来判断对象是否存活，可达性算法的原理是以一系列叫做GC Root的对象为起点出发，引出它们指向的下一个节点，在以下个节点为起点，引出此节点指向的下一个结点（这样通过GC Root串成的一条线就叫引用链），直到所有的结点都遍历完毕，如果相关对象不在任意一个以GC Root为起点的引用链中，则这些对象会被判断为垃圾，会被GC回收。
+
+![可达性算法](/img/可达性算法)
+
+因为从GC Root出发没有到达a，b，所以a，b可回收。
+
+a，b对象可回收，就一定会被回收吗？并不是，当发生GC时，会先判断对象是否执行了 finalize 方法，如果未执行，则会先执行 finalize 方法，我们可以在此方法里将当前对象与 GC Roots 关联，这样执行 finalize 方法之后，GC 会再次判断对象是否可达，如果不可达，则会被回收，如果可达，则不回收！
+
+finalize方法只会被执行一次，如果第一次执行finalize方法此对象变成了可达确实不会回收，但如果对象再次被GC，则会忽略finalize，对象会被回收。
+
+哪些对象可以作为GC Root:
+
+- 虚拟机栈（栈帧中的本地变量表）中引用的对象
+
+a是栈帧中的本地变量，当a=null时，由于此时a充当了GC Root的作用，a与原来指向的实例new Test()断开了连接，所以对象会被回收。
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        Test a = new Test();
+        a = null;
+    }
+}
+```
+
+- 方法区中类静态属性引用的对象
+
+如下代码所示，当栈帧中的本地变量 a = null 时，由于 a 原来指向的对象与 GC Root (变量 a) 断开了连接，所以 a 原来指向的对象会被回收，而由于我们给 s 赋值了变量的引用，s 在此时是类静态属性引用，充当了 GC Root 的作用，它指向的对象依然存活!
+
+```java
+public class Test {
+    public static Test a;
+    public static void main(String[] args) {
+        Test a = new Test();
+        a.s = new Test();
+        a = null;
+    }
+}
+```
+
+- 方法区中常量引用的对象
+
+常量 s 指向的对象并不会因为 a 指向的对象被回收而回收
+
+```java
+public class Test {
+    public static final Test s = new Test();
+
+    public static void main(String[] args) {
+        Test a = new Test();
+        a = null;
+    }
+
+}
+```
+
+- 本地方法栈中JNI引用的对象
+
+当调用Java方法时，虚拟机会创建一个栈帧压入Java栈，而当它调用的是本地方法时，虚拟机会保持Java栈不变，不会在Java栈帧中压入新的帧，虚拟机只是简单的动态连接并直接调用指定的本地方法。
+
+![栈帧](/img/栈帧)
+
+```c
+JNIEXPORT void JNICALL Java_com_pecuyu_jnirefdemo_MainActivity_newStringNative(JNIEnv *env, jobject instance，jstring jmsg) {
+...
+   // 缓存String的class
+   jclass jc = (*env)->FindClass(env, STRING_PATH);
+}
+```
+
+如上代码所示，当 java 调用以上本地方法时，jc 会被本地方法栈压入栈中, jc 就是我们说的本地方法栈中 JNI 的对象引用，因此只会在此本地方法执行完成后才会被释放。
+
+https://juejin.im/post/5e2e3ac1e51d451c5801893c
