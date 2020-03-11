@@ -245,6 +245,8 @@ mHandler = new Handler(workerThread.getLooper());
 
 ## IdleHandler
 
+Idle就是Handler机制提供的一种，可以在Looper事件循环的过程中，当出现空闲的时候，允许执行任务的一种机制。
+
 [你知道android的MessageQueue.idleHandler吗？](https://mp.weixin.qq.com/s/KpeBqIEYeOzt_frANoGuSg)
 
 ```java
