@@ -62,10 +62,11 @@ JDK1.8优化了高位运算，通过hashCode的高16位异或低16位实现，�
 
 ```java
 static class Node<K,V> implements Map.Entry<K,V> {
-    final int hash; //用来定位数组索引位置
+    //用来定位数组索引位置，决定元素存储在Node<K,V>[] table哈希表中的位置
+    final int hash;
     final K key;
     V value;
-    Node<K,V> next;// 链表后置节点，链表的下一个node
+    Node<K,V> next;// 链表后置节点，链表的下一个node，用于解决哈希冲突
 
     Node(int hash, K key, V value, Node<K,V> next) {
         this.hash = hash;
@@ -90,12 +91,15 @@ static class Node<K,V> implements Map.Entry<K,V> {
     }
 
 // 每一个节点的hash值，是将key的hashCode和value的hashCode亦或得到的
+// 作用是将2个hashCode的二级制中，同一个位置相同的值为0，不同为1
     public final int hashCode() {
         return Object.hashCode(key) ^ Object.hashCode(value);
     }
 
 }
 ```
+
+![hashMap内存结构图](/img/hashMap内存结构图.webp)
 
 这是一个单链表，每一个节点的hash值，是将key的hashCode和value的hashCode亦或得到的
 
@@ -205,9 +209,15 @@ final void putMapEntries(Map<? extends K, ? extends V> m, boolean evict) {
     }
 }
 
-// 根据期望容量cap，返回2的n次方形式的哈希桶实际容量length，返回值一般会>=cap
+/**
+ * 根据期望容量cap，返回2的n次方形式的哈希桶实际容量length，返回值一般会>=cap
+ */
 static final int tableSizeFor(int cap) {
+    //为什么要对cap做-1操作呢
+    // 为了防止，cap已经是2的幂，执行完后面几条无符号右移操作之后，返回的capacity将是这个cap的2倍
+    // 1. 如果n这时候为0，经过后面的几个无符号依然是0，字后返回是1
     int n = cap - 1;
+    // 2 由于n不等于0，则n的二进制表示中总会有一bit为1，这时考虑最高位的1。通过无符号右移1位，则将最高位的1右移了1位，再做或操作，使得n的二进制表示中与最高位的1紧邻的右边一位也为1，如000011xxxxxx
     n |= n >>> 1;
     n |= n >>> 2;
     n |= n >>> 4;
@@ -373,66 +383,42 @@ final void treeifyBin(Node<K, V>[] tab, int hash) {
 
 ```
 
-## Q：当两个对象的hashCode相同会发生什么
+## get
 
-以为hashCode相同，不一定就是相等的（equals方法比较），所以两个对象所在数组的下标相同，”碰撞“就此发生。又因为
+```java
+// HashMap
+final Node<K, V> getNode(int hash, Object key) {
+    //用于记录当前的hash表
+    Node<K, V> table;
+    // first用于记录对应hash位置的第一个结点，e充当工作结点的作用
+    Node<K, V> first, e;
+    // n用于记录hash表长度
+    int n;
+    // 用于临时存放Key
+    K k;
+    // 通过(n - 1) & hash当元素的hash值 & hash表长度 -1
+    // 判断当前元素的存储位置是否有元素存在 
+    if ((tab == table) != null && (n = tab.length) > 0 &&
+        (first = table[(n - 1) & hash]) != null) {//元素存在的情况
+        // 如果头结点的key的hash值和要获取的key的hash相等
+        // 并且头结点key本身和要获取的key相等
+            if (first.hash == hash && 
+                ((k = first.key) == key || (key != null && key.equals(k))))//返回该位置的头结点
+                return first;
+            if ((e = first.next) != null)//头结点不相等
+                if (first instanceof TreeNode)//如果当前结点是树结点
+                //则证明当前位置的链表已变成红黑树结构
+                // 通过红黑树结点方式获取对应key结点
 
-## Q：hash的实现，为啥要这样实现
 
-JDK1.8，是通过hashCode的`高16位异或低16位`实现的，主要从速度，功效和质量来考虑的，减少系统的开销，也不会造成因为高位没有参与下标的计算，从而引起的碰撞。
+        }
+}
 
-## Q：为什么要用异或运算符
+```
 
-异或运算符保证了对象的hashCode的32位值只要有一位发生改变，整个hash返回值就会改变。尽可能减少碰撞
+[HashMap问答内容](hashmap问答内容.md)
 
-## Q：HashMap的table的容量如何确定？loadFactor是什么？该容量如何变化？这种变化带来什么问题
+## 总结
 
-1. loadFactor是装载因子，主要目的是用来确定table数组是否需要动态扩容，默认值为0.75
-2. threshold为阈值
-3. 扩容，调用resize方法，将table长度为原来的两倍
-4. 如果数据很大的情况下，扩展时将会带来性能的损失，在性能要求很高的地方，这种损失可能是致命
-
-## Q：HashMap的遍历方式及其性能对比
-
-1. `for-each map.keySet()`--只需要K值的时候，推荐使用
-2. `for-each map.entrySet()`--当需要V值的时候，推荐使用
-3. `for-each map.entrySet() + 临时遍历`
-4. `for-each map.entrySet().iterator()`
-
-## Q：HashMap，LinkedHashMap，TreeMap 有什么区别
-
-`LinkedHashMap`保存了记录的插入顺序，在用 Iterator 遍历时，先取到的记录肯定是先插入的；遍历比 HashMap 慢；
-`TreeMap`实现`SortMap`接口，能够把它保存的记录根据键排序（默认按键值升序排序，也可以指定排序的比较器）
-
-## Q：HashMap & TreeMap & LinkedHashMap 使用场景
-
-一般情况下，使用最多的是 HashMap。
-`HashMap`：在 Map 中插入、删除和定位元素时；
-`TreeMap`：在需要按自然顺序或自定义顺序遍历键的情况下；
-`LinkedHashMap`：在需要输出的顺序和输入的顺序相同的情况下。
-
-## Q：HashMap 和 HashTable 有什么区别
-
-1. HashMap 是线程不安全的，HashTable 是线程安全的；
-2. 由于线程安全，所以 HashTable 的效率比不上 HashMap；
-3. HashMap最多只允许一条记录的键为null，允许多条记录的值为null，而 HashTable 不允许；
-4. HashMap 默认初始化数组的大小为16，HashTable 为 11，前者扩容时，扩大两倍，后者扩大两倍+1；
-5. HashMap 需要重新计算 hash 值，而 HashTable 直接使用对象的 hashCode
-
-## Q：Java 中的另一个线程安全的与 HashMap 极其类似的类是什么？同样是线程安全，它与 HashTable 在线程同步上有什么不同
-
-ConcurrentHashMap 类（是 Java并发包 java.util.concurrent 中提供的一个线程安全且高效的 HashMap 实现）。
-HashTable 是使用 synchronize 关键字加锁的原理（就是对对象加锁）；
-而针对 ConcurrentHashMap，在 JDK 1.7 中采用 分段锁的方式；JDK 1.8 中直接采用了CAS（无锁算法）+ synchronized。
-
-## Q：HashMap & ConcurrentHashMap 的区别
-
-除了加锁，原理上无太大区别。
-另外，HashMap 的键值对允许有null，但是ConCurrentHashMap 都不允许。
-
-## Q：为什么ConcurrentHashMap比HashTable效率要高
-
-`HashTable`使用一把锁（锁住整个链表结构）处理并发问题，多个线程竞争一把锁，容易阻塞
-`ConcurrentHashMap`：
-JDK1.7中使用分段锁（ReentrantLock+Segment+HashEntry），相当于把一个HashMap分成多个段，每段分配一把锁，这样支持多线程访问。锁粒度：基于`Segment`，包括多个HashEntry
-JDK1.8中使用CAS+synchronized+Node+红黑树。锁粒度：Node（首结点）。锁粒度降低了。
+- `HashMap`定位元素位置是通过键`key`讲过扰动函数扰动得到`hash`值，然后再通过`hash & (length - 1)`代替取模的方式进行元素定位的。
+- 
