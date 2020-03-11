@@ -9,7 +9,6 @@
 - [应用中的Context](context.md)
 - [LayoutInflater如何加载布局的](layoutinflater.md)
 
-- [Android中的线程所有知识点](android_thread.md)
 - [Material Style](color_resource.md)
 - [Android在编码的时候经常使用到位运算](androidbit.md)
 - [四大组件](component/README.md)
