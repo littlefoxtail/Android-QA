@@ -8,6 +8,8 @@
 3. 什么是FragmentManager
     它是和某个act相关联的，并不是全局唯一的，而是每个act都有一个自己的FragmentManager，内部有自己状态的mCurState，对应外部的act的生命周期状态。它提供和act中fragment交互的API
 
+[事务管理](Fragment事务管理.md)
+
 ## Activity中的FragmentManager
 
 Activity中有个FragmentController实例，那么它是在何时初始化呢？
@@ -15,3 +17,5 @@ Activity中有个FragmentController实例，那么它是在何时初始化呢？
 ```java
 final FragmentController mFragments = FragmentController.createController(new HostCallbcks)
 ```
+
+
