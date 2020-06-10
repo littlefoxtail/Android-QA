@@ -2,12 +2,12 @@
 
 <!-- TOC -->
 
-- [概览](#%E6%A6%82%E8%A7%88)
-  - [接口和实现（Interfaces and Implementations）](#%E6%8E%A5%E5%8F%A3%E5%92%8C%E5%AE%9E%E7%8E%B0interfaces-and-implementations)
+- [概览](#%e6%a6%82%e8%a7%88)
+  - [接口和实现（Interfaces and Implementations）](#%e6%8e%a5%e5%8f%a3%e5%92%8c%e5%ae%9e%e7%8e%b0interfaces-and-implementations)
   - [Collection](#collection)
     - [Set](#set)
     - [List](#list)
-      - [ArrayList与LinkedList异同](#arraylist%E4%B8%8Elinkedlist%E5%BC%82%E5%90%8C)
+      - [ArrayList与LinkedList异同](#arraylist%e4%b8%8elinkedlist%e5%bc%82%e5%90%8c)
     - [Queue](#queue)
   - [Map](#map)
 

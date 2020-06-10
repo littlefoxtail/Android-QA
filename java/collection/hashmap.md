@@ -48,7 +48,7 @@ static int indexFor(int h , int length) {//jdk1.8源码没有这个方法了，�
 }
 ```
 
-hash值对数组长度取模运算，消耗比较大。通过 h & (table.lenght - 1)得到的对象保存位，由于HashMap底层数组长度总是2的n次方，所以等价，但&比%更高效。
+hash值对数组长度取模运算，消耗比较大。通过 `h & (table.lenght - 1)`得到的对象保存位，由于HashMap底层数组长度总是2的n次方，所以等价，但&比%更高效。
 
 JDK1.8优化了高位运算，通过hashCode的高16位异或低16位实现，可以在数组table的length比较小的时候，也能保证考虑到高低bit都参与Hash的计算中。
 
@@ -276,6 +276,8 @@ final Node<K,V>[] resize() {
 
 ```
 
+扩容实际上就是创建一个容量是原来容量两倍的数组，把原来数组中的元素经过重新散列，然后添加到新的数组中。扩容会伴随一次重新hash分配，并且会遍历hash表中所有的元素，是非常耗时的。在编写程序中要尽量避免resize。
+
 ## 插入元素到红黑树
 
 ```java
@@ -409,14 +411,56 @@ final Node<K, V> getNode(int hash, Object key) {
                 if (first instanceof TreeNode)//如果当前结点是树结点
                 //则证明当前位置的链表已变成红黑树结构
                 // 通过红黑树结点方式获取对应key结点
+                return ((TreeNode<K, V>)first).getTreeNode(hash, key);
 
-
+                do {
+                    if (e.hash == hash &&
+                        ((k = e.key) == key) || (key != null && key.equals(k)))
+                        return e;
+                } while((e == e.next) != null);
         }
 }
 
 ```
 
 [HashMap问答内容](hashmap问答内容.md)
+
+## HashMap遍历
+
+三种遍历方式：
+
+1. 遍历所有的Key：`Set<K> keySet()`
+2. 遍历所有的Entry：`Set<Map.Entry<K, V>> entrySet()`
+3. 遍历所有的Value：`Collection<V> values()`
+
+- HashIterator内部类
+
+```java
+// HashMap
+abstract class HashIterator {
+    final Node<K, V> nextNode() {
+        Node<K, V>[] t;
+        Node<K, V> e = next;
+        /*
+         * fail-fast 检查
+         * 当另外一个线程对当前Map修改时，会修改modCount
+         * 当前线程遍历正在，如果expectedModCount和modCount不相等
+         * 就会抛出ConcurrentModificationExcepiton异常
+         */
+        if (modCount != expectedModCount) {
+            throw new ConcurrentModificationException();
+        }
+        if (e == null) {
+            throw new NoSuchElementException();
+        }
+        if ((next = (current = e).next) == null && (t = table) != null) {
+            do {} while (index < t.lenght && (next = t[index++]) == null);
+        }
+        return e;
+    }
+}
+```
+
 
 ## 总结
 
