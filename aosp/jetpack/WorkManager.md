@@ -1,8 +1,11 @@
 # WorkManager
 
 WorkManager是什么？官方给的解释是：它对可延期任务操作非常简单，同时稳定性非常强，对于异步任务，即使App退出运行或者设备重启，它都能够很好的保证任务的顺利执行。
-
 对于平常的使用，如果一个后台任务在执行的过程中，app突然退出或者手机断网，这时后台任务将直接终止。
+
+## Types of Background Work
+
+通常来说，可以把所有的后台任务按照任务的紧迫性（是马上需要执行的任务/还是可以缓期执行的任务）和任务的重要性（是确保一定要被执行/还是最好能够执行的任务）来划分。通常来说对于非确保一定要执行的任务，无论时间是否紧迫，我们都可以使用`ThreadPool`来完成这个任务。对于那么比较重要的又时间紧迫的任务，一般会使用`Foreground Service`来完成这个操作。那些希望确保可以被执行但是又可以接受延期执行的任务。这些任务可以使用JobScheduler/JobDispatcher/AlarmManager/BroadcastReceivers来完成。
 
 ## JobScheduler
 
@@ -37,8 +40,8 @@ WorkManager每一个任务都是由Work构成，所以Work是任务具体执行�
 
 ## 配置WorkRequest
 
-1. OneTimeWorkRequest
-2. PeriodicWorkRequest
+1. OneTimeWorkRequest 只是执行一次任务
+2. PeriodicWorkRequest 重复执行的任务请求
 
 ```java
 OneTimeWorkRequest.Builder(BlurWorker.class);
@@ -84,6 +87,8 @@ void cancelWork() {
 }
 ```
 
+对于已经正在运行或完成的任务是无法取消任务的。
+
 ## 获取结果
 
 ```java
@@ -93,5 +98,14 @@ private LiveData<List<WorkInfo>> mSavedWorkInfo;
 // This transformation makes sure that whenever the current work Id changes the WorkInfo
         // the UI is listening to changes
 mSavedWorkInfo = mWorkManager.getWorkInfosByTagLiveData(TAG_OUTPUT);
-
 ```
+
+## 任务约束Constraints WorkManager
+
+允许我们指定任务执行的环境，比如网络已经连接、电量充足时等，在满足条件的情况下任务才会执行。
+
+1. 使用Constraints.Builder()创建并配置Constraints对象，可以指定上述任务运行时间时的约束
+2. 创建Worker时调用setConstraints指定约束条件
+
+
+[源码实现](workmanager_source.md)
