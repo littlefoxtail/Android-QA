@@ -133,7 +133,7 @@ final class ImeInputStage extends AsyncInputStage
 经过一系列责任链：
 
 ```text
-t android.view.ViewRootImpl$ViewPostImeInputStage.processKeyEvent(ViewRootImpl.java:4152)
+android.view.ViewRootImpl$ViewPostImeInputStage.processKeyEvent(ViewRootImpl.java:4152)
 at android.view.ViewRootImpl$ViewPostImeInputStage.onProcess(ViewRootImpl.java:4114)
 at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:3662)
 at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:3715)

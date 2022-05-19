@@ -7,10 +7,9 @@
 - [第三方库](third/README.md)
 - [Java](java/README.md)
 - [设计模式](pattern/pattern.md)
-- [[now in android]]
+- [[now in android|官方架构]]
 
 ## 基础
-
 - 接口的意义
   规范、扩展、回调
 
