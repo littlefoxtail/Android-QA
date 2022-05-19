@@ -108,3 +108,5 @@ List<? extends File> load(..) {
     return files;
 }
 ```
+
+## 针对Multidex的ANR处理

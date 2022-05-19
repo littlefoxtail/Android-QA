@@ -25,7 +25,7 @@ public void schedule(TaskRequest taskRequest) {
     if (!mPermittedTaskRequests.isEmpty()) {
         mTaskPermitsTracker.updatePermitTaskList(mPermittedTaskRequests, true);
     }
-}
+}；
 
 //SchedulerManager
 private void handleTaskRequest(final TaskRequest taskRequest, final List<TaskRequest> mPermittedTaskRequests) {

@@ -46,7 +46,6 @@ public class Singleton {
         return singleton;
     }
 
-}ma
 ```
 
 这里的`volatile`关键字主要是为了防止指令重排。如果不用`volatile`，`singleton = new Singleton()；`，这段代码其实分为三步：

@@ -8,7 +8,7 @@ LruCache内部有一个缓存列表。每当一个缓存数据被访问的时候
 2. 必填，覆写`sizeOf`方法，自定义设计一条数据放进来的容量计算，如果不覆写就无法预知数据的容量，不能保证缓存容量限定在最大容量以内
 3. 选填，覆写 entryRemoved 方法 ，你可以知道最少使用的缓存被清除时的数据（ evicted, key, oldValue, newVaule ）。
 4. LruCache是线程安全的，在内部的 get、put、remove 包括 trimToSize 都是安全的（因为都上锁了）
-5. 选填，还有就是覆写 create 方法 
+5. 选填，还有就是覆写 create 方法
 
 ## LinkedHashMap
 

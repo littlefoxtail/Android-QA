@@ -36,10 +36,12 @@ public class RecyclerView {
 
                     }
                 }
-                //3.
                 if (holder == null) {
-                    holder = getScrapOrCachedViewForId(mAdapter.getItemId(offsetPosition),
-                        type, dryRun);
+                    //3.
+                    if (mAdapter.hasStableIds()) {
+                        holder = getScrapOrCachedViewForId(mAdapter.getItemId(offsetPosition),
+                            type, dryRun);
+                    }
                     //4.
                     if (holder == null && mViewCacheExtension != null) {
                         final View view = mViewCacheExtension.

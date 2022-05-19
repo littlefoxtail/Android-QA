@@ -28,7 +28,7 @@ Object o = new Object();
 强引用指向的对象无论在何时，都不会被GC清理掉
 
 ### java.lang.ref.Reference
-
+；
 `java.lang.ref.Reference`为软引用、弱引用、虚引用的父类
 
 #### 构造函数

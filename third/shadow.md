@@ -41,7 +41,7 @@ class ApplicationTransform : SimpleRenameTransform ()
 
 #### 宿主中如何启动插件Activity
 
-![shadow启动插件Activity](/img/shadow启动插件Activity)
+![shadow启动插件Activity](/img/shadow启动插件Activity.jpg)
 
 经过一些列的流转进入`convertActivityIntent`，将插件intent转化成宿主的intent，然后调用系统的context.startActivity启动插件
 
@@ -59,7 +59,7 @@ public Intent convertActivityIntent(..) {
 }
 ```
 
-![shadow对应图](/img/shadow_Binder对应)
+![shadow对应图](/img/shadow_Binder对应.png)
 
 这里的`mPluginLoader.convertActivityIntent`相当于调用了`DynamicPluginLoader.convertActivityIntent`
 
@@ -94,7 +94,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
 #### 插件中如何启动插件Activity
 
-![启动插件的Activity](/img/shadow_启动插件的Activity)
+![启动插件的Activity](/img/shadow_启动插件的Activity.png)
 
 插件Activity会在打包过程中替换其父类为`ShadowActivity`
 
@@ -261,7 +261,7 @@ void loadPluginLoader(String uuid) {
 
 Manager中PluginLoader通过Binder通信向Loader中的PluginLoaderBinder发送消息。PluginLoaderBinder收到消息后，委托给PluginLoaderImpl处理。
 
-![加载插件](/img/加载插件)
+![加载插件](/img/加载插件.png)
 
 1. 利用ClassLoader加载插件APK。
 2. 利用PackageManager获取插件信息。

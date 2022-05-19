@@ -1,5 +1,9 @@
 # DiffUtil在RecyclerView中的使用详解
 
+1. `DiffUtil`的基本使用
+2. `Myers`差异算法的深入探究
+3. `DiffUtil`的`Myers`算法实现以及`DiffUtil`怎么跟`Adapter`联系起来
+
 DiffUtil的作用是比较两个数据列表并能计算出一系列将旧数据表转换成新数据表的操作。
 使用Adapter.notifyDataSetChanged()有两个缺点
 
@@ -19,3 +23,6 @@ adapter.nofityItemRangeRemoved(position, count);
 adapter.nofityItemMoved(fromPosition, toPosition);
 adapter.nofityItemRangeChanged(position, count, payload);
 ```
+
+<!-- ## Myers算法 -->
+

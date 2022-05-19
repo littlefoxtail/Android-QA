@@ -99,3 +99,4 @@ static jobject DexFile_openDexFileNative(JNIEnv* env,
 dex2opt是针对dex文件进行verification和optimization的操作，其对dex文件的优化结果变成了odex文件，这个文件和dex文件很像，只是使用了一些优化操作码（譬如优化调用虚拟指令等）
 dex2oat是对dex文件的AOT提前编译，其需要一个dex文件，然后对其进行编译，结果是一个本地可执行的ELF文件，可以直接本地处理器执行。
 除此之外还可以看到Dalvik虚拟机中有使用JIT编译器，也就是说其也能将程序运行的热点java字节码编译成本地code执行。所以其与Art虚拟机还是有区别的，Art虚拟机的dex2oat是提前编译所有dex字节码
+

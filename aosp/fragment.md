@@ -9,6 +9,7 @@
     它是和某个act相关联的，并不是全局唯一的，而是每个act都有一个自己的FragmentManager，内部有自己状态的mCurState，对应外部的act的生命周期状态。它提供和act中fragment交互的API
 
 [事务管理](Fragment事务管理.md)
+[setMaxLifecycle](fragment设置最大生命周期.md)
 
 ## Activity中的FragmentManager
 

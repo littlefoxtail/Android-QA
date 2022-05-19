@@ -6,7 +6,21 @@ Threadlocal是一个关于创建线程局部变量的类
 
 在ThreadLocal类中有一个Map，用于存储每一个线程的变量副本，Map中元素的键为线程对象，而值对应线程的变量副本(成员变量)
 
+## Thread
+
+```java
+/* ThreadLocal values pertaining to this thread. This map is maintained
+ * by the ThreadLocal class*/
+ThreadLocal.ThreadLocalMap threadLocals = null;
+```
+
 ## ThreadLocal接口方法
+
+```java
+ThreadLocalMap getMap(Thread t) {
+    return t.threadLocals;
+}
+```
 
 ### set
 

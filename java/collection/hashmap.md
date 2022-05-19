@@ -122,12 +122,14 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
         else if (p instanceof TreeNode)//4.判断table[i]是否为红黑树，如果红黑树，则直接在树种插入键值对，否则转向5
             e = ((TreeNode<K, V)p).putTreeVal(this, tab, hash, key, value);
         else {
+            //在链表最末插入结点
             for (int binCount = 0;; ++binCount) {//5.遍历table[i]，判断链表长度是否大于8，大于8的话把链表转换为红黑树，在红黑树中执行插入操作，否则进行链表的插入操作；遍历过程若发现key已经存在直接覆盖value即可
                 if ((e = p.next) == null) {
                     p.next = newNode(hash, key, value, null);
                     //如果插入新节点后链表长度大于8，则判断是否需要树化
                     if (binCount >= TREEIFY_THRESHOLD - 1)
                         treeifBin(tab, hash);
+                    break;
                 }
                 if (e.hash == hash &&
                     ((k = e.key) == key) || (key != null && key.equals(k)))

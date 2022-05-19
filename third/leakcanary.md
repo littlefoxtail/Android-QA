@@ -24,7 +24,7 @@ LeakCanary、RefWatcher，组成了api层。
 internal class LeakSentryInstalledr : ContentProvider() {
     fun onCreate() : Boolean {
         CanaryLog.logger = DefaultCanaryLog()
-        val application = context!!.applicationContext as Application
+        val application = context!!.applicationContext as Application 
         InternalLeakSentry.install(application)
         return true
     }

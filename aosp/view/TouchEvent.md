@@ -119,15 +119,15 @@ ViewRootImpl@ImeInputStage
 ```java
 final class ImeInputStage extends AsyncInputStage 
         implements InputMethodManager.FinishedInputEventCallback {
-            public void onFinshedInputEvent(Object token, boolean handled) {
-                QueuedInputEvent q = (QueuedInputEvent)token;
-                if (handled) {
-                    finish(q, true);
-                    return;
-                }
-                forward(q);
-            }
+    public void onFinshedInputEvent(Object token, boolean handled) {
+        QueuedInputEvent q = (QueuedInputEvent)token;
+        if (handled) {
+            finish(q, true);
+            return;
         }
+        forward(q);
+    }
+}
 ```
 
 经过一系列责任链：
