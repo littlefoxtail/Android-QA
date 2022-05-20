@@ -9,67 +9,8 @@
 - [设计模式](pattern/pattern.md)
 - [[now in android|官方架构]]
 
-## 基础
-- 接口的意义
-  规范、扩展、回调
 
-- 抽象类的意义
-  为其子类提供一个公共类型 封装子类中得重复内容 定义抽象方法，子类虽然有不同的实现 但是定义是一致的
-
-- 内部类的作用
-  1. 内部类可以用多个实例，每个实例都有自己的状态信息，并且与其他外围对象的信息相互独立。
-  2. 在单个外围类中，可以让多个内部类以不同的方式实现同一个接口，或者继承同一个类
-  3. 创建内部类对象的时刻并不依赖于外围类对象的创建
-  4. 内部类并没有令人迷惑的“is-a”关系，他就是一个独立的实体。
-  5. 内部类提供了更好的封装，除了该外围类，其他类不能访问
-
-- 父类的静态方法能否被子类重写
-  不能
-  子类继承父类后，用相同的静态方法和非静态方法，这时非静态方法覆盖父类中的方法（即方法重写），
-  父类的该静态方法被隐藏（如果对象是父类则调用该隐藏的方法），另外子类可继承父类的静态与非静态方法。
-  
-- app 被杀掉进程后，是否还能收到广播的问题？
-  自android 3.1开始，系统自动给所有intent添加了FLAG_EXCLUDE_STOPPED_PACKAGES，导致app处于停止状态就不能收到广播。要想处于停止状态的app收到广播，需要添加FLAG_INCLUDE_STOPPED_PACKAGES这个标记。这样的话，停止的app应该是收不到系统广播了
-
-- 列举java的集合和继承关系
-
-    ```text
-    ├── Collection
-    │   ├── List
-    │   │   ├── LinkedList
-    │   │   ├── ArrayList
-    │   │   ├── Vector
-    │   │   │   ├── Stack
-    │   ├── Set
-
-    ├── Map
-    │   ├── Hashtable
-    │   ├── HashMap
-    │   ├── WeakHashMap
-    ```
-
-- HashMap的实现原理
-  1. HashMap概述：HashMap是基于哈希表的Map接口的非同步实现。此实现提供所有可选的映射操作，并允许使用null和null键。此类不保证映射的顺序
-
-- HashMap和HashTable的区别
-  1. 继承和实现的区别：Hashtable是基于陈旧的Dictionary类，完成了Map接口；HashMap是Java 1.2引进的Map接口的一个实现。
-  2. 线程安全不同：HashTable的方法是同步的，HashMap是未同步，所以在多线程场合要手动同步HashMap。
-  3. 对null处理不同：Hashtable不允许null值(key和value都不可以)，HashMap允许null值(key和value都可以)。
-  4. 方法不同：Hashtable有一个contains(Object value)，功能和containsValue(Object value)功能一样。
-  5. Hashtable使用Enumeration,HashMap使用使用Iterator。
-  6. Hashtable中hash数组默认大小是11，增加的方式是old*2 + 1。HashMap中hash数组的默认大小是16，而且一定是2的指数。
-
-
-- 抽象类接口区别
-  1. 默认的方法实现 抽象类可以有默认的方法实现完全是抽象的。接口根本不存在方法的实现。(在java8中新增了新特性，接口也可以有default扩展方法)
-  2. 实现子类使用extends关键字来继承抽象类。如果子类不是抽象类的话，它需要提供抽象类中所有声明的方法的实现。子类使用关键字implements来实现接口。它需要提供接口中所有声明的方法的实现
-  3. 构造器：抽象类可以有构造器 接口不能有构造器
-  4. 与正常Java类的区别：除了你不能实例化抽象类之外，它和普通Java类没有任何区别，接口是完全不同的类型。
-  5. 访问修饰符：抽象方法可以有public、protected和default这些修饰符，接口方法默认修饰符是public。你不可以使用其它修饰符。
-  6. main方法：抽象方法可以有main方法并且我们可以运行它，接口没有main方法，因此我们不能运行它。
-  7. 多继承：抽象类在java语言中所表示的是一种继承关系，一个子类只能存在一个父类，但是可以存在多个接口。
-  8. 添加新方法：如果你往抽象类中添加新的方法，你可以给它提供默认的实现。因此你不需要改变你现在的代码。如果你往接口中添加方法，那么你必须改变实现该接口的类。
-  
+# QA
 - 描述handler机制的原理
 android提供了Handler和Looper来满足线程间的通信。
 Handler先进先出原则。Looper类用来管理线程内对象之间的消息交换(Message Exchange)
@@ -90,6 +31,7 @@ Handler先进先出原则。Looper类用来管理线程内对象之间的消息�
   - Messenger:基于消息的进程间通信。
   - ContentProvider:专门用于不同应用间的数据共享
   - Socket：使用TCP和UDP协议进行网络通信
+  
     | 名称 |优点|缺点|使用场景 |
     | ---- | ---- | ---- | ---- |
     |Bundle|简单易用|只能传输Bundle支持的数据类型|四大组件间的进程间通信|
