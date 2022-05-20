@@ -22,8 +22,7 @@ Context类本身是一个纯abstract类。为了使用方便又定义Context包�
 
 ## 什么时候创建的Context
 
-每一个应用程序在客户端都是ActivityThread类开始的，创建Context对象也是在该类中完成，
-具体创建ContextImpl类的地方6处：
+每一个应用程序在客户端都是ActivityThread类开始的，创建Context对象也是在该类中完成，具体创建ContextImpl类的地方6处：
 
 - PackageInfo.makeApplication()
 - performLaunchActivity()
@@ -34,9 +33,27 @@ Context类本身是一个纯abstract类。为了使用方便又定义Context包�
 
 其中attach()方法仅在Framework进程启动时调用，应用程序运行时不会调用该方法。
 
+ContextWrapper
+```java
+public class ContextWrapper extends Context {
+	Context mBase;
+	public ContextWrapper(Context base)
+	{
+		mBase = base;
+	}
+	protected void attachBaseContext(Context base) {
+		if (mBase != null) {
+			throw new IllegalStateException("Base context already set");
+		}
+		mBase = base;
+} //其余的都是覆盖Context里面的方法 }
+
+```
+mBase其实就是ContextImpl，所以创建Impl并设置到对应的ContextWrapper  中，完成关联关系，是Context最终目标。
 ### Context与四大组件的关系
 
 #### Activity的创建流程
+继承ContextThemeWrapper，关于主题类的，Activity有界面。
 
 ```java
 public final class ActivityThread {
