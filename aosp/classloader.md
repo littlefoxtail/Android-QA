@@ -36,17 +36,17 @@ public class ClassLoader {
                 long t0 = System.nanoTime();
                 try {
                     if (parent != null) {
-                        // 在父类加载器上调用loadClass
+                        // parent不为空，在父类加载器上调用loadClass
                         c = parent.loadClass(name, false);
                     } else {
-                        // 使用虚拟机内置类加载器
+                        // parent为空，使用虚拟机内置类加载器(BootClassLoader)
                         c = findBootstrapClassOrNull(name);
                     }
                 } catch (ClassNotFoundException e) {
 
                 }
                 if (c == null) {
-                    // 还找不到就调用findClass
+                    // 还找不到就调用findClass自己去找
                     long t1 = System.nanoTime();
                     c = findClass(name);
                 }
