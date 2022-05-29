@@ -7,6 +7,7 @@ ActivityManagerService是贯穿Android系统组件的核心服务，在ServiceSe
 > ActivityManager相当于前台接待，她将客户的各种需求传达给大总管ActivityMangerService，但是大总管自己不干活，他招来了很多小弟，他最信赖的小弟ActivityThread替他完成真正的启动、切换、以及退出操作，至于其他的中间环节就交给ActivityStack、ActivityStarter等其他小弟来完成。
 
 ## 组件管家ActivityManagerService
+负责系统中四大组件的启动、切换、调度及应用进程的管理和调度等工作，其职责与操作系统中的进程管理和调度模块类似。
 
 ### ActivityManagerService的启动流程
 
