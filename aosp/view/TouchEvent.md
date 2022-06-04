@@ -1,6 +1,5 @@
 # Managing Touch Events in a ViewGroup
 
-## 图裂
 
 ![图裂](/img/function_touch.png)
 
@@ -23,7 +22,6 @@
 下表省略了 PhoneWidow 和 DecorView。
 
 > `√` 表示有该方法。
->
 > `X` 表示没有该方法。
 
 | 类型   | 相关方法                  | Activity | ViewGroup | View |作用|调用时刻|
@@ -39,6 +37,16 @@ PS: 从上表可以看到 Activity 和 View 都是没有事件拦截的，这是
 > Activity 作为原始的事件分发者，如果 Activity 拦截了事件会导致整个屏幕都无法响应事件，这肯定不是我们想要的效果。
 >
 > View最为事件传递的最末端，要么消费掉事件，要么不处理进行回传，根本没必要进行事件拦截。
+1. Activity
+	- ViewRootImpl中DecorView分发touch事件
+	- Activity的dispatchTouchEvent
+	- DecorView的superDispatchKeyEvent
+	- ViewGroup的dispatchTouchEvent
+2. ViewGroup
+	- dispatchTouchEvent
+		- onInterceptTouchEvent
+		- onTouchEvent
+3. 分发和消费两个方法，如果不处理这个事件，会被传递给父视图
 
 ### 在Native层android系统的事件流程：
 
@@ -166,27 +174,6 @@ Activity <－ PhoneWindow <－ DecorView <－ ViewGroup <－ ... <－ View
 ```java
 if (mFirstTouchTarget == null) {
     handled = dispatchTransformedTouchEvent(ev, canceled, null, TouchTarget.ALL_POINTER_IDS);
-}
-```
-
-ViewGroup@dispatchTransformedTouchEvent()
-
-```java
-private boolean dispatchTransformedTouchEvent(MotionEvent event, boolean cancel,
-                View child, int desiredPointerIdBits) {
-    final boolean handled;
-
-    final int oldAction = event.getAction()    ;
-    if (cancel || oldAction == MotionEvent.ACTION_CANCEL) {
-        event.setAction(MotionEvent.ACTION_CANCEL);
-        if (child == null) {
-            handled = super.dispatchTouchEvent(event);
-        } else {
-            handled = child.dispatchTouchEvent(event);
-        }
-        event.setAction(oldAction);
-        return handled;
-    }
 }
 ```
 
@@ -433,11 +420,154 @@ public boolean dispatchTouchEvent(MotionEvent ev) {
                 }
         }
         if (mFirstTouchTarget == null) {
+// 第三个参数为null， child = null
             handled = dispatchTransformedTouchEvent(ev, canceled, null, TouchTarget.ALL_POINTER_IDS);
         }
     }
 }
 ```
+### DOWN事件时进行初始化
+```java
+//1. DOWN事件进行初始化，清空 TouchTargets 和 TouchState
+//dispatchTouchEvent
+if (actionMasked == MotionEvent.ACTION_DOWN) {  
+
+	cancelAndClearTouchTargets(ev);  
+    resetTouchState();  
+}
+
+private void cancelAndClearTouchTargets(MotionEvent event) {  
+    if (mFirstTouchTarget != null) {  
+        boolean syntheticEvent = false;  
+        if (event == null) {  
+            final long now = SystemClock.uptimeMillis();  
+            event = MotionEvent.obtain(now, now,  
+                    MotionEvent.ACTION_CANCEL, 0.0f, 0.0f, 0);  
+            event.setSource(InputDevice.SOURCE_TOUCHSCREEN);  
+            syntheticEvent = true;  
+        }  
+  
+        for (TouchTarget target = mFirstTouchTarget; target != null; target = target.next) {  
+            resetCancelNextUpFlag(target.child);  
+            dispatchTransformedTouchEvent(event, true, target.child, target.pointerIdBits);  
+        }  
+        clearTouchTargets();  
+  
+        if (syntheticEvent) {  
+            event.recycle();  
+        }  
+    }}
+```
+
+```java
+private void clearTouchTargets() {  
+    TouchTarget target = mFirstTouchTarget;  
+    if (target != null) {  
+        do {  
+            TouchTarget next = target.next;  
+            target.recycle();  
+            target = next;  
+        } while (target != null);  
+        mFirstTouchTarget = null;  
+    }  
+}
+```
+一个事件列表是由一个ACTION_DOWN，零个或多个ACTION_MOVE和一个ACTION_UP组成的。
+用循环的方式把单链表*mFirstTouchTarget*给清空了。
+### 检查是否拦截
+```java
+final boolean intercepted;  
+if (actionMasked == MotionEvent.ACTION_DOWN  
+        || mFirstTouchTarget != null) { 
+		//这个标记是子View设置ViewGroup是否允许拦截的情况
+    final boolean disallowIntercept = (mGroupFlags & FLAG_DISALLOW_INTERCEPT) != 0;  
+    if (!disallowIntercept) {  
+        intercepted = onInterceptTouchEvent(ev);  
+        ev.setAction(action); 
+    } else {  
+        intercepted = false;  
+    }  
+} else {  
+    intercepted = true;  
+}
+```
+mFirstTouchTarget：
+-  如果intercepted为false，后面要又一个子View的dispatchTouchEvent方法在ACTION_DOWN时返回了true，那么会对mFirstTouchTarget进行赋值
+- 如果intercepted为true，那么后面就会对mFirstTouchTarget置为null。
+
+**总结，onInterceptTouchEvent一旦某一次返回了ture，那么后面的事件都不会再调用onInterceptTouchEvent进行是否拦截的判断，intercepted的值一直为true**
+### 处理DOWN事件
+```java
+//如果没有被拦截，先处理DOWN事件，主要赋值TouchTarget
+if (actionMasked == MotionEvent.ACTION_DOWN  
+        || (split && actionMasked == MotionEvent.ACTION_POINTER_DOWN)  
+        || actionMasked == MotionEvent.ACTION_HOVER_MOVE) {
+
+	for (int i = childrenCount - 1; i >= 0; i--) {  
+    final int childIndex = getAndVerifyPreorderedIndex(  
+            childrenCount, i, customOrder);  
+    final View child = getAndVerifyPreorderedView(  
+            preorderedList, children, childIndex);
+//找到Visible并且处于点击范围的子View
+	if (!child.canReceivePointerEvents()  
+        || !isTransformedTouchPointInView(x, y, child, null)) {  
+    ev.setTargetAccessibilityFocus(false);  
+    continue;  
+//相当于调用子View的dispatchTouchEvent
+	if (dispatchTransformedTouchEvent(ev, false, child, idBitsToAssign)) {  
+    // Child wants to receive touch within its bounds.  
+    mLastTouchDownTime = ev.getDownTime();  
+    if (preorderedList != null) {  
+        // childIndex points into presorted list, find original index  
+        for (int j = 0; j < childrenCount; j++) {  
+            if (children[childIndex] == mChildren[j]) {  
+                mLastTouchDownIndex = j;  
+                break;  
+            }  
+        }    } else {  
+        mLastTouchDownIndex = childIndex;  
+    }  
+    mLastTouchDownX = ev.getX();  
+    mLastTouchDownY = ev.getY();  
+    newTouchTarget = addTouchTarget(child, idBitsToAssign);  
+    alreadyDispatchedToNewTouchTarget = true;  
+    break;  
+}
+}
+}
+```
+遍历每一个满足条件（处于Visible状态并且处于点击范围内）的子View，调用了dispatchTransformedTouchEvent，返回值为true，则调用addTouchTarget方法对mFirstTouchTarget进行赋值
+```java
+private TouchTarget addTouchTarget(@NonNull View child, int pointerIdBits) {  
+    final TouchTarget target = TouchTarget.obtain(child, pointerIdBits);  
+    target.next = mFirstTouchTarget;  
+    mFirstTouchTarget = target;  
+    return target;  
+}
+```
+### ViewGroup@dispatchTransformedTouchEvent()
+```java
+private boolean dispatchTransformedTouchEvent(MotionEvent event, boolean cancel,
+                View child, int desiredPointerIdBits) {
+    final boolean handled;
+
+    final int oldAction = event.getAction()    ;
+    if (cancel || oldAction == MotionEvent.ACTION_CANCEL) {
+        event.setAction(MotionEvent.ACTION_CANCEL);
+//如果传入的child不为空，则调用child的dispatchTouchEvent方法，否则调用自身的dispatchTouchEvent方法
+        if (child == null) {
+            handled = super.dispatchTouchEvent(event);
+        } else {
+            handled = child.dispatchTouchEvent(event);
+        }
+        event.setAction(oldAction);
+        return handled;
+    }
+}
+```
+dispatchTransformedTouchEvent主要做了两件事：
+- 如果传入的事件是*ACTION_CANCEL*，或者cancel参数为true，则直接分发*ACTION_CANCEL*事件
+- 分发过程中，如果child为空，则调用当前View的super.dispatchTouchEvent方法
 
 ## 八、Activity对Touch事件的处理
 
