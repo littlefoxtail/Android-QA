@@ -17,6 +17,25 @@ public ViewRootImple(Context context, Display display) {
 ```
 
 ## 创建Choreographer
+线程单例，并且需要有looper与之绑定。
+```java
+private static final ThreadLocal<Choreographer> sThreadInstance =
+		new ThreadLocal<Choreographer>() {
+	@Override
+	protected Choreographer initialValue() {
+		Looper looper = Looper.myLooper();
+		if (looper == null) {
+			throw new IllegalStateException("The current thread must have a looper!");
+		}
+		Choreographer choreographer = new Choreographer(looper, VSYNC_SOURCE_APP);
+		if (looper == Looper.getMainLooper()) {
+			mMainInstance = choreographer;
+		}
+		return choreographer;
+	}
+};
+
+```
 
 ```java
 private Choreographer(Looper looper) {
@@ -34,6 +53,36 @@ private Choreographer(Looper looper) {
     }
 }
 ```
+
+## 创建DisplayEventReceiver
+通过注册native方法nativeInit去监听文件句柄，这样就建立了Vsync与Java层的通信通道。
+```java
+public DisplayEventReceiver(Looper looper, int vsyncSource, int eventRegistration) {
+	if (looper == null) {
+		throw new IllegalArgumentException("looper must not be null");
+	}
+
+	mMessageQueue = looper.getQueue();
+	mReceiverPtr = nativeInit(new WeakReference<DisplayEventReceiver>(this), mMessageQueue,
+			vsyncSource, eventRegistration);
+}
+
+```
+### 接收
+```java
+//DisplayEventReceiver
+public void onVsync(long timestampNanos, long physicalDisplayId, int frame, VsyncEventData vsyncEventData) {
+	Message msg = Message.obtain(mHandler, this);
+
+	msg.setAsynchronous(true);
+	mHandler.sendMessageAtTime(msg, timestampNanos / TimeUtils.NANOS_PER_MS);
+
+}
+
+```
+接收到msg时：
+
+[[choreographer#FrameHandler]]
 
 ## 添加回调
 
