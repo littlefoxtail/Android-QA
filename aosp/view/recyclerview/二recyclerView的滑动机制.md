@@ -1,4 +1,33 @@
 # 二RecyclerView的滑动机制
+## 事件拦截
+刚开始ACTION_DONW事件是传递给ItemView，后续的ACTION_MOVE事件，由于滑动距离大于了scaledTouchSlop（最小滑动距离），RecyclerView又将事件拦截下来，接着后续事件就交由RecyclerView来处理了。
+```java
+public boolean onInterceptTouchEvent(MotionEvent e) {
+	case MotionEvent.ACTION_MOVE: {
+		final int x = (int) (e.getX(index) + 0.5f);  
+		final int y = (int) (e.getY(index) + 0.5f);  
+		if (mScrollState != SCROLL_STATE_DRAGGING) {  
+		    final int dx = x - mInitialTouchX;  
+		    final int dy = y - mInitialTouchY;  
+		    boolean startScroll = false;  
+		    if (canScrollHorizontally && Math.abs(dx) > mTouchSlop) {  
+//水平滑动同时滑动值超过mTouchSlog
+		        mLastTouchX = x;  
+		        startScroll = true;  
+		    }  
+		    if (canScrollVertically && Math.abs(dy) > mTouchSlop) {  
+		        mLastTouchY = y;  
+		        startScroll = true;  
+		    }  
+		    if (startScroll) {  
+//会将状态设置成 滚动的
+		        setScrollState(SCROLL_STATE_DRAGGING);  
+		    }  
+		}
+	//Move事件，由RecyclerView拦截
+	return mScrollState == SCROLL_STATE_DRAGGING;
+	}
+```
 
 ## Move事件
 
