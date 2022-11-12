@@ -94,7 +94,7 @@ MVVM是一种架构模式，而DataBinding是一个实现数据和UI绑定的框
 
 > View:对应于Activity和XML，负责View的绘制以及与用户交互
 > Model：实体模型
-> ViewModel：负责完成View与Model间的交互，负责业务逻辑
+> ViewModel：负责完成View与Model间的交互，负责业务逻辑，是试图和业务逻辑的桥梁
 
 ### 数据驱动
 
