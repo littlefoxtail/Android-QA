@@ -439,13 +439,56 @@ if (!cancelDraw && !newSurface) {
 | View      | View SurfaceView 等  | 不含子View |
 | ViewGroup | ViewGroup xxLayout等 | 包含子View |
 
-### 自定义View流程
+# Resume中Measure View宽高不准确
+消息屏障：往消息队列头做一个消息，消息队列在循环过程中，只会执行异步的消息。
+```java
+void scheduleTraversals() {
+	if (!mTraversalScheduled) {
+		mTraversalScheduled = true;
+		mTraversalBarrier = mHandler.getLooper().getQueue().postSyncBarrier();
+		mChoreographer.postCallback(
+				Choreographer.CALLBACK_TRAVERSAL, mTraversalRunnable, null);
+		notifyRendererOfFramePending();
+		pokeDrawLockIfNeeded();
+	}
+}
 
-| 步骤   | 关键字           | 作用                           |
-| ---- | ------------- | ---------------------------- |
-| 1    | 构造函数          | View初始化                      |
-| 2    | onMeasure     | 测量View大小                     |
-| 3    | onSizeChanged | 确定View大小                     |
-| 4    | onLayout      | 确定子View布局(自定义View包含子View时有用) |
-| 5    | onDraw        | 实际绘制内容                       |
-| 6    | 提供接口          | 控制View或监听View某些状态。           |
+```
+所以在onResume时，handler消息获取View宽高，获取不到。
+但是View#post可以。
+```java
+public boolean post(Runnable action) {
+	final AttachInfo attachInfo = mAttachInfo;
+	if (attachInfo != null) {
+		return attachInfo.mHandler.post(action);
+	}
+
+	// Postpone the runnable until we know on which thread it needs to run.
+	// Assume that the runnable will be successfully placed after attach.
+	getRunQueue().post(action);
+	return true;
+}
+```
+走的是attachInfo为null的情况。
+```java
+//创建一个默认长度为4的HandlerAction的数组，用于保存post过来的任务。当View被真正attach到window上，就会执行过来的Runnable
+    private HandlerAction[] mActions;
+    private int mCount;
+
+    public void post(Runnable action) {
+        postDelayed(action, 0);
+    }
+
+    public void postDelayed(Runnable action, long delayMillis) {
+        final HandlerAction handlerAction = new HandlerAction(action, delayMillis);
+
+        synchronized (this) {
+            if (mActions == null) {
+                mActions = new HandlerAction[4];
+            }
+            mActions = GrowingArrayUtils.append(mActions, mCount, handlerAction);
+            mCount++;
+        }
+    }
+
+```
