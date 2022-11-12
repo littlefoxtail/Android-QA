@@ -102,6 +102,54 @@ shutdown()只是关闭了提交通道，用submit()是无效的；而内部该�
 shutdown()后，不能再提交新的任务进去；但是awaitTermination()后，可以继续提交
 awaitTermination()是阻塞的，返回结果是线程池是否已停止(true/false)；shutdown不阻塞
 
+# 清理工作
+主要做三件事：
+1. 维护Worker线程结束后的线程池状态，如移除Worker集合
+2. 检测线程池是否满足TIDYING状态，满足则调整状态触发terminated
+3. 线程池状态为RUNNING或SHUTDOWN
+	1. 任务执行异常引起的worker线程死亡
+	2. 线程数量为0，且任务队列不为空
+	3. 若不允许核心线程超时回收，线程数量少于核心线程时
+
+processWorkerExit 方法是为将要终结的Worker做一次清理和数据记录工作。
+```java
+private void processWorkerExit(Worker w, boolean completedAbruptly) {
+//因为抛出用户异常导致线程终结，直接使工作线程数-1
+	if (completedAbruptly) // If abrupt, then workerCount wasn't adjusted
+		decrementWorkerCount();
+
+	final ReentrantLock mainLock = this.mainLock;
+	mainLock.lock();
+	try {
+	//全局的已完成任务记录加上此将要终结的Worker中的已完成任务数
+		completedTaskCount += w.completedTasks;
+		//工作线程集合中移除此将要终结的Worker
+		workers.remove(w);
+	} finally {
+		mainLock.unlock();
+	}
+//尝试进入tidying状态
+	tryTerminate();
+
+	int c = ctl.get();
+	//若线程池为Running或shutdown
+	if (runStateLessThan(c, STOP)) {
+	//若由于任务执行异常引起则直接跳过，创建新的Worker代替
+		if (!completedAbruptly) {
+		//若允许核心线程超时回收，则最低线程数量为0，否则为核心线程数
+			int min = allowCoreThreadTimeOut ? 0 : corePoolSize;
+			
+			if (min == 0 && ! workQueue.isEmpty())
+				min = 1;
+			if (workerCountOf(c) >= min)
+				return; // replacement not needed
+		}
+		addWorker(null, false);
+	}
+}
+
+```
+
 ## 总结
 
 - 优雅的关闭，用shutdown()
