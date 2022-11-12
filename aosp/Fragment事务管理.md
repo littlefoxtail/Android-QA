@@ -43,6 +43,7 @@ int commitInternal(boolean allowStateLoss) {
 
 ```java
 // FragmentManager
+//添加一个任务到准备执行的队列中
 void enqueuAction(OpGenerator action, boolean allowStateLoss) {
     if (!allowStateLoss) {
         //状态丢失的异常检查
@@ -70,6 +71,9 @@ public boolean isStateSaved() {
 
 
 // FragmentManager
+//当一个人还没有被安排执行时，安排执行。
+//这应该发生在第一次被调用的时候，或者当一个被推迟的事物被启动用
+//startPostponedEnterTransition启动一个推迟的事务时，就会发生这种情况
 void scheduleCommit() {
     synchronized (mPendingActions) {
         boolean postponeReady =
@@ -87,6 +91,7 @@ void scheduleCommit() {
 ## ExecCommit
 
 ```java
+//只有在主线程中调用
 boolean execPendingActions(boolean allowStateLoss) {
     ensureExecReady(allowStateLoss);
 
@@ -166,6 +171,9 @@ void addBackStackState(BackStackRecord state) {
     //"回退栈" 就是mBackStack
     mBackStack.add(state);
 }
+```
+## 添加执行的任务
+```java
 
 /**
  * 该方法实际上是对records集合中所有动作的
@@ -173,6 +181,7 @@ void addBackStackState(BackStackRecord state) {
  * recordNum（需要操作的动作个数）的设置
  * 都会去调用executeOpsTogether方法
  */
+//移除多余的BackStackRecord操作并执行它们。这个方法合并了操作的近似记录，允许重新排序
 private void removeRedundantOperationsAndExecute(ArrayList<BackStackRecord> records, ArrayList<Boolean> isRecordPop) {
     executePostponedTransaction(records, isRecordPop);
     for (int recordNum = 0; recordNum < numRecords; recordNum++) {
@@ -200,6 +209,7 @@ private void removeRedundantOperationsAndExecute(ArrayList<BackStackRecord> reco
     }
 }
 
+//执行BackStackRecords列表的一个子集，所有的BackStackRecords要么允许重新排序，要么不允许排序
 private void executeOpsTogether(..) {
     for (int recordNum = startIndex; recordNum < endIndex; recordNum++) {
         final BackStackRecord record = records.get(recordNum);
@@ -220,6 +230,7 @@ private void executeOpsTogether(..) {
 
 ```java
 // FragmentManager
+//运行BackStackRecords中的操作，要么push 也么pop
 private static void executeOps(ArrayList<BackStackRecord> records, ArrayList<Boolean> isRecordPop, int startIndex, int endIndex) {
     for (int i = startIndex; i < endIndex; i++) {
         final BackStackRecord record = records.get(i);
