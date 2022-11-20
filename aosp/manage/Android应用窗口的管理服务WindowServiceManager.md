@@ -691,8 +691,69 @@ public final class ViewRootImpl implements ViewParent {
 
 WindowManager与WindowManagerService的跨进程通信。Android的各种服务都是基于C/S结构来设计的，系统层提供服务，应用层使用服务。
 WindowManager也是一样，它与WindowManagerService的通信都是通过WindowSession来完成的。
+#### WMS的添加过程
+调用了WMS的addWindow方法并将自身也就是Session传入了进去。
+```java
+//addWindow
+//对子窗口使用现有的父窗口令牌，因为它们与父窗口相同的令牌，因此使用相同的策略
+WindowToken token = displayContent.getWindowToken(
+                    hasParent ? parentWindow.mAttrs.token : attrs.token);
 
+if (token == null) {
+//如果是Application类型的窗口
+	if (!unprivilegedAppCanCreateTokenWith(parentWindow, callingUid, type,
+                        rootType, attrs.token, attrs.packageName)) {
+                    return WindowManagerGlobal.ADD_BAD_APP_TOKEN;
+	}
+}
+//创建WindowState
+final WindowState win = new WindowState(this, session, client, token, parentWindow,
+                    appOp[0], attrs, viewVisibility, session.mUid, userId,
+                    session.mCanAddInternalSystemWindow);
+//创建InputChannel，用来Input信息的接收和传递
+final boolean openInputChannels = (outInputChannel != null
+                    && (attrs.inputFeatures & INPUT_FEATURE_NO_INPUT_CHANNEL) == 0);
+            if  (openInputChannels) {
+                win.openInputChannel(outInputChannel);
+            }
+//将WindowState加入到windowMap中
+win.attach();
+mWindowMap.put(client.asBinder(), win);
+win.initAppOpsState();
+//将windowState对象添加到WindowToken中，将windowToken将作为WindowState的父容器
+displayPolicy.addWindowLw(win, attrs);
+//创建窗口动画
+final WindowStateAnimator winAnimator = win.mWinAnimator;
+            winAnimator.mEnterAnimationPending = true;
+            winAnimator.mEnteringAnimation = true;
+```
+主要做了如下工作：
+1. 对所有窗口在进行检查，不满足就不会去执行
+2. 对windowToken进行处理
+3. 创建windowState对象，并将其WindowToken相关联，让WindowToken成为WindowState对象的容器
+4. 更新焦点窗口以及更新InputWindow
 
+#### WindowToken创建
+WindowToken在里面的作用是作为WindowState的父容器，负责管理一组window。
+```java
+protected WindowToken(WindowManagerService service, IBinder _token, int type,  
+        boolean persistOnEmpty, DisplayContent dc, boolean ownerCanManageAppTokens,  
+        boolean roundedCornerOverlay, boolean fromClientToken, @Nullable Bundle options) {  
+    super(service);  
+//赋值
+    token = _token;  
+    windowType = type;  
+    mOptions = options;  
+    mPersistOnEmpty = persistOnEmpty;  
+    mOwnerCanManageAppTokens = ownerCanManageAppTokens;  
+    mRoundedCornerOverlay = roundedCornerOverlay;  
+    mFromClientToken = fromClientToken;  
+    if (dc != null) {  
+        dc.addWindowToken(token, this);  
+    }  
+}
+
+```
 ## 二 Window的删除流程
 
 ```java
