@@ -1,8 +1,47 @@
 要点：
 1. mContentParent：实际上是ActionBarOverlayLayout，是我们布局的直接父布局
 2. Activity的展示过程大概就是atms回掉activity的启动方法，然后会进行初始化PhoneWindow、DecorView。初始化完成后会等待wms回调onResume的逻辑处理。UI关键类ViewRootImpl，onResume中会进行activity以下五个回调方法的处理：onNewIntent、onActivityResult、onRestart、onStart、onResume
+# Window的初始化
+## PhoneWindow的初始化
+ActivitThread中的performLaunchActivity函数中，先创建了Activity，然后调用了Activity的attach函数。
+同时也创建了WindowManagerService并绑定到PhoneWindow。
+
+```java
+//ActivityThread#performLaunchActivity
+Activity activity = null;
+try {
+    java.lang.ClassLoader cl = appContext.getClassLoader();
+    if (appContext.getApplicationContext() instanceof Application) {
+        activity = ((Application) appContext.getApplicationContext())
+            .instantiateActivity(cl, component.getClassName(), r.intent);
+    }
+    if (activity == null) {
+        activity = mInstrumentation.newActivity(
+            cl, component.getClassName(), r.intent);
+    }
+    ...
+
+    if (activity != null) {
+        activity.attach(...)
+    }
+}
+```
+
+attach函数，先创建了PhoneWindow对象给了mWindow，然后调用其setWindowManager设置其WindowManager，最后调用mWindow的getWindowManager方法作为Activity的mWindowManager成员变量
+
+```java
+//初始化 PhoneWindow
+mWindow = new PhoneWindow(this, window, activityConfigCallback);
+mWindow.setWindowControllerCallback(this);
+mWindow.setCallback(this); 
+mWindow.setOnWindowDismissedCallback(this);
+mWindow.setWindowManager((WindowManager)context.getSystemService(Context.WINDOW_SERVICE), 
+    mToken, mComponent.flattenToString(), (info.flags & ActivityInfo.FLAG_HARDWARE_ACCELERATED) != 0);
+mWindowManager = mWindow.getWindowManager();
+```
 # setContentView流程
-PhoneWindow的setContentView函数会调用installDecor来创建DecorView对象
+## DecorView的创建
+PhoneWindow的setContentView函数会调用installDecor来创建DecorView对象。
 
 ```java
 public void setContentView(int layoutResId) {
@@ -45,42 +84,7 @@ protected DecorView generateDecor() {
     return new DecorVew(getContext, -1);
 }
 ```
-# PhoneWindow的初始化
-ActivitThread中的performLaunchActivity函数中，先创建了Activity，然后调用了Activity的attach函数
 
-```java
-//ActivityThread#performLaunchActivity
-Activity activity = null;
-try {
-    java.lang.ClassLoader cl = appContext.getClassLoader();
-    if (appContext.getApplicationContext() instanceof Application) {
-        activity = ((Application) appContext.getApplicationContext())
-            .instantiateActivity(cl, component.getClassName(), r.intent);
-    }
-    if (activity == null) {
-        activity = mInstrumentation.newActivity(
-            cl, component.getClassName(), r.intent);
-    }
-    ...
-
-    if (activity != null) {
-        activity.attach(...)
-    }
-}
-```
-
-attach函数，先创建了PhoneWindow对象给了mWindow，然后调用其setWindowManager设置其WindowManager，最后调用mWindow的getWindowManager方法作为Activity的mWindowManager成员变量
-
-```java
-//初始化 PhoneWindow
-mWindow = new PhoneWindow(this, window, activityConfigCallback);
-mWindow.setWindowControllerCallback(this);
-mWindow.setCallback(this); 
-mWindow.setOnWindowDismissedCallback(this);
-mWindow.setWindowManager((WindowManager)context.getSystemService(Context.WINDOW_SERVICE), 
-    mToken, mComponent.flattenToString(), (info.flags & ActivityInfo.FLAG_HARDWARE_ACCELERATED) != 0);
-mWindowManager = mWindow.getWindowManager();
-```
 # ActivityThread.handleResumeActivity 
 处理Activity可见生命周期
 ```java
@@ -197,7 +201,19 @@ mView.add(view);
 mRoots.add(root);
 mParams.add(wparams);
 ```
+### viewRootImpl构造函数
+```java
+    public ViewRootImpl(@UiContext Context context, Display display, IWindowSession session,
+            boolean useSfChoreographer) {
+        mContext = context;
+        mWindowSession = session;
+        mDisplay = display;
+        mBasePackageName = context.getBasePackageName();
+//会初始化属性-mThread
+        mThread = Thread.currentThread();
 
+```
+### setView
 在ViewRootImpl的setView函数中，先调用了requestLayout来绘制view，然后调用了mWindowSession的addToDisplay函数和WMS
 
 ```java
@@ -238,7 +254,25 @@ public int addToDisplay(IWindow window, int seq, WindowManager.LayoutParams attr
         return mService.addWindow(this, ...)
     }
 ```
+### updateViewLayout
+调用wm.addView之后执行了wm.updateViewLayout
+调用ViewRootImpl的setLayoutParams，最终执行到了ViewRootImpl的requestLayout
+```java
+public void requestLayout() {
+	if (!mHandlingLayoutInLayoutRequest) {
+		checkThread();
+		mLayoutRequested = true;
+		scheduleTraversals();
+	}
+}
+```
+
 # 总结
 1. handlerLaunchActivity->创建Activity的时候，会初始化PhoneWindow，PhoneWindow的子Viewe是DecorView。
 2. onCreate->setContentView->添加view，最终调用PhoneWinow.setContej hjntView，初始化DecorView，用于管理我们的view。
 3. onResume，会执行DecorView的显示逻辑，创建ViewRootImpl，将Window添加到IWindowManager服务中。
+## 生命周期对线程影响
+1. onCreate执行时，window已经被创建，成功绑定了WindowManagerService，此时还未创建DecorView
+2. setContentView执行，decorView被创建 ，可以处理View的逻辑并且没有线程检查。
+3. onResume执行时，ViewRootImpl也没有创建，也就没有线程检查。
+4. onResume执行后，ViewRootImpl被创建了，所以如果在子线程中更新View就会有线程检查，必然报错。
