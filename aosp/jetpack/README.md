@@ -1,6 +1,7 @@
 # Jetpack
 
 Android Jetpack组件是一个独立采用和构建的库集合，同时利用Kotlin语言功能，使您的工作效率更高。 全部使用它们或混合搭配！
+帮助开发者遵循最佳做法、减少样板代码
 
 ## Foundataion（基础）
 
@@ -29,3 +30,8 @@ Foundation组件提供核心系统功能，Kotlin扩展以及对multidex和自�
 ## UI
 
 用户界面组件使您可以轻松地使您的应用程序不仅易于使用，而且使用起来非常愉快。
+
+[[compose|compose的基本原理]]
+[[compose嵌套原生View的原理]]
+[[livedata]]
+[[viewpager2]]
