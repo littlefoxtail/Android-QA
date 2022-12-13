@@ -1,17 +1,22 @@
 # 字符串
+字符串常量会被存储在常量池中。在程序的整个生命周期内，所有对该字符串的引用都会指向同一个字符串对象。可以有效节省内存，提高程序的性能。
+使用双引号创建一个字符串，JVM首先在字符串中寻找具有相同值的字符串。如果找到了，它们就中池中返回字符串对象的引用。否则，它会在字符串池中创建字符串对象并返回引用。JVM通过在不同的线程中使用相同的String节省了大量的内存。
+如果使用new操作符来创建一个字符串，它将在堆内存中被创建。
 
 ## String、StringBuffer和StringBuilder
 
-||||
-|:--:|:--:|:--:|
-|String|字符串常量|-|JDK1.0|
-|StringBuilder|字符串变量|线程不安全|JDK1.5|
-|StringBuffer|字符串变量|线程安全|JDK1.0|
+| StringBuffer | StringBuilder   |
+| ------------ | --------------- |
+| Thread-safe  | not Thread-Safe |
+| 同步         | 不同步          |
+| java 1.0之后 | java 1.5之后    |
+| 慢           | 快      |
 
 ### String不可变
 
-虽然String、StringBuffer和StringBuilder都是final类，它们生成的对象都是不可变的，而且它们内部也都是靠char数组实现的，但是不同之处在于，String类中定义的char数组是final的，而StringBuffer和StringBuilder都是继承自AbstractStringBuilder类，它们的内部实现都是靠这个父类完成的，而这个父类中定义的char数组只是一个普通是私有变量，可以用append追加。因为AbstractStringBuilder实现了Appendable接口。
+String、StringBuffer和StringBuilder都是final类，它们生成的对象都是不可变的，而且它们内部也都是靠char数组实现的，但是不同之处在于，String类中定义的char数组是final的，而StringBuffer和StringBuilder都是继承自AbstractStringBuilder类，它们的内部实现都是靠这个父类完成的，而这个父类中定义的char数组只是一个普通是私有变量，可以用append追加。因为AbstractStringBuilder实现了Appendable接口。
 
+所以适合在多线程环境中使用。可以在不同函数中共享它，因为不存在数据不一致的问题。
 ### why String要设计成不可变
 
 1. 字符串常量
@@ -21,6 +26,7 @@
     字符串不变性保证了hash码的唯一性,因此可以放心地进行缓存.这也是一种性能优化手段,意味着不必每次都去计算新的哈希码.
 3. 安全性
     String被许多的Java类（库）用来当做参数，假若String不是固定不变的，将会引起各种安全隐患。
+
 
 ### 三者区别
 
