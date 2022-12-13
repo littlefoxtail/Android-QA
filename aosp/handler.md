@@ -1,11 +1,9 @@
-# Handler机制
-
+Android中线程通信的工具类。它可以在不同的线程之间发送和处理，从而有效地实现多线程编程。
 ![handle时序图](/img/handler时序图.png)
 
 ## looper循环处理消息队列
 
 主线程默认调用如下两个方法。如果在子线程使用handler就要在前后加入这两个方法，这样就会在子线程中轮询MessageQueue了
-
 ### looper.prepare()
 
 创建Looper对象，创建MessageQueue，并且Looper持有MessageQueue的引用，当前线程持有Looper对象引用
@@ -300,3 +298,224 @@ NativeMessageQueue::NativeMessageQueue() :
 ### 消息队列的循环
 
 循环过程将调用native方法`nativePollOnce`。
+# Framework中的消息队列
+> 用户空间会接收到来自内核空间的消息，从下图可知，这部分消息先被Native获知，所以：
+> 通过Native层建立消息队列，它拥有消息队列的各种基本能力。
+> 利用JNI打通Java层和Native层的Runtime屏障，在Java层映射出消息队列。
+> 应用建立在Java层之上，在Java层中实现消息的分发和处理。
+> 
+> 
+# 代码解析
+Native中的MessageQueue源码
+队列的创建：
+```cpp
+static jint android_os_MessageQueue_nativeInit(JNIEnv* env, jclass clazz) {
+    NativeMessageQueue* nativeMessageQueue = new NativeMessageQueue();
+    if (!nativeMessageQueue) {
+        jniThrowRuntimeException(env, "Unable to allocate native queue");
+        return 0;
+    }
+    nativeMessageQueue->incStrong(env);
+    return reinterpret_cast<jint>(nativeMessageQueue);
+}
+```
+创建一个Native层的消息队列，如果创建失败，抛异常信息，返回0
+
+---
+NativeMessageQueue类的构造函数：
+```cpp
+NativeMessageQueue::NativeMessageQueue() :
+	mPollEnv(NULL), mPollObj(NULL), mExceptionObj(NULL) {
+	mLooper = Looper::getForThread();
+	if (mLooper == NULL) {
+		mLooper = new Looper(false);
+		Looper::setForThread(mLooper);
+	}
+}
+```
+---
+Java层的MQ中会使用到的native方法
+
+```java
+class MessageQueue {
+    private long mPtr; // used by native code
+
+    private native static long nativeInit();
+
+    private native static void nativeDestroy(long ptr);
+
+    private native void nativePollOnce(long ptr, int timeoutMillis); /*non-static for callbacks*/
+
+    private native static void nativeWake(long ptr);
+
+    private native static boolean nativeIsPolling(long ptr);
+
+    private native static void nativeSetFileDescriptorEvents(long ptr, int fd, int events);
+}
+```
+## Native层Poll
+```cpp
+//Looper.h
+static void android_os_MessageQueue_nativePollOnce(JNIEnv* env, jobject obj, jlong ptr, jint timeoutMillis) {
+	NativeMessageQueue* nativeMessageQueue = reinterpret_cast<NativeMessageQueue*>(ptr);
+	nativeMessageQueue->pollOnce(env, obj, timeoutMillis);
+
+}
+
+void NativeMessageQueue::pollOnce(JNIEnv* env, jobject pollObj, int timeoutMillis) {
+	mPollEnv = env;
+	mPollObj = pollObj;
+	mLooper->pollOnce(timeoutMillis);
+	mPollObj = NULL;
+	mPollEnv = NULL;
+	if (mExceptionObj) {
+	
+		env->Throw(mExceptionObj);
+		
+		env->DeleteLocalRef(mExceptionObj);
+		
+		mExceptionObj = NULL;
+	
+	}
+
+}
+```
+实现：
+```cpp
+int Looper::pollOnce(int timeoutMillis, int* outFd, int* outEvents, void** outData) {
+    int result = 0;
+    for (;;) {
+        while (mResponseIndex < mResponses.size()) {
+            const Response& response = mResponses.itemAt(mResponseIndex++);
+            int ident = response.request.ident;
+            if (ident >= 0) {
+                int fd = response.request.fd;
+                int events = response.events;
+                void* data = response.request.data;
+#if DEBUG_POLL_AND_WAKE
+                ALOGD("%p ~ pollOnce - returning signalled identifier %d: "
+                        "fd=%d, events=0x%x, data=%p",
+                        this, ident, fd, events, data);
+#endif
+                if (outFd != NULL) *outFd = fd;
+                if (outEvents != NULL) *outEvents = events;
+                if (outData != NULL) *outData = data;
+                return ident;
+            }
+        }
+        if (result != 0) {
+#if DEBUG_POLL_AND_WAKE
+            ALOGD("%p ~ pollOnce - returning result %d", this, result);
+#endif
+            if (outFd != NULL) *outFd = 0;
+            if (outEvents != NULL) *outEvents = 0;
+            if (outData != NULL) *outData = NULL;
+            return result;
+        }
+        result = pollInner(timeoutMillis);
+    }
+}
+
+```
+
+pollInner获取消息：
+
+```java
+    Message next() {
+        // Return here if the message loop has already quit and been disposed.
+        // This can happen if the application tries to restart a looper after quit
+        // which is not supported.
+//如果native消息队列指针映射已经为0，即虚引用，说明消息队列已经退出
+        final long ptr = mPtr;
+        if (ptr == 0) {
+            return null;
+        }
+        int pendingIdleHandlerCount = -1; // -1 only during first iteration
+        int nextPollTimeoutMillis = 0;
+//2.死循环，当为获取到需要分发处理的消息时，保持空转
+        for (;;) {
+            if (nextPollTimeoutMillis != 0) {
+                Binder.flushPendingCommands();
+            }
+//3.调用native方法，poll message
+            nativePollOncej(ptr, nextPollTimeoutMillis);
+            synchronized (this) {
+                // Try to retrieve the next message.  Return if found.
+                final long now = SystemClock.uptimeMillis();
+                Message prevMsg = null;
+                Message msg = mMessages;
+//4.如果发现barrier，即同步屏障，则寻找队列中的下一个可能存在的异步消息
+                if (msg != null && msg.target == null) {
+                    do {
+                        prevMsg = msg;
+                        msg = msg.next;
+                    } while (msg != null && !msg.isAsynchronous());
+                }
+                if (msg != null) {
+//5.发现了消息，如果还没有到约定时间的消息，则设置一个“下次唤醒”的最大时间差
+                    if (now < msg.when) {
+                        nextPollTimeoutMillis = (int) Math.min(msg.when - now, Integer.MAX_VALUE);
+                    } else {
+//寻找到了“到处理时间”的消息，维护单链表消息
+                        mBlocked = false;
+                        if (prevMsg != null) {
+                            prevMsg.next = msg.next;
+                        } else {
+                            mMessages = msg.next;
+                        }
+                        msg.next = null;
+                        if (DEBUG) Log.v(TAG, "Returning message: " + msg);
+                        msg.markInUse();
+                        return msg;
+                    }
+                } else {
+                    // No more messages.
+                    nextPollTimeoutMillis = -1;
+                }
+                // Process the quit message now that all pending messages have been handled.
+                if (mQuitting) {
+                    dispose();
+                    return null;
+                }
+                // If first time idle, then get the number of idlers to run.
+                // Idle handles only run if the queue is empty or if the first message
+                // in the queue (possibly a barrier) is due to be handled in the future.
+                if (pendingIdleHandlerCount < 0
+                        && (mMessages == null || now < mMessages.when)) {
+                    pendingIdleHandlerCount = mIdleHandlers.size();
+                }
+                if (pendingIdleHandlerCount <= 0) {
+                    // No idle handlers to run.  Loop and wait some more.
+                    mBlocked = true;
+                    continue;
+                }
+                if (mPendingIdleHandlers == null) {
+                    mPendingIdleHandlers = new IdleHandler[Math.max(pendingIdleHandlerCount, 4)];
+                }
+                mPendingIdleHandlers = mIdleHandlers.toArray(mPendingIdleHandlers);
+            }
+            // Run the idle handlers.
+            // We only ever reach this code block during the first iteration.
+            for (int i = 0; i < pendingIdleHandlerCount; i++) {
+                final IdleHandler idler = mPendingIdleHandlers[i];
+                mPendingIdleHandlers[i] = null; // release the reference to the handler
+                boolean keep = false;
+                try {
+                    keep = idler.queueIdle();
+                } catch (Throwable t) {
+                    Log.wtf(TAG, "IdleHandler threw exception", t);
+                }
+                if (!keep) {
+                    synchronized (this) {
+                        mIdleHandlers.remove(idler);
+                    }
+                }
+            }
+            // Reset the idle handler count to 0 so we do not run them again.
+            pendingIdleHandlerCount = 0;
+            // While calling an idle handler, a new message could have been delivered
+            // so go back and look again for a pending message without waiting.
+            nextPollTimeoutMillis = 0;
+        }
+    }
+```
