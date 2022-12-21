@@ -1,5 +1,26 @@
 # 同步
 
+几种同步方式：
+1. 使用`synchronized`关键字：可以在方法或代码块中使用，以防止多个线程同时访问共享资源。
+2. 使用`java.util.concurrent`包中的锁：提供了不同类型的锁，如`ReentrantLock`和`ReadWriteLock`，可以用于同步线程。
+3. 使用`java.util.concurrent`包中的信号量：信号量可以用于限制可以访问某些资源的线程数。
+4. 使用`java.util.concurrent.atomic`包中的原子类：原子类提供了一组线程安全的变量，可以用于多线程环境中进行原子操作。
+
+通常情况下的使用的同步方法：
+1.  使用`synchronized`关键字：
+	- 当您需要将方法或代码块完全保护起来，以防止多个线程同时访问时，可以使用`synchronized`关键字。
+	- 当您需要在线程之间传递信息或数据时，可以使用`synchronized`关键字。
+
+2.  使用`java.util.concurrent`包中的锁：
+	- 当您需要更精细的控制来同步线程时，可以使用`java.util.concurrent`包中的锁。 例如，可以使用`ReentrantLock`来实现可重入的互斥锁。
+	- 当您需要在读和写操作之间同步线程时，可以使用`ReadWriteLock`。
+
+3.  使用`java.util.concurrent`包中的信号量：
+	-  当您需要限制可以访问某些资源的线程数时，可以使用信号量。 例如，您可以使用信号量来限制对数据库的并发访问。
+
+4.  使用`java.util.concurrent.atomic`包中的原子类：
+	- 当您需要在多线程环境中进行原子操作时，可以使用原子类。 例如，您可以使用`AtomicInteger`来实现线程安全的计数器。
+
 [死锁](deadlock.md)
 [ReentrantLock](reentrantLock.md)
 [Synchronized](synchronized.md)
