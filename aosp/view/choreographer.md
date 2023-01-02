@@ -1,6 +1,12 @@
+用来管理和调度界面渲染的组件。它主要负责以下几个方面的工作：
+1. 调度界面刷新：Choreographer 会按照固定的刷新频率（通常是60HZ），调度界面的刷新。这样就能保证界面流畅的渲染效果。
+2. 管理动画：Choreographer 还负责管理和调度动画，确保动画的流畅性。
+3. 处理输入事件：Choreographer 会监听和处理输入事件，并将这些事件转发给对应的 View。
+4. 控制帧率：Choreographer 还可以控制帧率，在设备资源紧张的情况下，通过降低帧率来节省资源。
+
 # Choreographer
 
-Android每隔16.6ms会刷新一次屏幕，也就是每过16.6ms底层会发出一个屏幕刷新信号，当我们的app接收到这个屏幕刷新信号时，就会去计算屏幕数据，也就是我们常说的测量、布局、绘制三大流程。这整个过程关键的一点，app需要先向底层注册监听下一个屏幕刷新信号事件，这样当底层发出刷新信号时，才可以找到上层app并回调它的方法来通知事件到达了，app才可以接着去做计算屏幕数据之类的工作。
+Android每隔16.6ms会刷新一次屏幕，也就是每过16.6ms底层会发出一个屏幕刷新信号，当我们的app接收到这个屏幕刷新信号时，就会去计算屏幕数据，也就是我们常说的测量、布局、绘制三大流程。这整个过程关键的一点，app需要先向底层注册监听下一个屏幕刷新信号事件，这样当底层发出刷新信号时，才可以找到上层app并回调它的方法来通知事件到达了，app才可以接着去做计算屏幕数据之类的工作。
 
 Choreographer是线程单例的，而且必须要和一个Looper绑定，因为其内部有一个Handler需要和Looper绑定
 
@@ -258,10 +264,12 @@ public class Choreographer {
 ```
 
 ## doFrame
-
-- mFrameIntervalNanos代表两帧之间的刷新时间，一般等于16.7ms
-- mLastFrameTimeNanos：指的上一次帧绘制时间点
-
+是 Choreographer 的主要执行方法，用于处理动画、输入事件和新一帧的渲染。
+1. 使用系统时钟和 Choreographer 的帧间隔计算上一帧绘制以来的过去时间。
+	- mFrameIntervalNanos代表两帧之间的刷新时间，一般等于16.7ms
+	- mLastFrameTimeNanos：指的上一次帧绘制时间点
+2. 调用适当的回调来动画和绘制当前帧。使用 addFrameCallback()方法向Choreographer注册这些回调。
+3. 将消息发布到自己，以安排下一帧的绘制。该消息被发送到 Choreographer 的处理程序，在 Choreographer 的消息循环的下一次迭代中被处理。
 ```java
 void doFrame(long frameTimeNanos, int frame) {
     final long startNanos;
@@ -300,7 +308,8 @@ void doFrame(long frameTimeNanos, int frame) {
 - view布局和绘制;
 
 ## doCallbacks
-
+用于执行回调的方法。它的主要功能是调用所有在给定类型的回调队列中注册的回调。mCallbackQueue[]。
+方法接收两个参数
 ```java
 public class Choreographer {
     void doCallbacks(int callbackType, long frameTimeNanos) {
