@@ -1,4 +1,8 @@
 # OkHttp
+- 支持HTTP/2、允许链接到同一主机的请求公用一个Socket
+- 如果HTTP/2不可用，通过连接池减少请求的延迟
+- 通过GZIP压缩减少传输数据的大小
+- 通过缓存避免了网络重复请求
 
 OkHttp的内部实现通过一个责任链模式完成，将网络请求的各个阶段封装到各个链条中，实现各层解耦。
 
@@ -71,4 +75,83 @@ private fun promoteAndExecute(): Boolean {
 
 ```kt
 inter
+```
+# 责任链和拦截器
+真正核心的是它的拦截器。它不仅负责OkHttp的核心功能。而且还提供了一些用户自定义的功能。
+interceptor是一个接口，只定义了一个方法intercept(Chain chain)和一个内部接口。
+```kotlin
+  @Throws(IOException::class)
+  internal fun getResponseWithInterceptorChain(): Response {
+    // Build a full stack of interceptors.
+    val interceptors = mutableListOf<Interceptor>()
+    interceptors += client.interceptors
+    interceptors += RetryAndFollowUpInterceptor(client)
+    interceptors += BridgeInterceptor(client.cookieJar)
+    interceptors += CacheInterceptor(client.cache)
+    interceptors += ConnectInterceptor
+    if (!forWebSocket) {
+      interceptors += client.networkInterceptors
+    }
+    interceptors += CallServerInterceptor(forWebSocket)
+
+    val chain = RealInterceptorChain(
+      call = this,
+      interceptors = interceptors,
+      index = 0,
+      exchange = null,
+      request = originalRequest,
+      connectTimeoutMillis = client.connectTimeoutMillis,
+      readTimeoutMillis = client.readTimeoutMillis,
+      writeTimeoutMillis = client.writeTimeoutMillis
+    )
+
+    var calledNoMoreExchanges = false
+    try {
+      val response = chain.proceed(originalRequest)
+      if (isCanceled()) {
+        response.closeQuietly()
+        throw IOException("Canceled")
+      }
+      return response
+    } catch (e: IOException) {
+      calledNoMoreExchanges = true
+      throw noMoreExchanges(e) as Throwable
+    } finally {
+      if (!calledNoMoreExchanges) {
+        noMoreExchanges(null)
+      }
+    }
+  }
+
+```
+将所有的interceptor作为一个集合，并创建一个RealInterceptorChain对象，然后执行它的proceed方法。
+```kotlin
+@Throws(IOException::class)  
+override fun proceed(request: Request): Response {  
+  check(index < interceptors.size)  
+  
+  calls++  
+  
+  if (exchange != null) {  
+    check(exchange.finder.routePlanner.sameHostAndPort(request.url)) {  
+      "network interceptor ${interceptors[index - 1]} must retain the same host and port"    }  
+    check(calls == 1) {  
+      "network interceptor ${interceptors[index - 1]} must call proceed() exactly once"    }  
+  }  
+  
+  // Call the next interceptor in the chain.  
+  val next = copy(index = index + 1, request = request)  
+  val interceptor = interceptors[index]  
+  
+  @Suppress("USELESS_ELVIS")  
+  val response = interceptor.intercept(next) ?: throw NullPointerException(  
+      "interceptor $interceptor returned null")  
+  
+  if (exchange != null) {  
+    check(index + 1 >= interceptors.size || next.calls == 1) {  
+      "network interceptor $interceptor must call proceed() exactly once"    }  
+  }  
+  
+  return response  
+}
 ```

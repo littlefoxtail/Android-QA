@@ -1,13 +1,17 @@
 # 第三方库
 
-- [mvp和mvvp的差异化](MVX.md)
+- [MVX](MVX.md)
 - [LeakCanary](leakcanary.md)
-- [图片框架glide](图片框架.md)
+- [图片框架glide的缓存机制](glide的缓存机制.md)
+- [[glide]]
 - [virtualApk](virtualAPK.md)
 - [插件化问题汇总](插件化问题汇总.md)
 - [ARouter](ARouter.md)
 - [插件化资源处理](resources.md)
 - [Shadow](shadow.md)
+- [[Multidex]]
+- [[dex2oat]]
+- [[加载大图]]
 
 - TODO
   - [retrofit的源码](retrofit.md)
@@ -18,3 +22,4 @@
   - [LruCache](LruCache.md)
   - [MVX](MVX.md)
   - [retrofit](retrofit.md)
+  - [[okhttp]]
