@@ -1,6 +1,6 @@
 # Android-QA
 
-该库复活了，还是需要一个本地的知识网络，Obsidian值得选择。
+最好用Obsidian打开，这是一个双链的笔记本。
 
 - [网络通信](network/README.md)
 - [AOSP](aosp/README.md)
