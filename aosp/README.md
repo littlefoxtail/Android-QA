@@ -2,9 +2,8 @@
 
 - [View相关](view/README.md)
 - [Jetpack](jetpack/README.md)
-- [Android的窗口管理](manage/README.md)
+- [Android的窗口管理](window/README.md)
 - [ClassLoader](classloader.md)
-- [WebView遇到的一些问题和总结](webView性能优化.md)
 - [Handler](handler.md)
 - [应用中的Context](context.md)
 - [LayoutInflater如何加载布局的](layoutinflater.md)
@@ -12,21 +11,15 @@
 - [Material Style](color_resource.md)
 - [Android在编码的时候经常使用到位运算](androidbit.md)
 - [四大组件](component/README.md)
-- [Binder](进程间通信/binder.md)
+- [进程间通信](ipc/README.md)
 - [清单文件](manifest.md)
-- [安卓内存泄露](memoryleak.md)
+- [性能与稳定性](performance/README.md)
+- [mmap](mmap.md)
 - [Window的源码](window.md)
-- [理解AndroidCrash处理流程](理解AndroidCrash处理流程.md)
-- [Application not responding](applicationnotresponding.md)
 
 - TODO
-  - [Fragment](fragment.md)
   - [Interpolator](Interpolator.md)
-  - [Android性能调优](performance.md)
-  - [自定义View的步骤](customView.md)
-  - [对话框的源码分析](dialog.md)
   - [PriotiryBlockingQueue队列源码分析](priotiryblockingqueue.md)
-  - [彻底理解ANR应用无响应机制](彻底理解安卓应用无响应机制.md)
   - [注解处理器](annotationprocessingtools.md)
   - [Java依赖注入规范](JSR330.md)
 
@@ -69,8 +62,8 @@ android系统底层采用Linux作为基底，上层采用包含虚拟机的Java�
 
 #### binder
 
-- [binder的理解](binder.md)
-- [framework层binder](framework层binder.md)
+- [binder的理解](ipc/binder.md)
+- [framework层binder](ipc/framework层binder.md)
 
 #### Socket
 
