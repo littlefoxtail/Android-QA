@@ -6,7 +6,10 @@
 - [AOSP](aosp/README.md)
 - [第三方库](third/README.md)
 - [Java](java/README.md)
+- [Kotlin](kotlin/README.md)
+- [架构](architecture/README.md)
 - [设计模式](pattern/pattern.md)
+- [工具](tools/README.md)
 - [[now in android|官方架构]]
 
 
